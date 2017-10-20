@@ -5,10 +5,11 @@ require 'method_source'
 
 module Rubyremote
   class ExecutionContext
-    attr_reader :server
+    attr_reader :server, :working_dir
 
-    def initialize(server)
+    def initialize(server, working_dir)
       @server = server
+      @working_dir = working_dir
     end
 
     def id
@@ -47,7 +48,10 @@ module Rubyremote
     def execute_code(ruby_code)
       res = nil
 
-      Open3.popen3('ssh', server, 'ruby') do |stdin, stdout, stderr, wait_thr|
+      remote_command = "\"cd #{working_dir} && ruby\""
+      command = "ssh #{server} #{remote_command}"
+
+      Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
         code = compile(ruby_code)
         # puts code
 
@@ -64,7 +68,7 @@ module Rubyremote
 
             break
           else
-            puts line
+            puts "> #{line}"
           end
         end
 
