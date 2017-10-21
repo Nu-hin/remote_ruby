@@ -17,23 +17,31 @@ module Rubyremote
     end
 
     def compile(ruby_code)
-      <<-RUBY
+      body = <<-RUBY
+        __context_id__ = #{id}
+
         __return_val__#{id} = begin
           # Start of client code
           #{ruby_code}
           # End of client code
         end
-
-        # Marshalling local variables and result
-        lv_hash = Hash[local_variables.map do |lv|
-          [lv.to_s, eval(lv.to_s)]
-        end]
-
-        puts "%%%MARSHAL_#{id}"
-        STDOUT.write(Marshal.dump(lv_hash))
       RUBY
-    end
 
+      footer = <<-'RUBY'
+        # Marshalling local variables and result
+
+        puts "%%%MARSHAL_#{__context_id__}"
+
+        local_variables.each do |lv|
+          data = Marshal.dump(eval(lv.to_s))
+          data_length = data.size
+          puts "#{lv}:#{data_length}"
+          STDOUT.write(data)
+        end
+      RUBY
+
+      body + footer
+    end
 
     def execute(&bl)
       execute_code(parse_block(bl.source))
@@ -53,17 +61,28 @@ module Rubyremote
 
       Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
         code = compile(ruby_code)
-        # puts code
 
         stdin.write(code)
         stdin.close
 
         until stdout.eof?
           line = stdout.readline
+          locals = {}
 
           if line.start_with?("%%%MARSHAL_#{id}")
-            rest = stdout.read
-            locals = Marshal.load(rest)
+            until stdout.eof?
+              line = stdout.readline
+              varname, length = line.split(':')
+              length = length.to_i
+              data = stdout.read(length)
+
+              begin
+                locals[varname] = Marshal.load(data)
+              rescue ArgumentError
+                locals[varname] = nil
+              end
+            end
+
             res = locals["__return_val__#{id}"]
 
             break
