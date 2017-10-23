@@ -1,8 +1,7 @@
-require 'open3'
-require 'base64'
 require 'method_source'
 require 'colorize'
 require 'rubyremote/compiler'
+require 'rubyremote/connection_adapter'
 
 module Rubyremote
   class ExecutionContext
@@ -34,10 +33,9 @@ module Rubyremote
     def execute_code(ruby_code, client_locals = {})
       res = nil
 
-      remote_command = "\"cd #{working_dir} && ruby\""
-      command = "ssh #{server} #{remote_command}"
+      adapter = Rubyremote::ConnectionAdapter.new(server, working_dir)
 
-      Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+      adapter.open do |stdin, stdout, stderr|
         compiler = Rubyremote::Compiler.new
         code = compiler.compile(ruby_code, id, **client_locals)
         # puts code
@@ -64,8 +62,6 @@ module Rubyremote
             end
 
             res = locals["__return_val__#{id}"]
-
-            break
           else
             puts "#{name.green}>\t#{line}"
           end
