@@ -20,10 +20,8 @@ module Rubyremote
       code = StringIO.new
       code.puts("require('base64')")
 
-      if client_locals.any?
-        code.puts "CLIENT_LOCALS_NAMES = %i(#{client_locals.keys.join(' ')})"
-        code.puts "MARSHALLED_LOCALS_NAMES = CLIENT_LOCALS_NAMES + [:__return_val__#{id}]"
-      end
+      code.puts "CLIENT_LOCALS_NAMES = %i(#{client_locals.keys.join(' ')})"
+      code.puts "MARSHALLED_LOCALS_NAMES = CLIENT_LOCALS_NAMES + [:__return_val__#{id}]"
 
       client_locals.each do |name, data|
         bin_data = Marshal.dump(data)
