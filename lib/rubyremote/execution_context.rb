@@ -2,6 +2,7 @@ require 'method_source'
 require 'colorize'
 require 'rubyremote/compiler'
 require 'rubyremote/connection_adapter'
+require 'rubyremote/unmarshaler'
 
 module Rubyremote
   class ExecutionContext
@@ -13,6 +14,7 @@ module Rubyremote
     end
 
     def id
+
       self.hash.abs
     end
 
@@ -31,36 +33,23 @@ module Rubyremote
     end
 
     def execute_code(ruby_code, client_locals = {})
+      compiler = Rubyremote::Compiler.new
+      code = compiler.compile(ruby_code, id, **client_locals)
+
       res = nil
 
       adapter = Rubyremote::ConnectionAdapter.new(server, working_dir)
 
       adapter.open do |stdin, stdout, stderr|
-        compiler = Rubyremote::Compiler.new
-        code = compiler.compile(ruby_code, id, **client_locals)
-        # puts code
         stdin.write(code)
         stdin.close
 
         until stdout.eof?
           line = stdout.readline
-          locals = {}
 
           if line.start_with?("%%%MARSHAL_#{id}")
-            until stdout.eof?
-              line = stdout.readline
-              varname, length = line.split(':')
-              length = length.to_i
-              data = stdout.read(length)
-
-              begin
-                locals[varname] = Marshal.load(data)
-              rescue ArgumentError
-                STDERR.puts("Warning: could not resolve type for #{varname} variable")
-                locals[varname] = nil
-              end
-            end
-
+            unmarshaler = Rubyremote::Unmarshaler.new
+            locals = unmarshaler.unmarshal(stdout)
             res = locals["__return_val__#{id}"]
           else
             puts "#{name.green}>\t#{line}"
