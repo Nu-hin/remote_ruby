@@ -8,7 +8,7 @@ module Rubyremote
   class ExecutionContext
     attr_reader :server, :working_dir
 
-    def initialize(server, working_dir)
+    def initialize(server, working_dir: )
       @server = server
       @working_dir = working_dir
     end

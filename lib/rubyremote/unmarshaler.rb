@@ -19,7 +19,7 @@ module Rubyremote
         begin
           res[varname] = Marshal.load(data)
         rescue ArgumentError => e
-          fail UnmarshalError("Could not resolve type for #{varname} variable: #{e.message}")
+          fail UnmarshalError, "Could not resolve type for #{varname} variable: #{e.message}"
         end
       end
 
