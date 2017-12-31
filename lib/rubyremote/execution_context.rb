@@ -3,7 +3,6 @@ require 'colorize'
 require 'rubyremote/compiler'
 require 'rubyremote/connection_adapter'
 require 'rubyremote/unmarshaler'
-require 'rubyremote/cacher'
 require 'digest'
 
 module Rubyremote
@@ -51,7 +50,7 @@ module Rubyremote
           connection_name: adapter.connection_name,
           cache_path: context_hash(code_hash))
       else
-        ::Rubyremote::Cacher.new(context_hash(code_hash), adapter)
+        ::Rubyremote::CachingAdapter.new(context_hash(code_hash), adapter)
       end
 
       adapter.open do |stdin, stdout, stderr|

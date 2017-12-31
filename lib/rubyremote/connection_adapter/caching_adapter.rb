@@ -1,7 +1,7 @@
 require 'rubyremote/stream_cacher'
 
 module Rubyremote
-  class Cacher < ConnectionAdapter
+  class CachingAdapter < ConnectionAdapter
     def initialize(cache_path, streamer)
       @cache_path = cache_path
       @streamer = streamer

@@ -22,3 +22,4 @@ end
 require 'rubyremote/connection_adapter/local_stdin_adapter'
 require 'rubyremote/connection_adapter/ssh_stdin_adapter'
 require 'rubyremote/connection_adapter/cache_adapter'
+require 'rubyremote/connection_adapter/caching_adapter'
