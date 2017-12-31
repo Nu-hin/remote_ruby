@@ -2,13 +2,13 @@ require 'rubyremote/stream_cacher'
 
 module Rubyremote
   class CachingAdapter < ConnectionAdapter
-    def initialize(cache_path, streamer)
+    def initialize(cache_path, adapter)
       @cache_path = cache_path
-      @streamer = streamer
+      @adapter = adapter
     end
 
     def connection_name
-      streamer.connection_name
+      adapter.connection_name
     end
 
     def open
@@ -17,7 +17,7 @@ module Rubyremote
       stderr_cache = File.open(stderr_file_path, 'w')
       stdout_cache = File.open(stdout_file_path, 'w')
 
-      streamer.open do |stdin, stdout, stderr|
+      adapter.open do |stdin, stdout, stderr|
         yield stdin,
           ::Rubyremote::StreamCacher.new(stdout, stdout_cache),
           ::Rubyremote::StreamCacher.new(stderr, stderr_cache)
@@ -29,7 +29,7 @@ module Rubyremote
 
     private
 
-    attr_reader :cache_path, :streamer
+    attr_reader :cache_path, :adapter
 
     def stdout_file_path
       "#{cache_path}.stdout"

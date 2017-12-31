@@ -1,19 +1,18 @@
 require 'method_source'
 require 'colorize'
+require 'digest'
+
 require 'rubyremote/compiler'
 require 'rubyremote/connection_adapter'
 require 'rubyremote/unmarshaler'
-require 'digest'
 
 module Rubyremote
   class ExecutionContext
     def initialize(params = {})
+      @use_cache = params.delete(:use_cache) || false
+      @save_cache = params.delete(:save_cache) || false
       @adapter_name = params.delete(:adapter) || :ssh_stdin
       @params = params
-    end
-
-    def id
-      self.hash.abs
     end
 
     def execute(locals = {}, &block)
@@ -45,12 +44,14 @@ module Rubyremote
 
       adapter = Rubyremote::ConnectionAdapter.build(adapter_name, params)
 
-      adapter = if cache_exists?(code_hash)
+      adapter = if use_cache && cache_exists?(code_hash)
         ::Rubyremote::CacheAdapter.new(
           connection_name: adapter.connection_name,
           cache_path: context_hash(code_hash))
-      else
+      elsif save_cache
         ::Rubyremote::CachingAdapter.new(context_hash(code_hash), adapter)
+      else
+        adapter
       end
 
       adapter.open do |stdin, stdout, stderr|
@@ -80,6 +81,6 @@ module Rubyremote
 
     private
 
-    attr_reader :params, :adapter_name
+    attr_reader :params, :adapter_name, :use_cache, :save_cache
   end
 end
