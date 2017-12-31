@@ -14,10 +14,11 @@ module Rubyremote
     end
 
     def connection_name
-      raise NotImplementedException
+      raise NotImplementedError
     end
   end
 end
 
 require 'rubyremote/connection_adapter/local_stdin_adapter'
 require 'rubyremote/connection_adapter/ssh_stdin_adapter'
+require 'rubyremote/connection_adapter/cache_adapter'
