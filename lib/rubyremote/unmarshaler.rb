@@ -2,11 +2,11 @@ module Rubyremote
   class Unmarshaler
     UnmarshalError = Class.new(StandardError)
 
-    def unmarshal(io, terminator = nil)
+    def unmarshal(stream, terminator = nil)
       res = {}
 
-      until io.eof?
-        line = io.readline
+      until stream.eof?
+        line = stream.readline
 
         if terminator && line == terminator
           break
@@ -14,7 +14,7 @@ module Rubyremote
 
         varname, length = line.split(':')
         length = length.to_i
-        data = io.read(length)
+        data = stream.read(length)
 
         begin
           res[varname] = Marshal.load(data)

@@ -66,7 +66,7 @@ module Rubyremote
             locals = unmarshaler.unmarshal(stdout)
             res = locals["__return_val__"]
           else
-            puts "#{adapter.connection_name.green}>\t#{line}"
+            STDOUT.puts "#{adapter.connection_name.green}>\t#{line}"
           end
         end
 
