@@ -6,20 +6,13 @@ require 'rubyremote/unmarshaler'
 
 module Rubyremote
   class ExecutionContext
-    attr_reader :server, :working_dir
-
-    def initialize(server, working_dir: )
-      @server = server
-      @working_dir = working_dir
+    def initialize(params = {})
+      @adapter_name = params.delete(:adapter) || :ssh_stdin
+      @params = params
     end
 
     def id
-
       self.hash.abs
-    end
-
-    def name
-      "#{server}:#{working_dir}"
     end
 
     def execute(locals = {}, &block)
@@ -38,7 +31,7 @@ module Rubyremote
 
       res = nil
 
-      adapter = Rubyremote::ConnectionAdapter.new(server, working_dir)
+      adapter = Rubyremote::ConnectionAdapter.build(adapter_name, params)
 
       adapter.open do |stdin, stdout, stderr|
         stdin.write(code)
@@ -52,17 +45,21 @@ module Rubyremote
             locals = unmarshaler.unmarshal(stdout)
             res = locals["__return_val__#{id}"]
           else
-            puts "#{name.green}>\t#{line}"
+            puts "#{adapter.connection_name.green}>\t#{line}"
           end
         end
 
         until stderr.eof?
           line = stderr.readline
-          STDERR.puts "#{name.red}>\t#{line}"
+          STDERR.puts "#{adapter.connection_name.red}>\t#{line}"
         end
       end
 
       res
     end
+
+    private
+
+    attr_reader :params, :adapter_name
   end
 end

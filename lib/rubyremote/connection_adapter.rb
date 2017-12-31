@@ -1,28 +1,23 @@
-require 'open3'
-
 module Rubyremote
   class ConnectionAdapter
     attr_reader :server, :working_dir
 
-    def initialize(server, working_dir)
-      @server = server
-      @working_dir = working_dir
+    def self.register_adapter(name)
+      @@adapters ||= {}
+      @@adapters[name] = self
     end
 
-    def open
-      result = nil
+    def self.build(adapter, params = {})
+      klass = @@adapters[adapter]
+      fail "Uknown adapter #{adapter}." unless klass
+      klass.new(**params)
+    end
 
-      remote_command = "\"cd #{working_dir} && ruby\""
-      command = "ssh #{server} #{remote_command}"
-
-      Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
-        yield stdin, stdout, stderr
-        result = wait_thr.value
-      end
-
-      unless result == 0
-        fail "Remote connection exited with code #{result}"
-      end
+    def connection_name
+      raise NotImplementedException
     end
   end
 end
+
+require 'rubyremote/connection_adapter/local_stdin_adapter'
+require 'rubyremote/connection_adapter/ssh_stdin_adapter'

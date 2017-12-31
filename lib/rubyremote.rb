@@ -1,7 +1,8 @@
 require "rubyremote/version"
+require 'rubyremote/execution_context'
 
 module Rubyremote
-  # Your code goes here...
+
 end
 
-require 'rubyremote/execution_context'
+
