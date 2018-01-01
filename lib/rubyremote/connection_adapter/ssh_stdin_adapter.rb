@@ -27,7 +27,7 @@ module Rubyremote
         result = wait_thr.value
       end
 
-      return if result.zero?
+      return if result.success?
 
       raise "Remote connection exited with code #{result}"
     end

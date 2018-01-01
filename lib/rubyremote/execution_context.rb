@@ -51,15 +51,17 @@ module Rubyremote
       adapter = Rubyremote::ConnectionAdapter.build(adapter_name, params)
 
       adapter = if use_cache && cache_exists?(code_hash)
-        ::Rubyremote::CacheAdapter.new(
-          connection_name: adapter.connection_name,
-          cache_path: context_hash(code_hash))
-      elsif save_cache
-        ::Rubyremote::CachingAdapter.new(
-          adapter: adapter,
-          cache_path: cache_path(code_hash))
-      else
-        adapter
+                  ::Rubyremote::CacheAdapter.new(
+                    connection_name: adapter.connection_name,
+                    cache_path: context_hash(code_hash)
+                  )
+                elsif save_cache
+                  ::Rubyremote::CachingAdapter.new(
+                    adapter: adapter,
+                    cache_path: cache_path(code_hash)
+                  )
+                else
+                  adapter
       end
 
       adapter.open do |stdin, stdout, stderr|
@@ -69,10 +71,10 @@ module Rubyremote
         until stdout.eof?
           line = stdout.readline
 
-          if line.start_with?("%%%MARSHAL")
+          if line.start_with?('%%%MARSHAL')
             unmarshaler = Rubyremote::Unmarshaler.new
             locals = unmarshaler.unmarshal(stdout)
-            res = locals["__return_val__"]
+            res = locals['__return_val__']
           else
             $stdout.puts "#{adapter.connection_name.green}>\t#{line}"
           end
@@ -80,7 +82,7 @@ module Rubyremote
 
         until stderr.eof?
           line = stderr.readline
-          $stderr.puts "#{adapter.connection_name.red}>\t#{line}"
+          warn "#{adapter.connection_name.red}>\t#{line}"
         end
       end
 

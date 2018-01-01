@@ -8,9 +8,7 @@ module Rubyremote
       until stream.eof?
         line = stream.readline
 
-        if terminator && line == terminator
-          break
-        end
+        break if terminator && line == terminator
 
         varname, length = line.split(':')
         length = length.to_i
@@ -19,7 +17,7 @@ module Rubyremote
         begin
           res[varname] = Marshal.load(data)
         rescue ArgumentError => e
-          fail UnmarshalError, "Could not resolve type for #{varname} variable: #{e.message}"
+          raise UnmarshalError, "Could not resolve type for #{varname} variable: #{e.message}"
         end
       end
 

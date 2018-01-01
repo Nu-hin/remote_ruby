@@ -26,7 +26,7 @@ module Rubyremote
         end
       end
 
-      return if result.zero?
+      return if result.success?
       raise "Remote connection exited with code #{result}"
     end
   end

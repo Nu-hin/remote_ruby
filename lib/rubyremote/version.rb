@@ -1,3 +1,3 @@
 module Rubyremote
-  VERSION = '0'
+  VERSION = '0'.freeze
 end

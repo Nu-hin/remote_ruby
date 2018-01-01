@@ -31,7 +31,7 @@ module Rubyremote
       stderr_cache = File.open(stderr_file_path, 'w')
       stdout_cache = File.open(stdout_file_path, 'w')
 
-      yield stdout, stderr
+      yield stdout_cache, stderr_cache
     ensure
       stdout_cache.close
       stderr_cache.close

@@ -2,22 +2,22 @@ require 'base64'
 require 'digest'
 
 module Rubyremote
-	class Compiler
-		def initialize(ruby_code, client_locals = {})
+  class Compiler
+    def initialize(ruby_code, client_locals = {})
       @ruby_code = ruby_code
       @client_locals = client_locals
-		end
+    end
 
     def code_hash
       @code_hash = Digest::SHA256.hexdigest(ruby_code.to_s + client_locals.to_s)
     end
 
-		def compile
+    def compile
       code = StringIO.new
       code.puts("require('base64')")
 
       code.puts "CLIENT_LOCALS_NAMES = %i(#{client_locals.keys.join(' ')})"
-      code.puts "MARSHALLED_LOCALS_NAMES = CLIENT_LOCALS_NAMES + [:__return_val__]"
+      code.puts 'MARSHALLED_LOCALS_NAMES = CLIENT_LOCALS_NAMES + [:__return_val__]'
 
       client_locals.each do |name, data|
         bin_data = Marshal.dump(data)
@@ -56,9 +56,8 @@ module Rubyremote
       code.string
     end
 
-
     private
 
     attr_reader :ruby_code, :client_locals
-	end
+  end
 end

@@ -9,7 +9,7 @@ module Rubyremote
 
     def self.build(adapter, params = {})
       klass = @@adapters[adapter]
-      fail "Uknown adapter #{adapter}." unless klass
+      raise "Uknown adapter #{adapter}." unless klass
       klass.new(**params)
     end
 
