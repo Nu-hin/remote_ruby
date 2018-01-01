@@ -19,7 +19,12 @@ describe ::Rubyremote::ExecutionContext do
   end
 
   let(:base_params) { {} }
-  let(:params) { { adapter: :local_stdin, working_dir: working_dir}.merge(base_params) }
+  let(:params) do
+    {
+      adapter: :local_stdin,
+      working_dir: working_dir
+    }.merge(base_params)
+  end
 
   it 'prints to stdout' do
     s = 'Something'
