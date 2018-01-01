@@ -1,8 +1,10 @@
 require 'rubyremote/stream_cacher'
 
 module Rubyremote
+  # An adapter decorator which extends the adapter passed in to its
+  # initializer to cache stidin and stdout to local filesystem
   class CachingAdapter < ConnectionAdapter
-    def initialize(cache_path: cache_path, adapter: adapter)
+    def initialize(cache_path:, adapter:)
       @cache_path = cache_path
       @adapter = adapter
     end
@@ -12,24 +14,28 @@ module Rubyremote
     end
 
     def open
-      result = nil
-
-      stderr_cache = File.open(stderr_file_path, 'w')
-      stdout_cache = File.open(stdout_file_path, 'w')
-
-      adapter.open do |stdin, stdout, stderr|
-        yield stdin,
-          ::Rubyremote::StreamCacher.new(stdout, stdout_cache),
-          ::Rubyremote::StreamCacher.new(stderr, stderr_cache)
+      with_cache do |stdout_cache, stderr_cache|
+        adapter.open do |stdin, stdout, stderr|
+          yield stdin,
+            ::Rubyremote::StreamCacher.new(stdout, stdout_cache),
+            ::Rubyremote::StreamCacher.new(stderr, stderr_cache)
+        end
       end
-    ensure
-      stdout_cache.close
-      stderr_cache.close
     end
 
     private
 
     attr_reader :cache_path, :adapter
+
+    def with_cache
+      stderr_cache = File.open(stderr_file_path, 'w')
+      stdout_cache = File.open(stdout_file_path, 'w')
+
+      yield stdout, stderr
+    ensure
+      stdout_cache.close
+      stderr_cache.close
+    end
 
     def stdout_file_path
       "#{cache_path}.stdout"

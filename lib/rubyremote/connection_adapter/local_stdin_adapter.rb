@@ -1,6 +1,8 @@
 require 'open3'
 
 module Rubyremote
+  # An adapter to expecute Ruby code on the local macine
+  # inside a specified directory
   class LocalStdinAdapter < ConnectionAdapter
     register_adapter(:local_stdin)
 
@@ -24,9 +26,8 @@ module Rubyremote
         end
       end
 
-      unless result == 0
-        fail "Remote connection exited with code #{result}"
-      end
+      return if result.zero?
+      raise "Remote connection exited with code #{result}"
     end
   end
 end

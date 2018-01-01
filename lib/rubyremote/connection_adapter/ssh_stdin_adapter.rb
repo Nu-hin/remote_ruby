@@ -1,6 +1,7 @@
 require 'open3'
 
 module Rubyremote
+  # An adapter to execute Ruby code on the remote server via SSH
   class SSHStdinAdapter < ConnectionAdapter
     register_adapter(:ssh_stdin)
 
@@ -26,9 +27,9 @@ module Rubyremote
         result = wait_thr.value
       end
 
-      unless result == 0
-        fail "Remote connection exited with code #{result}"
-      end
+      return if result.zero?
+
+      raise "Remote connection exited with code #{result}"
     end
   end
 end
