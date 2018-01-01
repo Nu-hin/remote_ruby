@@ -11,6 +11,7 @@ module Rubyremote
     def initialize(params = {})
       @use_cache = params.delete(:use_cache) || false
       @save_cache = params.delete(:save_cache) || false
+      @cache_dir = params.delete(:cache_dir) || Dir.pwd
       @adapter_name = params.delete(:adapter) || :ssh_stdin
       @params = params
     end
@@ -29,8 +30,13 @@ module Rubyremote
       Digest::SHA256.hexdigest(self.class.name + adapter_name.to_s + params.to_s + code_hash)
     end
 
-    def cache_exists?(code_hash)
+    def cache_path(code_hash)
       hsh = context_hash(code_hash)
+      File.join(cache_dir, hsh)
+    end
+
+    def cache_exists?(code_hash)
+      hsh = cache_path(code_hash)
       File.exist?("#{hsh}.stdout") || File.exist?("#{hsh}.stderr")
     end
 
@@ -49,7 +55,9 @@ module Rubyremote
           connection_name: adapter.connection_name,
           cache_path: context_hash(code_hash))
       elsif save_cache
-        ::Rubyremote::CachingAdapter.new(context_hash(code_hash), adapter)
+        ::Rubyremote::CachingAdapter.new(
+          adapter: adapter,
+          cache_path: cache_path(code_hash))
       else
         adapter
       end
@@ -66,13 +74,13 @@ module Rubyremote
             locals = unmarshaler.unmarshal(stdout)
             res = locals["__return_val__"]
           else
-            STDOUT.puts "#{adapter.connection_name.green}>\t#{line}"
+            $stdout.puts "#{adapter.connection_name.green}>\t#{line}"
           end
         end
 
         until stderr.eof?
           line = stderr.readline
-          STDERR.puts "#{adapter.connection_name.red}>\t#{line}"
+          $stderr.puts "#{adapter.connection_name.red}>\t#{line}"
         end
       end
 
@@ -81,6 +89,6 @@ module Rubyremote
 
     private
 
-    attr_reader :params, :adapter_name, :use_cache, :save_cache
+    attr_reader :params, :adapter_name, :use_cache, :save_cache, :cache_dir
   end
 end

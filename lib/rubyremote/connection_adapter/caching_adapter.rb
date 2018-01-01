@@ -2,7 +2,7 @@ require 'rubyremote/stream_cacher'
 
 module Rubyremote
   class CachingAdapter < ConnectionAdapter
-    def initialize(cache_path, adapter)
+    def initialize(cache_path: cache_path, adapter: adapter)
       @cache_path = cache_path
       @adapter = adapter
     end
