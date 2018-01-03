@@ -26,7 +26,7 @@ module Rubyremote
           #{name} = begin
             Marshal.load(Base64.decode64('#{base64_data}'))
           rescue ArgumentError
-            STDERR.puts("Warning: could not resolve type for #{name} variable")
+            warn("Warning: could not resolve type for #{name} variable")
             nil
           end
         RUBY
@@ -49,7 +49,7 @@ module Rubyremote
           data = Marshal.dump(eval(lv.to_s))
           data_length = data.size
           puts "#{lv}:#{data_length}"
-          STDOUT.write(data)
+          $stdout.write(data)
         end
       RUBY
 

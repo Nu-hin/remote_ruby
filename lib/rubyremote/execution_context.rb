@@ -68,22 +68,29 @@ module Rubyremote
         stdin.write(code)
         stdin.close
 
-        until stdout.eof?
-          line = stdout.readline
+        stdout_thread = Thread.new do
+          until stdout.eof?
+            line = stdout.readline
 
-          if line.start_with?('%%%MARSHAL')
-            unmarshaler = Rubyremote::Unmarshaler.new
-            locals = unmarshaler.unmarshal(stdout)
-            res = locals['__return_val__']
-          else
-            $stdout.puts "#{adapter.connection_name.green}>\t#{line}"
+            if line.start_with?('%%%MARSHAL')
+              unmarshaler = Rubyremote::Unmarshaler.new
+              locals = unmarshaler.unmarshal(stdout)
+              res = locals['__return_val__']
+            else
+              puts "#{adapter.connection_name.green}>\t#{line}"
+            end
           end
         end
 
-        until stderr.eof?
-          line = stderr.readline
-          warn "#{adapter.connection_name.red}>\t#{line}"
+        stderr_thread = Thread.new do
+          until stderr.eof?
+            line = stderr.readline
+            warn "#{adapter.connection_name.red}>\t#{line}"
+          end
         end
+
+        stdout_thread.join
+        stderr_thread.join
       end
 
       res
