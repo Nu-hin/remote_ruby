@@ -1,4 +1,5 @@
 module RemoteRuby
+  # Unmarshals variables from given stream
   class Unmarshaler
     UnmarshalError = Class.new(StandardError)
 

@@ -1,6 +1,7 @@
 require 'method_source'
 require 'colorize'
 require 'digest'
+require 'fileutils'
 
 require 'remote_ruby/compiler'
 require 'remote_ruby/connection_adapter'
@@ -11,7 +12,8 @@ module RemoteRuby
     def initialize(params = {})
       @use_cache = params.delete(:use_cache) || false
       @save_cache = params.delete(:save_cache) || false
-      @cache_dir = params.delete(:cache_dir) || Dir.pwd
+      @cache_dir = params.delete(:cache_dir) || File.join(Dir.pwd, 'cache')
+      FileUtils.mkdir_p(@cache_dir)
       @adapter_name = params.delete(:adapter) || :ssh_stdin
       @params = params
     end
@@ -27,7 +29,7 @@ module RemoteRuby
     end
 
     def context_hash(code_hash)
-      Digest::SHA256.hexdigest(self.class.name + adapter_name.to_s + params.to_s + code_hash)
+      Digest::MD5.hexdigest(self.class.name + adapter_name.to_s + params.to_s + code_hash)
     end
 
     def cache_path(code_hash)

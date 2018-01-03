@@ -5,16 +5,13 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'remote-ruby'
+gem 'remote-ruby', git: 'https://github.com/nu-hin/remote-ruby'
 ```
 
 And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install remote-ruby
 
 ## Contributing
 

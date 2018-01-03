@@ -1,4 +1,6 @@
 module RemoteRuby
+  # Decorates the source stream and writes to the cache stream as
+  # the source is being read
   class StreamCacher
     def initialize(source_stream, cache_stream)
       @source_stream = source_stream
