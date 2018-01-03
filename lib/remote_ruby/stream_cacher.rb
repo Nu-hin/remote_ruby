@@ -1,4 +1,4 @@
-module Rubyremote
+module RemoteRuby
   class StreamCacher
     def initialize(source_stream, cache_stream)
       @source_stream = source_stream

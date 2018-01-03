@@ -1,6 +1,6 @@
 require 'tmpdir'
 
-describe ::Rubyremote::ExecutionContext do
+describe ::RemoteRuby::ExecutionContext do
   subject(:execution_context) do
     described_class.new(**params)
   end

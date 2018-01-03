@@ -1,4 +1,4 @@
-module Rubyremote
+module RemoteRuby
   # An adapter which takes stdout and stderr from files and ignores
   # all stdin. Only used to read from cache.
   class CacheAdapter < ConnectionAdapter

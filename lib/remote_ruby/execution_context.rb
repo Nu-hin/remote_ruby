@@ -2,11 +2,11 @@ require 'method_source'
 require 'colorize'
 require 'digest'
 
-require 'rubyremote/compiler'
-require 'rubyremote/connection_adapter'
-require 'rubyremote/unmarshaler'
+require 'remote_ruby/compiler'
+require 'remote_ruby/connection_adapter'
+require 'remote_ruby/unmarshaler'
 
-module Rubyremote
+module RemoteRuby
   class ExecutionContext
     def initialize(params = {})
       @use_cache = params.delete(:use_cache) || false
@@ -41,22 +41,22 @@ module Rubyremote
     end
 
     def execute_code(ruby_code, client_locals = {})
-      compiler = Rubyremote::Compiler.new(ruby_code, **client_locals)
+      compiler = RemoteRuby::Compiler.new(ruby_code, **client_locals)
       code = compiler.compile
 
       res = nil
 
       code_hash = compiler.code_hash
 
-      adapter = Rubyremote::ConnectionAdapter.build(adapter_name, params)
+      adapter = RemoteRuby::ConnectionAdapter.build(adapter_name, params)
 
       adapter = if use_cache && cache_exists?(code_hash)
-                  ::Rubyremote::CacheAdapter.new(
+                  ::RemoteRuby::CacheAdapter.new(
                     connection_name: adapter.connection_name,
                     cache_path: cache_path(code_hash)
                   )
                 elsif save_cache
-                  ::Rubyremote::CachingAdapter.new(
+                  ::RemoteRuby::CachingAdapter.new(
                     adapter: adapter,
                     cache_path: cache_path(code_hash)
                   )
@@ -73,7 +73,7 @@ module Rubyremote
             line = stdout.readline
 
             if line.start_with?('%%%MARSHAL')
-              unmarshaler = Rubyremote::Unmarshaler.new
+              unmarshaler = RemoteRuby::Unmarshaler.new
               locals = unmarshaler.unmarshal(stdout)
               res = locals['__return_val__']
             else

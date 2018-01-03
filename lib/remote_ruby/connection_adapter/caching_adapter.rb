@@ -1,6 +1,6 @@
-require 'rubyremote/stream_cacher'
+require 'remote_ruby/stream_cacher'
 
-module Rubyremote
+module RemoteRuby
   # An adapter decorator which extends the adapter passed in to its
   # initializer to cache stidin and stdout to local filesystem
   class CachingAdapter < ConnectionAdapter
@@ -17,8 +17,8 @@ module Rubyremote
       with_cache do |stdout_cache, stderr_cache|
         adapter.open do |stdin, stdout, stderr|
           yield stdin,
-            ::Rubyremote::StreamCacher.new(stdout, stdout_cache),
-            ::Rubyremote::StreamCacher.new(stderr, stderr_cache)
+            ::RemoteRuby::StreamCacher.new(stdout, stdout_cache),
+            ::RemoteRuby::StreamCacher.new(stderr, stderr_cache)
         end
       end
     end

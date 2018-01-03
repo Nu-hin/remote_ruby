@@ -1,4 +1,4 @@
-module Rubyremote
+module RemoteRuby
   class Unmarshaler
     UnmarshalError = Class.new(StandardError)
 

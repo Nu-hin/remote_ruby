@@ -1,5 +1,5 @@
 require 'bundler/setup'
-require 'rubyremote'
+require 'remote_ruby'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

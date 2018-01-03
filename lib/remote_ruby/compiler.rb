@@ -1,7 +1,7 @@
 require 'base64'
 require 'digest'
 
-module Rubyremote
+module RemoteRuby
   class Compiler
     def initialize(ruby_code, client_locals = {})
       @ruby_code = ruby_code

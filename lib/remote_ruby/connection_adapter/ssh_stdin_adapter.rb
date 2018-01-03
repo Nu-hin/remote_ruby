@@ -1,6 +1,6 @@
 require 'open3'
 
-module Rubyremote
+module RemoteRuby
   # An adapter to execute Ruby code on the remote server via SSH
   class SSHStdinAdapter < ConnectionAdapter
     register_adapter(:ssh_stdin)

@@ -1,6 +1,6 @@
 require 'open3'
 
-module Rubyremote
+module RemoteRuby
   # An adapter to expecute Ruby code on the local macine
   # inside a specified directory
   class LocalStdinAdapter < ConnectionAdapter
