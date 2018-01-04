@@ -20,9 +20,9 @@ module RemoteRuby
 
       yield stdin, stdout, stderr
     ensure
-      stderr.close
-      stdout.close
-      stdin.close
+      stderr.close unless stderr.closed?
+      stdout.close unless stdout.closed?
+      stdin.close  unless stdin.closed?
     end
 
     private

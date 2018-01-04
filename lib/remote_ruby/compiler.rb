@@ -1,5 +1,6 @@
 require 'base64'
 require 'digest'
+require 'stringio'
 
 module RemoteRuby
   class Compiler
