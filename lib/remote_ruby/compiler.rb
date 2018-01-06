@@ -1,6 +1,5 @@
 require 'base64'
 require 'digest'
-require 'stringio'
 
 module RemoteRuby
   class Compiler
@@ -14,53 +13,21 @@ module RemoteRuby
     end
 
     def compile
-      code = StringIO.new
-      code.puts("require('base64')")
-
-      code.puts "CLIENT_LOCALS_NAMES = %i(#{client_locals.keys.join(' ')})"
-      code.puts 'MARSHALLED_LOCALS_NAMES = CLIENT_LOCALS_NAMES + [:__return_val__]'
+      client_locals_base64 = {}
 
       client_locals.each do |name, data|
         begin
           bin_data = Marshal.dump(data)
+          base64_data = Base64.strict_encode64(bin_data)
+          client_locals_base64[name] = base64_data
         rescue TypeError => e
           warn "Cannot send variable #{name}: #{e.message}"
-          next
         end
-
-        base64_data = Base64.encode64(bin_data)
-        code.puts <<-RUBY
-          #{name} = begin
-            Marshal.load(Base64.decode64('#{base64_data}'))
-          rescue ArgumentError
-            warn("Warning: could not resolve type for #{name} variable")
-            nil
-          end
-        RUBY
       end
 
-      code.puts <<-RUBY
-        __return_val__ = begin
-          # Start of client code
-          #{ruby_code}
-          # End of client code
-        end
-      RUBY
-
-      code.puts <<-'RUBY'
-        # Marshalling local variables and result
-
-        puts "%%%MARSHAL"
-
-        MARSHALLED_LOCALS_NAMES.each do |lv|
-          data = Marshal.dump(eval(lv.to_s))
-          data_length = data.size
-          puts "#{lv}:#{data_length}"
-          $stdout.write(data)
-        end
-      RUBY
-
-      code.string
+      template_file = File.expand_path('../code_templates/compiler/main.rb.erb', __FILE__)
+      template = ERB.new(File.read(template_file))
+      template.result(binding)
     end
 
     private

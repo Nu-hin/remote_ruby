@@ -1,0 +1,34 @@
+require 'base64'
+
+__marshalled_locals_names__ = []
+
+# Unmarshalling local variables
+<% client_locals_base64.each do |name, base64_val| %>
+<%= name %> = begin
+  val = Marshal.load(Base64.strict_decode64('<%= base64_val %>'))
+  __marshalled_locals_names__ << :<%= name %>
+  val
+rescue ArgumentError
+  warn("Warning: could not resolve type for #{<%=name %>} variable")
+  nil
+end
+<% end %>
+
+__return_val__ = begin
+  # Start of client code
+<%= ruby_code %>
+  # End of client code
+end
+
+__marshalled_locals_names__ << :__return_val__
+
+# Marshalling local variables and result
+
+STDOUT.puts "%%%MARSHAL"
+
+__marshalled_locals_names__.each do |lv|
+  data = Marshal.dump(eval(lv.to_s))
+  data_length = data.size
+  STDOUT.puts "#{lv}:#{data_length}"
+  STDOUT.write(data)
+end
