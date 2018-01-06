@@ -18,8 +18,24 @@ module RemoteRuby
       @params = params
     end
 
-    def execute(locals = {}, &block)
-      execute_code(parse_block(block.source), **locals)
+    def execute(locals = nil, &block)
+      if locals.nil?
+        locals = {}
+
+        block.binding.local_variables.each do |v|
+          locals[v] = block.binding.eval(v.to_s)
+        end
+      end
+
+      result = execute_code(parse_block(block.source), **locals)
+
+      locals.each do |key, _|
+        if result[:locals].has_key?(key)
+          block.binding.local_variable_set(key, result[:locals][key])
+        end
+      end
+
+      result[:result]
     end
 
     # Quick and dirty solution
@@ -47,24 +63,25 @@ module RemoteRuby
       code = compiler.compile
 
       res = nil
+      locals = nil
 
       code_hash = compiler.code_hash
 
       adapter = RemoteRuby::ConnectionAdapter.build(adapter_name, params)
 
       adapter = if use_cache && cache_exists?(code_hash)
-                  ::RemoteRuby::CacheAdapter.new(
-                    connection_name: adapter.connection_name,
-                    cache_path: cache_path(code_hash)
-                  )
-                elsif save_cache
-                  ::RemoteRuby::CachingAdapter.new(
-                    adapter: adapter,
-                    cache_path: cache_path(code_hash)
-                  )
-                else
-                  adapter
-      end
+          ::RemoteRuby::CacheAdapter.new(
+            connection_name: adapter.connection_name,
+            cache_path: cache_path(code_hash)
+          )
+        elsif save_cache
+          ::RemoteRuby::CachingAdapter.new(
+            adapter: adapter,
+            cache_path: cache_path(code_hash)
+          )
+        else
+          adapter
+        end
 
       adapter.open do |stdin, stdout, stderr|
         stdin.write(code)
@@ -77,7 +94,7 @@ module RemoteRuby
             if line.start_with?('%%%MARSHAL')
               unmarshaler = RemoteRuby::Unmarshaler.new
               locals = unmarshaler.unmarshal(stdout)
-              res = locals['__return_val__']
+              res = locals[:__return_val__]
             else
               puts "#{adapter.connection_name.green}>\t#{line}"
             end
@@ -95,7 +112,7 @@ module RemoteRuby
         stderr_thread.join
       end
 
-      res
+      { result: res, locals: locals }
     end
 
     private

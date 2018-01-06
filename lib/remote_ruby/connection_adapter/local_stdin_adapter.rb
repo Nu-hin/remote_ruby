@@ -8,7 +8,7 @@ module RemoteRuby
 
     attr_reader :working_dir
 
-    def initialize(working_dir:)
+    def initialize(working_dir: '.')
       @working_dir = working_dir
     end
 

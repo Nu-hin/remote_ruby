@@ -21,7 +21,13 @@ module RemoteRuby
       code.puts 'MARSHALLED_LOCALS_NAMES = CLIENT_LOCALS_NAMES + [:__return_val__]'
 
       client_locals.each do |name, data|
-        bin_data = Marshal.dump(data)
+        begin
+          bin_data = Marshal.dump(data)
+        rescue TypeError => e
+          warn "Cannot send variable #{name}: #{e.message}"
+          next
+        end
+
         base64_data = Base64.encode64(bin_data)
         code.puts <<-RUBY
           #{name} = begin

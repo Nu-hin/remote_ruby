@@ -16,7 +16,7 @@ module RemoteRuby
         data = stream.read(length)
 
         begin
-          res[varname] = Marshal.load(data)
+          res[varname.to_sym] = Marshal.load(data)
         rescue ArgumentError => e
           raise UnmarshalError, "Could not resolve type for #{varname} variable: #{e.message}"
         end
