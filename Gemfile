@@ -6,6 +6,7 @@ gemspec
 
 group :development, :test do
   gem 'pry-byebug'
+  gem 'byebug', '>= 8.0'
   gem 'rubocop'
   gem 'bundler', '~> 1.15'
   gem 'rspec', '~> 3.0'
