@@ -1,5 +1,7 @@
 # remote-ruby
 
+[![Build Status](https://travis-ci.org/Nu-hin/remote-ruby.svg?branch=master)](https://travis-ci.org/Nu-hin/remote-ruby)
+
 ## Installation
 
 Add this line to your application's Gemfile:
