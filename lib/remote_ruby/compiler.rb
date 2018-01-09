@@ -1,5 +1,6 @@
 require 'base64'
 require 'digest'
+require 'erb'
 
 module RemoteRuby
   class Compiler
