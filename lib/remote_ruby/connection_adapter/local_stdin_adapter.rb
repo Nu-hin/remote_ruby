@@ -19,11 +19,9 @@ module RemoteRuby
     def open
       result = nil
 
-      Dir.chdir(working_dir) do
-        Open3.popen3('ruby') do |stdin, stdout, stderr, wait_thr|
-          yield stdin, stdout, stderr
-          result = wait_thr.value
-        end
+      Open3.popen3('ruby', chdir: working_dir) do |stdin, stdout, stderr, wait_thr|
+        yield stdin, stdout, stderr
+        result = wait_thr.value
       end
 
       return if result.success?
