@@ -69,7 +69,8 @@ module RemoteRuby
     end
 
     def execute_code(ruby_code, client_locals = {})
-      compiler = RemoteRuby::Compiler.new(ruby_code, **client_locals)
+      compiler = RemoteRuby::Compiler.new(ruby_code, client_locals: client_locals, ignore_types: self.class)
+
       code = compiler.compile
 
       res = nil
@@ -127,6 +128,6 @@ module RemoteRuby
 
     private
 
-    attr_reader :params, :adapter_name, :use_cache, :save_cache, :cache_dir
+    attr_reader :params, :adapter_name, :use_cache, :save_cache, :cache_dir, :out_stream, :err_stream
   end
 end

@@ -47,4 +47,16 @@ describe ::RemoteRuby::ExecutionContext do
       expect(Dir.glob(File.join(cache_dir, '*'))).not_to be_empty
     end
   end
+
+  context 'when execution context is a local variable' do
+    it "does not serialize it" do
+      ec = execution_context
+
+      res = ec.execute do
+        defined?(ec)
+      end
+
+      expect(res).to be_falsey
+    end
+  end
 end

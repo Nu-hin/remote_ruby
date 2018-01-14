@@ -4,9 +4,10 @@ require 'erb'
 
 module RemoteRuby
   class Compiler
-    def initialize(ruby_code, client_locals = {})
+    def initialize(ruby_code, client_locals: {}, ignore_types: [])
       @ruby_code = ruby_code
       @client_locals = client_locals
+      @ignore_types = Array(ignore_types)
     end
 
     def code_hash
@@ -18,6 +19,7 @@ module RemoteRuby
 
       client_locals.each do |name, data|
         begin
+          next unless check_type(data)
           bin_data = Marshal.dump(data)
           base64_data = Base64.strict_encode64(bin_data)
           client_locals_base64[name] = base64_data
@@ -33,6 +35,14 @@ module RemoteRuby
 
     private
 
-    attr_reader :ruby_code, :client_locals
+    def check_type(var)
+      ignore_types.each do |klass|
+        return false if var.is_a? klass
+      end
+
+      true
+    end
+
+    attr_reader :ruby_code, :client_locals, :ignore_types
   end
 end
