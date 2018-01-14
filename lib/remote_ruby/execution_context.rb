@@ -13,6 +13,8 @@ module RemoteRuby
       @use_cache = params.delete(:use_cache) || false
       @save_cache = params.delete(:save_cache) || false
       @cache_dir = params.delete(:cache_dir) || File.join(Dir.pwd, 'cache')
+      @out_stream = params.delete(:stdout) || $stdout
+      @err_stream = params.delete(:stderr) || $stderr
       FileUtils.mkdir_p(@cache_dir)
       @adapter_name = params.delete(:adapter) || :ssh_stdin
       @params = params
@@ -107,7 +109,7 @@ module RemoteRuby
               locals = unmarshaler.unmarshal(stdout)
               res = locals[:__return_val__]
             else
-              puts "#{adapter.connection_name.green}>\t#{line}"
+              out_stream.puts "#{adapter.connection_name.green}>\t#{line}"
             end
           end
         end
@@ -115,7 +117,7 @@ module RemoteRuby
         stderr_thread = Thread.new do
           until stderr.eof?
             line = stderr.readline
-            warn "#{adapter.connection_name.red}>\t#{line}"
+            err_stream.puts "#{adapter.connection_name.red}>\t#{line}"
           end
         end
 

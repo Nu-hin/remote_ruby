@@ -59,4 +59,31 @@ describe ::RemoteRuby::ExecutionContext do
       expect(res).to be_falsey
     end
   end
+
+  context 'with stream redirection' do
+    let(:err_str) { StringIO.new('') }
+    let(:out_str) { StringIO.new('') }
+
+    let(:base_params) do {
+        stdout: out_str,
+        stderr: err_str
+      }
+    end
+
+    it 'redirects stdout to the specified stream' do
+      execution_context.execute do
+        puts 'Hello'
+      end
+
+      expect(out_str.string).to include('Hello')
+    end
+
+    it 'redirects stderr to the specified stream' do
+      execution_context.execute do
+        warn 'Error'
+      end
+
+      expect(err_str.string).to include('Error')
+    end
+  end
 end
