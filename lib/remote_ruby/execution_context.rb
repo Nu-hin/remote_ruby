@@ -6,10 +6,12 @@ require 'fileutils'
 require 'remote_ruby/compiler'
 require 'remote_ruby/connection_adapter'
 require 'remote_ruby/unmarshaler'
+require 'remote_ruby/flavour'
 
 module RemoteRuby
   class ExecutionContext
     def initialize(params = {})
+      add_flavours(params)
       @use_cache = params.delete(:use_cache) || false
       @save_cache = params.delete(:save_cache) || false
       @cache_dir = params.delete(:cache_dir) || File.join(Dir.pwd, 'cache')
@@ -71,7 +73,12 @@ module RemoteRuby
     end
 
     def execute_code(ruby_code, client_locals = {})
-      compiler = RemoteRuby::Compiler.new(ruby_code, client_locals: client_locals, ignore_types: self.class)
+      compiler = RemoteRuby::Compiler.new(
+        ruby_code,
+        client_locals: client_locals,
+        ignore_types: self.class,
+        flavours: flavours
+      )
 
       code = compiler.compile
 
@@ -130,6 +137,11 @@ module RemoteRuby
 
     private
 
-    attr_reader :params, :adapter_name, :use_cache, :save_cache, :cache_dir, :out_stream, :err_stream
+    def add_flavours(params)
+      @flavours = ::RemoteRuby::Flavour.build_flavours(params)
+    end
+
+    attr_reader :params, :adapter_name, :use_cache, :save_cache, :cache_dir,
+      :out_stream, :err_stream, :flavours
   end
 end

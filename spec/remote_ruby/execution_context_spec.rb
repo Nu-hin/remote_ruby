@@ -60,6 +60,29 @@ describe ::RemoteRuby::ExecutionContext do
     end
   end
 
+  context 'with Rails flavour' do
+    let(:base_params) do
+      {
+        rails: { environment: :production}
+      }
+    end
+
+    before(:example) do
+      path = File.join(working_dir, 'config/environment.rb')
+      dirname = File.dirname(path)
+      Dir.mkdir(dirname)
+      File.write(path, "ENV['RAILS_ENV']")
+    end
+
+    it 'includes Rails loading code' do
+      res = execution_context.execute do
+        ENV['RAILS_ENV']
+      end
+
+      expect(res).to eq('production')
+    end
+  end
+
   context 'with stream redirection' do
     let(:err_str) { StringIO.new('') }
     let(:out_str) { StringIO.new('') }

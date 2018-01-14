@@ -4,10 +4,11 @@ require 'erb'
 
 module RemoteRuby
   class Compiler
-    def initialize(ruby_code, client_locals: {}, ignore_types: [])
+    def initialize(ruby_code, client_locals: {}, ignore_types: [], flavours: [])
       @ruby_code = ruby_code
       @client_locals = client_locals
       @ignore_types = Array(ignore_types)
+      @flavours = flavours
     end
 
     def code_hash
@@ -43,6 +44,10 @@ module RemoteRuby
       true
     end
 
-    attr_reader :ruby_code, :client_locals, :ignore_types
+    def code_headers
+      flavours.map(&:code_header)
+    end
+
+    attr_reader :ruby_code, :client_locals, :ignore_types, :flavours
   end
 end

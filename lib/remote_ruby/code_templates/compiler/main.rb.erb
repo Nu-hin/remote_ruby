@@ -15,6 +15,13 @@ end
 <% end %>
 
 __return_val__ = begin
+
+<% if code_headers.any? %>
+  # Start of flavour-added code
+ <%= code_headers.join %>
+  # End of flavour-added code
+<% end %>
+
   # Start of client code
 <%= ruby_code %>
   # End of client code
