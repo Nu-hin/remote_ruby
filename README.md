@@ -148,7 +148,7 @@ The list of general parameters:
 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
-| adapter | Class | no | `::RubyRemote::SSHStdinAdapter` | An adapter to use. Refer to the [Adapters](#adapters) section to learn about available adapters. |
+| adapter | Class | no | `::RemoteRuby::SSHStdinAdapter` | An adapter to use. Refer to the [Adapters](#adapters) section to learn about available adapters. |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
 | cache_dir | String | no | ./cache | Path to the directory on the local machine, where cache files should be saved. If the directory doesn't exist, RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
@@ -173,7 +173,7 @@ my_ssh_server:/home/john> This is a warning
 
 ### Local variables and return value
 
-When you call a remote block RubyRemote will try to serialize all local variables from the calling context, and include them to the remote script.
+When you call a remote block RemoteRuby will try to serialize all local variables from the calling context, and include them to the remote script.
 
 If you do not want all local variables to be sent to the server, you can explicitly specify a set of local variables and their values.
 
@@ -311,7 +311,7 @@ You can specify where to put your cache files explicitly, by passing `cache_dir`
 
 RemoteRuby calculates the cache file to use, based on the code you pass to the remote block, as well as on ExecutionContext 'contextual' parameters (e. g. server or working directory) and serialized local variables. Therefore, if you change anything in your remote block, local variables (passed to the block), or in any of the 'contextual' parameters, RemoteRuby will use different cache file. However, if you revert all your changes back, the old file will be used again.
 
-**IMPORTANT**: RubyRemote does not know when to clear the cache. Therefore, it is up to you to take care of cleaning the cache when you no longer need it. This is especially important if your output can contain sensitive data.
+**IMPORTANT**: RemoteRuby does not know when to clear the cache. Therefore, it is up to you to take care of cleaning the cache when you no longer need it. This is especially important if your output can contain sensitive data.
 
 ### Adapters
 
@@ -319,7 +319,7 @@ RemoteRuby can use different adapters to execute remote Ruby code. To specify an
 
 #### SSH STDIN adapter
 
-This adapter uses SSH console client to connect to the remote machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. This is the main and the **default** adapter. It assumes that the SSH client is installed on the client machine, and that the access to the remote host is possible with public-key authenitcation. Password authentication is not supported. To use this adapter, pass `adapter: ::RubyRemote::SSHStdinAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
+This adapter uses SSH console client to connect to the remote machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. This is the main and the **default** adapter. It assumes that the SSH client is installed on the client machine, and that the access to the remote host is possible with public-key authenitcation. Password authentication is not supported. To use this adapter, pass `adapter: ::RemoteRuby::SSHStdinAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
 
 ##### Parameters
 
@@ -333,7 +333,7 @@ This adapter uses SSH console client to connect to the remote machine, launches 
 
 #### Local STDIN adapter
 
-This adapter changes to the specified directory on the **local** machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. Therefore everything will be executed on the local machine, but in a child process. This adapter is mostly used for testing, however it still can be useful if you want to execute some code in context of several code bases you have on the local machine. To use this adapter, pass `adapter: ::RubyRemote::LocalStdinAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
+This adapter changes to the specified directory on the **local** machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. Therefore everything will be executed on the local machine, but in a child process. This adapter is mostly used for testing, however it still can be useful if you want to execute some code in context of several code bases you have on the local machine. To use this adapter, pass `adapter: ::RemoteRuby::LocalStdinAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
