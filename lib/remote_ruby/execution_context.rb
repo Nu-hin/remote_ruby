@@ -45,7 +45,7 @@ module RemoteRuby
       result = execute_code(parse_block(block.source), **locals)
 
       locals.each do |key, _|
-        if result[:locals].has_key?(key)
+        if result[:locals].key?(key)
           block.binding.local_variable_set(key, result[:locals][key])
         end
       end
@@ -143,6 +143,6 @@ module RemoteRuby
     end
 
     attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-      :out_stream, :err_stream, :flavours
+                :out_stream, :err_stream, :flavours
   end
 end

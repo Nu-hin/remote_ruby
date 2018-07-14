@@ -21,10 +21,10 @@ RSpec.describe RemoteRuby do
 
     it 'returns block result' do
       res = remotely(**args) do
-        { :username => 'John' }
+        { username: 'John' }
       end
 
-      expect(res).to eq({ :username => 'John'})
+      expect(res).to eq(username: 'John')
     end
 
     it 'changes local variables' do

@@ -8,16 +8,13 @@ module RemoteRuby
       }.each do |name, klass|
         options = params.delete(name)
 
-        if options
-          res << klass.new(**options)
-        end
+        res << klass.new(**options) if options
       end
 
       res
     end
 
-    def initialize(params: {})
-    end
+    def initialize(params: {}); end
 
     def code_header; end
   end

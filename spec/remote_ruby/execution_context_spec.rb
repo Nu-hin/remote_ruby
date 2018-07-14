@@ -49,7 +49,7 @@ describe ::RemoteRuby::ExecutionContext do
   end
 
   context 'when execution context is a local variable' do
-    it "does not serialize it" do
+    it 'does not serialize it' do
       ec = execution_context
 
       res = ec.execute do
@@ -63,7 +63,7 @@ describe ::RemoteRuby::ExecutionContext do
   context 'with Rails flavour' do
     let(:base_params) do
       {
-        rails: { environment: :production}
+        rails: { environment: :production }
       }
     end
 
@@ -87,7 +87,8 @@ describe ::RemoteRuby::ExecutionContext do
     let(:err_str) { StringIO.new('') }
     let(:out_str) { StringIO.new('') }
 
-    let(:base_params) do {
+    let(:base_params) do
+      {
         stdout: out_str,
         stderr: err_str
       }

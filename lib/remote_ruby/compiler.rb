@@ -29,7 +29,7 @@ module RemoteRuby
         end
       end
 
-      template_file = File.expand_path('../code_templates/compiler/main.rb.erb', __FILE__)
+      template_file = File.expand_path('code_templates/compiler/main.rb.erb', __dir__)
       template = ERB.new(File.read(template_file))
       template.result(binding)
     end
