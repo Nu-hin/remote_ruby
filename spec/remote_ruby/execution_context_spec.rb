@@ -21,7 +21,7 @@ describe ::RemoteRuby::ExecutionContext do
   let(:base_params) { {} }
   let(:params) do
     {
-      adapter: :local_stdin,
+      adapter: ::RemoteRuby::LocalStdinAdapter,
       working_dir: working_dir
     }.merge(base_params)
   end

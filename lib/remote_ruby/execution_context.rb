@@ -10,16 +10,17 @@ require 'remote_ruby/flavour'
 
 module RemoteRuby
   class ExecutionContext
-    def initialize(params = {})
+    def initialize(**params)
       add_flavours(params)
       @use_cache = params.delete(:use_cache) || false
       @save_cache = params.delete(:save_cache) || false
       @cache_dir = params.delete(:cache_dir) || File.join(Dir.pwd, 'cache')
       @out_stream = params.delete(:stdout) || $stdout
       @err_stream = params.delete(:stderr) || $stderr
-      FileUtils.mkdir_p(@cache_dir)
-      @adapter_name = params.delete(:adapter) || :ssh_stdin
+      @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHStdinAdapter
       @params = params
+
+      FileUtils.mkdir_p(@cache_dir)
     end
 
     def execute(locals = nil, &block)
@@ -59,7 +60,7 @@ module RemoteRuby
     end
 
     def context_hash(code_hash)
-      Digest::MD5.hexdigest(self.class.name + adapter_name.to_s + params.to_s + code_hash)
+      Digest::MD5.hexdigest(self.class.name + adapter_klass.name.to_s + params.to_s + code_hash)
     end
 
     def cache_path(code_hash)
@@ -87,7 +88,7 @@ module RemoteRuby
 
       code_hash = compiler.code_hash
 
-      adapter = RemoteRuby::ConnectionAdapter.build(adapter_name, params)
+      adapter = adapter_klass.new(params)
 
       adapter = if use_cache && cache_exists?(code_hash)
           ::RemoteRuby::CacheAdapter.new(
@@ -141,7 +142,7 @@ module RemoteRuby
       @flavours = ::RemoteRuby::Flavour.build_flavours(params)
     end
 
-    attr_reader :params, :adapter_name, :use_cache, :save_cache, :cache_dir,
+    attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
       :out_stream, :err_stream, :flavours
   end
 end

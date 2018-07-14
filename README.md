@@ -80,14 +80,7 @@ puts a # => 100
 ```
 
 ### Limitations
-
-* RubyRemote's default adapter assumes that the access to the remote host via SSH is configured on the local machine with public key authentication, i.e. it will work only if the following command works for your host without prompting for password:
-
-```bash
-> echo "puts 'hi'" | ssh my_ssh_server ruby
-```
-
-
+*  Remote SSH server must be accessible with public-key authentication. Password authentication is not supported.
 
 * Currently, code to be executed remotely cannot read anything from STDIN, because STDIN is used to pass the source to the Ruby interpreter.
 
@@ -155,7 +148,7 @@ The list of general parameters:
 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
-| adapter | Symbol | no | `:ssh_stdin` | An adapter to use. Refer to the [Adapters](#adapters) section to learn about available adapters. |
+| adapter | Class | no | `::RubyRemote::SSHStdinAdapter` | An adapter to use. Refer to the [Adapters](#adapters) section to learn about available adapters. |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
 | cache_dir | String | no | ./cache | Path to the directory on the local machine, where cache files should be saved. If the directory doesn't exist, RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
@@ -325,9 +318,8 @@ RemoteRuby calculates the cache file to use, based on the code you pass to the r
 RemoteRuby can use different adapters to execute remote Ruby code. To specify an adapter you want to use, pass an `:adapter` argument to the initializer of `ExecutionContext` or to the `remotely` method.
 
 #### SSH STDIN adapter
-Key: `:ssh_stdin`
 
-This adapter uses SSH console client to connect to the remote machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. This is the main and the **default** adapter. It assumes that the SSH client is installed on the client machine, and that the access to the remote host is configured to be used with public-key authenitcation. To use this adapter, pass `adapter: :ssh_stdin` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
+This adapter uses SSH console client to connect to the remote machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. This is the main and the **default** adapter. It assumes that the SSH client is installed on the client machine, and that the access to the remote host is possible with public-key authenitcation. Password authentication is not supported. To use this adapter, pass `adapter: ::RubyRemote::SSHStdinAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
 
 ##### Parameters
 
@@ -335,12 +327,13 @@ This adapter uses SSH console client to connect to the remote machine, launches 
 | --------- | ---- | ---------| ------------- | ----------- |
 | server | String | yes | - | Name of the SSH server to connect to |
 | working_dir | String | no | ~ | Path to the directory on the remote server where the script should be executed |
+| user | String | no | - | User on the remote host to connect as |
+| key_file| String | no | - | Path to the private SSH key |
 
 
 #### Local STDIN adapter
-Key: `:local_stdin`
 
-This adapter changes to the specified directory on the **local** machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. Therefore everything will be executed on the local machine, but in a child process. This adapter is mostly used for testing, however it still can be useful if you want to execute some code in context of several code bases you have on the local machine. To use this adapter, pass `adapter: :local_stdin` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
+This adapter changes to the specified directory on the **local** machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. Therefore everything will be executed on the local machine, but in a child process. This adapter is mostly used for testing, however it still can be useful if you want to execute some code in context of several code bases you have on the local machine. To use this adapter, pass `adapter: ::RubyRemote::LocalStdinAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
