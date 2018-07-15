@@ -8,3 +8,7 @@ Metrics/BlockLength:
 Style/MixinUsage:
   Exclude:
     - 'lib/remote_ruby.rb'
+
+Security/MarshalLoad:
+  Exclude:
+    - 'lib/remote_ruby/unmarshaler.rb'
