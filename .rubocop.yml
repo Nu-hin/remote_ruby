@@ -1,2 +1,10 @@
+AllCops:
+  Exclude:
+    - 'test/**/*'
+
 Metrics/BlockLength:
   ExcludedMethods: ['describe', 'context']
+
+Style/MixinUsage:
+  Exclude:
+    - 'lib/remote_ruby.rb'

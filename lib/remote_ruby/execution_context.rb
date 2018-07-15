@@ -90,7 +90,8 @@ module RemoteRuby
 
       adapter = adapter_klass.new(params)
 
-      adapter = if use_cache && cache_exists?(code_hash)
+      adapter =
+        if use_cache && cache_exists?(code_hash)
           ::RemoteRuby::CacheAdapter.new(
             connection_name: adapter.connection_name,
             cache_path: cache_path(code_hash)

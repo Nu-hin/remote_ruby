@@ -17,23 +17,11 @@ module RemoteRuby
     end
 
     def open
+      command = 'ssh'
+      command = "#{command} -i #{key_file}" if key_file
+      command = "#{command} #{server} \"cd #{working_dir} && ruby\""
+
       result = nil
-      remote_command = "\"cd #{working_dir} && ruby\""
-      command = "ssh #{server} #{remote_command}"
-
-      command = []
-      command << 'ssh'
-
-      if key_file
-        command << '-i'
-        command << key_file
-      end
-
-      command << server
-      command << remote_command
-
-      command = command.join(' ')
-      puts command
 
       Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
         yield stdin, stdout, stderr

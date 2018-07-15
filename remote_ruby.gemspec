@@ -9,7 +9,8 @@ Gem::Specification.new do |spec|
   spec.email         = ['nuinuhin@gmail.com']
 
   spec.summary       = 'Execute Ruby code on the remote servers.'
-  spec.description   = 'Execute Ruby code on the remote servers from local Ruby code.'
+  spec.description   =
+    'Execute Ruby code on the remote servers from local Ruby code.'
   spec.homepage      = 'https://github.com/nu-hin/remote-ruby'
   spec.license       = 'MIT'
 
