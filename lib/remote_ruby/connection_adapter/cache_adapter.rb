@@ -11,12 +11,11 @@ module RemoteRuby
       "[CACHE] #{@connection_name}"
     end
 
-    def open
-      stdin = File.open(File::NULL, 'w')
+    def open(code)
       stdout = File.open(stdout_file_path, 'r')
       stderr = File.open(stderr_file_path, 'r')
 
-      yield stdin, stdout, stderr
+      yield stdout, stderr
     ensure
       stderr.close unless stderr.closed?
       stdout.close unless stdout.closed?

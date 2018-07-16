@@ -17,9 +17,7 @@ describe ::RemoteRuby::LocalStdinAdapter do
   it 'changes to the working dir' do
     pwd = nil
 
-    adapter.open do |stdin, stdout, _stderr|
-      stdin.puts('puts Dir.pwd')
-      stdin.close
+    adapter.open('puts Dir.pwd') do |stdout, _stderr|
       pwd = stdout.read
       pwd.strip!
     end

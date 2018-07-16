@@ -14,11 +14,13 @@ module RemoteRuby
       working_dir
     end
 
-    def open
+    def open(code)
       result = nil
 
       Open3.popen3('ruby', chdir: working_dir) do |stdin, stdout, stderr, wait_thr|
-        yield stdin, stdout, stderr
+        stdin.write(code)
+        stdin.close
+        yield stdout, stderr
         result = wait_thr.value
       end
 

@@ -94,10 +94,7 @@ module RemoteRuby
           adapter
         end
 
-      adapter.open do |stdin, stdout, stderr|
-        stdin.write(code)
-        stdin.close
-
+      adapter.open(code) do |stdout, stderr|
         stdout_thread = Thread.new do
           until stdout.eof?
             line = stdout.readline

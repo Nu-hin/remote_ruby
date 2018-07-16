@@ -13,12 +13,11 @@ module RemoteRuby
       adapter.connection_name
     end
 
-    def open
+    def open(code)
       with_cache do |stdout_cache, stderr_cache|
-        adapter.open do |stdin, stdout, stderr|
-          yield stdin,
-            ::RemoteRuby::StreamCacher.new(stdout, stdout_cache),
-            ::RemoteRuby::StreamCacher.new(stderr, stderr_cache)
+        adapter.open(code) do |stdout, stderr|
+          yield ::RemoteRuby::StreamCacher.new(stdout, stdout_cache),
+          ::RemoteRuby::StreamCacher.new(stderr, stderr_cache)
         end
       end
     end
