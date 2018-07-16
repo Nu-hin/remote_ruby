@@ -9,6 +9,8 @@
 /cache/
 /test/
 /tmp/
+/tags
+/spec/integration/config.yml
 
 # rspec failure tracking
 .rspec_status

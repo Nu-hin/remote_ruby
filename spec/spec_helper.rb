@@ -1,5 +1,8 @@
 require 'bundler/setup'
 require 'remote_ruby'
+
+require_relative 'integration/config'
+
 Bundler.require(:development, :test)
 
 RSpec.configure do |config|
