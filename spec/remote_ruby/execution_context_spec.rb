@@ -41,7 +41,7 @@ describe ::RemoteRuby::ExecutionContext do
 
     it 'creates cache files' do
       execution_context.execute do
-        puts 'Something'
+        0
       end
 
       expect(Dir.glob(File.join(cache_dir, '*'))).not_to be_empty
