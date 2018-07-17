@@ -2,7 +2,7 @@ describe ::RemoteRuby::LocalStdinAdapter do
   subject(:adapter) { described_class.new(working_dir: working_dir) }
 
   let(:working_dir) do
-    Dir.mktmpdir
+    File.realpath(Dir.mktmpdir)
   end
 
   let(:cache_dir) do
