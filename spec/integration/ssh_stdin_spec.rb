@@ -9,13 +9,25 @@ describe 'Connecting to remote host with SSH STDIN adapter', type: :integration 
     )
   end
 
-  it 'succeeds and prints' do
-    s = 'Something'
+  context 'with do-blocks' do
+    it 'succeeds and prints' do
+      s = 'Something'
 
-    expect do
-      context.execute do
-        puts s
-      end
-    end.to output(Regexp.new(s)).to_stdout
+      expect do
+        context.execute do
+          puts s
+        end
+      end.to output(Regexp.new(s)).to_stdout
+    end
+  end
+
+  context 'with {}-blocks' do
+    it 'succeeds and prints' do
+      s = 'Something'
+
+      expect do
+        context.execute { puts s }
+      end.to output(Regexp.new(s)).to_stdout
+    end
   end
 end
