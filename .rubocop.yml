@@ -1,7 +1,3 @@
-AllCops:
-  Exclude:
-    - 'test/**/*'
-
 Metrics/BlockLength:
   ExcludedMethods: ['describe', 'context']
 
@@ -12,3 +8,32 @@ Style/MixinUsage:
 Security/MarshalLoad:
   Exclude:
     - 'lib/remote_ruby/unmarshaler.rb'
+
+Layout/BlockAlignment:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Layout/IndentHeredoc:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Layout/IndentationWidth:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Layout/MultilineBlockLayout:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Lint/NonLocalExitFromIterator:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Style/BlockDelimiters:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Style/IfUnlessModifier:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+

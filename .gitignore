@@ -7,7 +7,6 @@
 /pkg/
 /spec/reports/
 /cache/
-/test/
 /tmp/
 /tags
 /spec/integration/config.yml

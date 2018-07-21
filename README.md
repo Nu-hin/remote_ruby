@@ -84,22 +84,7 @@ puts a # => 100
 
 * Currently, code to be executed remotely cannot read anything from STDIN, because STDIN is used to pass the source to the Ruby interpreter.
 
-* At the moment RemoteRuby only support well-formed `do` blocks, i.e:
-```ruby
-# Will work
-remotely(server: 'my_ssh_server') do
-  puts 'Hello, RemoteRuby!'
-end
-
-# Won't work
-remotely(server: 'my_ssh_server') { puts 'Hello, RemoteRuby!' }
-
-# Won't work
-remotely(server: 'my_ssh_server') do puts 'Hello, RemoteRuby!' end
-```
-
 * As RemoteRuby reads the block source from the script's source file, the script source file should reside on your machine's disk (e.g. you cannot use RemoteRuby from IRB console).
-
 * Since local and server scripts have different execution contexts, can have different gems (and even Ruby versions) installed, sometimes local variables as well as the block return value, will not be accessible, assigned or can even cause exception. See [usage](#local-variables-and-return-value) section below for more detail.
 
 ## Installation
