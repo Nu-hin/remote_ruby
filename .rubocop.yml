@@ -17,6 +17,10 @@ Layout/IndentHeredoc:
   Exclude:
     - 'spec/remote_ruby/source_extractor_spec.rb'
 
+Layout/IndentationConsistency:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
 Layout/IndentationWidth:
   Exclude:
     - 'spec/remote_ruby/source_extractor_spec.rb'
@@ -25,7 +29,15 @@ Layout/MultilineBlockLayout:
   Exclude:
     - 'spec/remote_ruby/source_extractor_spec.rb'
 
+Layout/SpaceAroundOperators:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
 Lint/NonLocalExitFromIterator:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Lint/UnusedBlockArgument:
   Exclude:
     - 'spec/remote_ruby/source_extractor_spec.rb'
 
@@ -34,6 +46,14 @@ Style/BlockDelimiters:
     - 'spec/remote_ruby/source_extractor_spec.rb'
 
 Style/IfUnlessModifier:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Style/Semicolon:
+  Exclude:
+    - 'spec/remote_ruby/source_extractor_spec.rb'
+
+Metrics/LineLength:
   Exclude:
     - 'spec/remote_ruby/source_extractor_spec.rb'
 
