@@ -7,6 +7,7 @@ require 'remote_ruby/compiler'
 require 'remote_ruby/connection_adapter'
 require 'remote_ruby/unmarshaler'
 require 'remote_ruby/locals_extractor'
+require 'remote_ruby/source_extractor'
 require 'remote_ruby/flavour'
 
 module RemoteRuby
@@ -31,7 +32,10 @@ module RemoteRuby
         locals = extractor.locals
       end
 
-      result = execute_code(parse_block(block.source), **locals)
+      source_extractor = ::RemoteRuby::SourceExtractor.new
+      source = source_extractor.extract(&block)
+
+      result = execute_code(source, **locals)
 
       locals.each do |key, _|
         if result[:locals].key?(key)
@@ -40,12 +44,6 @@ module RemoteRuby
       end
 
       result[:result]
-    end
-
-    # Quick and dirty solution
-    # Will only work with well-formatted 'do' blocks now
-    def parse_block(block_code)
-      block_code.lines[1..-2].join
     end
 
     def context_hash(code_hash)
