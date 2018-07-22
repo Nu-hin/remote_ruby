@@ -9,6 +9,7 @@ require 'remote_ruby/unmarshaler'
 require 'remote_ruby/locals_extractor'
 require 'remote_ruby/source_extractor'
 require 'remote_ruby/flavour'
+require 'remote_ruby/runner'
 
 module RemoteRuby
   class ExecutionContext
@@ -46,6 +47,8 @@ module RemoteRuby
       result[:result]
     end
 
+    private
+
     def context_hash(code_hash)
       Digest::MD5.hexdigest(self.class.name + adapter_klass.name.to_s + params.to_s + code_hash)
     end
@@ -69,12 +72,7 @@ module RemoteRuby
       )
 
       code = compiler.compile
-
-      res = nil
-      locals = nil
-
       code_hash = compiler.code_hash
-
       adapter = adapter_klass.new(params)
 
       adapter =
@@ -92,36 +90,15 @@ module RemoteRuby
           adapter
         end
 
-      adapter.open(code) do |stdout, stderr|
-        stdout_thread = Thread.new do
-          until stdout.eof?
-            line = stdout.readline
+      runner = ::RemoteRuby::Runner.new(
+        code: code,
+        adapter: adapter,
+        out_stream: out_stream,
+        err_stream: err_stream
+      )
 
-            if line.start_with?('%%%MARSHAL')
-              unmarshaler = RemoteRuby::Unmarshaler.new
-              locals = unmarshaler.unmarshal(stdout)
-              res = locals[:__return_val__]
-            else
-              out_stream.puts "#{adapter.connection_name.green}>\t#{line}"
-            end
-          end
-        end
-
-        stderr_thread = Thread.new do
-          until stderr.eof?
-            line = stderr.readline
-            err_stream.puts "#{adapter.connection_name.red}>\t#{line}"
-          end
-        end
-
-        stdout_thread.join
-        stderr_thread.join
-      end
-
-      { result: res, locals: locals }
+      runner.run
     end
-
-    private
 
     def add_flavours(params)
       @flavours = ::RemoteRuby::Flavour.build_flavours(params)
