@@ -86,33 +86,38 @@ module RemoteRuby
         flavours: flavours
       )
 
-      code = compiler.compile
-      code_hash = compiler.code_hash
-      adapter = adapter_klass.new(params)
-
-      adapter =
-        if use_cache && cache_exists?(code_hash)
-          ::RemoteRuby::CacheAdapter.new(
-            connection_name: adapter.connection_name,
-            cache_path: cache_path(code_hash)
-          )
-        elsif save_cache
-          ::RemoteRuby::CachingAdapter.new(
-            adapter: adapter,
-            cache_path: cache_path(code_hash)
-          )
-        else
-          adapter
-        end
-
       runner = ::RemoteRuby::Runner.new(
-        code: code,
-        adapter: adapter,
+        code: compiler.compile,
+        adapter: adapter(compiler.code_hash),
         out_stream: out_stream,
         err_stream: err_stream
       )
 
       runner.run
+    end
+
+    def adapter(code_hash)
+      if use_cache && cache_exists?(code_hash)
+        cache_adapter(code_hash)
+      elsif save_cache
+        caching_adapter(code_hash)
+      else
+        adapter_klass.new(params)
+      end
+    end
+
+    def cache_adapter(code_hash)
+      ::RemoteRuby::CacheAdapter.new(
+        connection_name: adapter.connection_name,
+        cache_path: cache_path(code_hash)
+      )
+    end
+
+    def caching_adapter(code_hash)
+      ::RemoteRuby::CachingAdapter.new(
+        adapter: adapter_klass.new(params),
+        cache_path: cache_path(code_hash)
+      )
     end
 
     def add_flavours(params)
