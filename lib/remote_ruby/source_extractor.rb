@@ -3,34 +3,34 @@ require 'unparser'
 
 module RemoteRuby
   class SourceExtractor
-     def extract(&block)
-       ast = Parser::CurrentRuby.parse(block.source)
-       block_node = find_block(ast)
+    def extract(&block)
+      ast = Parser::CurrentRuby.parse(block.source)
+      block_node = find_block(ast)
 
-       return '' unless block_node
+      return '' unless block_node
 
-       arguments, body = parse(block_node)
-       Unparser.unparse(body)
-     end
+      _, body = parse(block_node)
+      Unparser.unparse(body)
+    end
 
-     private
+    private
 
-     def find_block(node)
-       return nil unless node.is_a? AST::Node
-       return node if node.type == :block
+    def find_block(node)
+      return nil unless node.is_a? AST::Node
+      return node if node.type == :block
 
-       node.children.each do |child|
-         res = find_block(child)
-         return res if res
-       end
+      node.children.each do |child|
+        res = find_block(child)
+        return res if res
+      end
 
-       nil
-     end
+      nil
+    end
 
-     def parse(node)
-       args = node.children[1].children
-       body = node.children[2]
-       return [args, body]
-     end
+    def parse(node)
+      args = node.children[1].children
+      body = node.children[2]
+      [args, body]
+    end
   end
 end

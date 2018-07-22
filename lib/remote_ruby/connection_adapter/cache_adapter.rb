@@ -11,7 +11,7 @@ module RemoteRuby
       "[CACHE] #{@connection_name}"
     end
 
-    def open(code)
+    def open(_code)
       stdout = File.open(stdout_file_path, 'r')
       stderr = File.open(stderr_file_path, 'r')
 
