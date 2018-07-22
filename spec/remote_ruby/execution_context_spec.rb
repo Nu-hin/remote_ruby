@@ -89,8 +89,8 @@ describe ::RemoteRuby::ExecutionContext do
 
     let(:base_params) do
       {
-        stdout: out_str,
-        stderr: err_str
+        out_stream: out_str,
+        err_stream: err_str
       }
     end
 

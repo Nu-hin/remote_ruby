@@ -4,6 +4,7 @@ module RemoteRuby
   # An adapter to expecute Ruby code on the local macine
   # inside a specified directory
   class LocalStdinAdapter < ConnectionAdapter
+    include Open3
     attr_reader :working_dir
 
     def initialize(working_dir: '.')
@@ -17,7 +18,7 @@ module RemoteRuby
     def open(code)
       result = nil
 
-      Open3.popen3('ruby', chdir: working_dir) do |stdin, stdout, stderr, wait_thr|
+      popen3('ruby', chdir: working_dir) do |stdin, stdout, stderr, wait_thr|
         stdin.write(code)
         stdin.close
         yield stdout, stderr

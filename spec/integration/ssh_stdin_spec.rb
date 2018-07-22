@@ -1,4 +1,5 @@
-describe 'Connecting to remote host with SSH STDIN adapter', type: :integration do
+describe 'Connecting to remote host with SSH STDIN adapter',
+         type: :integration do
   let(:context) do
     ::RemoteRuby::ExecutionContext.new(
       adapter: ::RemoteRuby::SSHStdinAdapter,

@@ -3,6 +3,8 @@ require 'open3'
 module RemoteRuby
   # An adapter to execute Ruby code on the remote server via SSH
   class SSHStdinAdapter < ConnectionAdapter
+    include Open3
+
     attr_reader :server, :working_dir, :user, :key_file
 
     def initialize(server:, working_dir: '~', user: nil, key_file: nil)
@@ -17,13 +19,9 @@ module RemoteRuby
     end
 
     def open(code)
-      command = 'ssh'
-      command = "#{command} -i #{key_file}" if key_file
-      command = "#{command} #{server} \"cd #{working_dir} && ruby\""
-
       result = nil
 
-      Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+      popen3(command) do |stdin, stdout, stderr, wait_thr|
         stdin.write(code)
         stdin.close
 
@@ -35,6 +33,14 @@ module RemoteRuby
       return if result.success?
 
       raise "Remote connection exited with code #{result}"
+    end
+
+    private
+
+    def command
+      command = 'ssh'
+      command = "#{command} -i #{key_file}" if key_file
+      "#{command} #{server} \"cd #{working_dir} && ruby\""
     end
   end
 end

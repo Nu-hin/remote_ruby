@@ -1,5 +1,6 @@
 module RemoteRuby
-  class RailsFlavour
+  # Flavour to load Rails environment
+  class RailsFlavour < ::RemoteRuby::Flavour
     def initialize(environment: :development)
       @environment = environment
     end

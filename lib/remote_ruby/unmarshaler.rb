@@ -3,26 +3,37 @@ module RemoteRuby
   class Unmarshaler
     UnmarshalError = Class.new(StandardError)
 
-    def unmarshal(stream, terminator = nil)
+    def initialize(stream, terminator = nil)
+      @stream = stream
+      @terminator = terminator
+    end
+
+    def unmarshal
       res = {}
 
       until stream.eof?
-        line = stream.readline
-
-        break if terminator && line == terminator
-
-        varname, length = line.split(':')
-        length = length.to_i
-        data = stream.read(length)
-
-        begin
-          res[varname.to_sym] = Marshal.load(data)
-        rescue ArgumentError => e
-          raise UnmarshalError, "Could not resolve type for #{varname} variable: #{e.message}"
-        end
+        var = read_var
+        break if var.nil?
+        res[var.first] = var[1]
       end
 
       res
+    end
+
+    private
+
+    attr_reader :stream, :terminator
+
+    def read_var
+      line = stream.readline
+      return nil if terminator && line == terminator
+
+      varname, length = line.split(':')
+      data = stream.read(length.to_i)
+      [varname.to_sym, Marshal.load(data)]
+    rescue ArgumentError => e
+      raise UnmarshalError,
+            "Could not resolve type for #{varname} variable: #{e.message}"
     end
   end
 end

@@ -3,6 +3,8 @@ require 'digest'
 require 'erb'
 
 module RemoteRuby
+  # Receives client Ruby code, locals and their values and creates Ruby code
+  # to be executed on the remote host.
   class Compiler
     def initialize(ruby_code, client_locals: {}, ignore_types: [], flavours: [])
       @ruby_code = ruby_code
@@ -29,7 +31,8 @@ module RemoteRuby
         end
       end
 
-      template_file = File.expand_path('code_templates/compiler/main.rb.erb', __dir__)
+      template_file =
+        File.expand_path('code_templates/compiler/main.rb.erb', __dir__)
       template = ERB.new(File.read(template_file))
       template.result(binding)
     end

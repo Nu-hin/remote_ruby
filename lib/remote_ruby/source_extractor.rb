@@ -2,6 +2,8 @@ require 'parser/current'
 require 'unparser'
 
 module RemoteRuby
+  # Receives a block and extracts Ruby code (as a string) with this block's
+  # source
   class SourceExtractor
     def extract(&block)
       ast = Parser::CurrentRuby.parse(block.source)

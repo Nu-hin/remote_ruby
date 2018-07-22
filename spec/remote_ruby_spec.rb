@@ -8,7 +8,12 @@ RSpec.describe RemoteRuby do
       FileUtils.rm_rf(working_dir)
     end
 
-    let(:args) { { adapter: ::RemoteRuby::LocalStdinAdapter, working_dir: working_dir } }
+    let(:args) do
+      {
+        adapter: ::RemoteRuby::LocalStdinAdapter,
+        working_dir: working_dir
+      }
+    end
 
     it 'proxies call to ExecutionContext' do
       expect(RemoteRuby::ExecutionContext).to receive(:new)

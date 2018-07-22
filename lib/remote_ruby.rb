@@ -1,6 +1,8 @@
 require 'remote_ruby/version'
 require 'remote_ruby/execution_context'
 
+# Namespace module for other RemoteRuby classes. Also contains methods, which
+# are included in the global scope
 module RemoteRuby
   def remotely(args = {}, &block)
     locals = args.delete(:locals)

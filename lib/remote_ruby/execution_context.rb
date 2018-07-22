@@ -12,15 +12,25 @@ require 'remote_ruby/flavour'
 require 'remote_ruby/runner'
 
 module RemoteRuby
+  # This class is responsible for executing blocks on the remote host with the
+  # specified adapters. This is the entrypoint to RemoteRuby logic.
   class ExecutionContext
-    def initialize(**params)
+    def initialize(
+      adapter: ::RemoteRuby::SSSHStdinAdapter,
+      use_cache: false,
+      save_cache: false,
+      cache_dir: File.join(Dir.pwd, 'cache'),
+      out_stream: $stdout,
+      err_stream: $stderr,
+      **params
+    )
       add_flavours(params)
-      @use_cache = params.delete(:use_cache) || false
-      @save_cache = params.delete(:save_cache) || false
-      @cache_dir = params.delete(:cache_dir) || File.join(Dir.pwd, 'cache')
-      @out_stream = params.delete(:stdout) || $stdout
-      @err_stream = params.delete(:stderr) || $stderr
-      @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHStdinAdapter
+      @use_cache = use_cache
+      @save_cache = save_cache
+      @cache_dir = cache_dir
+      @out_stream = out_stream
+      @err_stream = err_stream
+      @adapter_klass = adapter
       @params = params
 
       FileUtils.mkdir_p(@cache_dir)
@@ -50,7 +60,12 @@ module RemoteRuby
     private
 
     def context_hash(code_hash)
-      Digest::MD5.hexdigest(self.class.name + adapter_klass.name.to_s + params.to_s + code_hash)
+      Digest::MD5.hexdigest(
+        self.class.name +
+        adapter_klass.name.to_s +
+        params.to_s +
+        code_hash
+      )
     end
 
     def cache_path(code_hash)

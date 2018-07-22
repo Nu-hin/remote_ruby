@@ -1,4 +1,5 @@
 module RemoteRuby
+  # Base class for other connection adapters.
   class ConnectionAdapter
     def connection_name
       raise NotImplementedError
