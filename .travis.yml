@@ -7,3 +7,6 @@ rvm:
   - 2.5
 script:
   - bundle exec rspec
+os:
+  - linux
+  - osx
