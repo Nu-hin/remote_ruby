@@ -16,7 +16,7 @@ module RemoteRuby
   # specified adapters. This is the entrypoint to RemoteRuby logic.
   class ExecutionContext
     def initialize(
-      adapter: ::RemoteRuby::SSSHStdinAdapter,
+      adapter: ::RemoteRuby::SSHStdinAdapter,
       use_cache: false,
       save_cache: false,
       cache_dir: File.join(Dir.pwd, 'cache'),
