@@ -48,6 +48,26 @@ describe ::RemoteRuby::ExecutionContext do
     end
   end
 
+  context 'with use_cache' do
+    let(:base_params) { { save_cache: true, use_cache: true, cache_dir: cache_dir } }
+    let(:caching_context) { described_class.new(**params) }
+
+    it 'uses cache' do
+      caching_context.execute do
+        10
+      end
+
+      expect(execution_context).to receive(:cache_adapter).and_call_original
+      expect(::RemoteRuby::CacheAdapter).to receive(:new).and_call_original
+
+      res = execution_context.execute do
+        10
+      end
+
+      expect(res).to eq(10)
+    end
+  end
+
   context 'when execution context is a local variable' do
     it 'does not serialize it' do
       ec = execution_context

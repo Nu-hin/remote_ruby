@@ -19,7 +19,6 @@ module RemoteRuby
     ensure
       stderr.close unless stderr.closed?
       stdout.close unless stdout.closed?
-      stdin.close  unless stdin.closed?
     end
 
     private

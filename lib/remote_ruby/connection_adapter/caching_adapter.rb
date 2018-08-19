@@ -2,7 +2,7 @@ require 'remote_ruby/stream_cacher'
 
 module RemoteRuby
   # An adapter decorator which extends the adapter passed in to its
-  # initializer to cache stidin and stdout to local filesystem
+  # initializer to cache stdout and stderr to local filesystem
   class CachingAdapter < ConnectionAdapter
     def initialize(cache_path:, adapter:)
       @cache_path = cache_path
