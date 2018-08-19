@@ -14,16 +14,10 @@ module RemoteRuby
       locals = nil
 
       adapter.open(code) do |stdout, stderr|
-        stdout_thread = Thread.new do
-          locals = read_out_stream(stdout)
-        end
-
-        stderr_thread = Thread.new do
-          read_err_stream(stderr)
-        end
-
-        stdout_thread.join
-        stderr_thread.join
+        out_thread = read_stream(stdout, out_stream, :green)
+        err_thread = read_stream(stderr, err_stream, :red)
+        [out_thread, err_thread].each(&:join)
+        locals = out_thread[:locals]
       end
 
       { result: locals[:__return_val__], locals: locals }
@@ -31,24 +25,19 @@ module RemoteRuby
 
     private
 
-    def read_out_stream(stdout)
-      until stdout.eof?
-        line = stdout.readline
+    attr_reader :code, :adapter, :out_stream, :err_stream
 
-        if line.start_with?('%%%MARSHAL')
-          locals = unmarshal(stdout)
-        else
-          out_stream.puts "#{adapter.connection_name.green}>\t#{line}"
+    def read_stream(read_from, write_to, color)
+      Thread.new do
+        until read_from.eof?
+          line = read_from.readline
+
+          if line.start_with?('%%%MARSHAL')
+            Thread.current[:locals] ||= unmarshal(read_from)
+          else
+            write_to.puts "#{adapter.connection_name.send(color)}>\t#{line}"
+          end
         end
-      end
-
-      locals
-    end
-
-    def read_err_stream(stderr)
-      until stderr.eof?
-        line = stderr.readline
-        err_stream.puts "#{adapter.connection_name.red}>\t#{line}"
       end
     end
 
@@ -56,7 +45,5 @@ module RemoteRuby
       unmarshaler = RemoteRuby::Unmarshaler.new(stdout)
       unmarshaler.unmarshal
     end
-
-    attr_reader :code, :adapter, :out_stream, :err_stream
   end
 end
