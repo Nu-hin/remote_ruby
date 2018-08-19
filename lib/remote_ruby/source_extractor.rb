@@ -1,3 +1,4 @@
+require 'method_source'
 require 'parser/current'
 require 'unparser'
 

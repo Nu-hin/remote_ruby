@@ -1,11 +1,8 @@
-require 'method_source'
-require 'colorize'
 require 'digest'
 require 'fileutils'
 
 require 'remote_ruby/compiler'
 require 'remote_ruby/connection_adapter'
-require 'remote_ruby/unmarshaler'
 require 'remote_ruby/locals_extractor'
 require 'remote_ruby/source_extractor'
 require 'remote_ruby/flavour'
@@ -17,9 +14,9 @@ module RemoteRuby
   class ExecutionContext
     def initialize(**params)
       add_flavours(params)
-      @use_cache = params.delete(:use_cache) || false
+      @use_cache = params.delete(:use_cache)   || false
       @save_cache = params.delete(:save_cache) || false
-      @cache_dir = params.delete(:cache_dir) || File.join(Dir.pwd, 'cache')
+      @cache_dir = params.delete(:cache_dir)   || File.join(Dir.pwd, 'cache')
       @out_stream = params.delete(:out_stream) || $stdout
       @err_stream = params.delete(:err_stream) || $stderr
       @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHStdinAdapter
@@ -40,6 +37,9 @@ module RemoteRuby
     end
 
     private
+
+    attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
+                :out_stream, :err_stream, :flavours
 
     def assign_locals(local_names, values, block)
       local_names.each do |local|
@@ -127,8 +127,5 @@ module RemoteRuby
     def add_flavours(params)
       @flavours = ::RemoteRuby::Flavour.build_flavours(params)
     end
-
-    attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-                :out_stream, :err_stream, :flavours
   end
 end

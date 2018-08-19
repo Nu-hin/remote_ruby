@@ -1,3 +1,7 @@
+require 'colorize'
+
+require 'remote_ruby/unmarshaler'
+
 module RemoteRuby
   # Runner class is responsible for running a prepared Ruby code with given
   # connection adapter, reading output and unmarshalling result and local
