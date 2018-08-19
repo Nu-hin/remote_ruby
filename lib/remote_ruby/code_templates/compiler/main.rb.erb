@@ -31,11 +31,11 @@ __marshalled_locals_names__ << :__return_val__
 
 # Marshalling local variables and result
 
-STDOUT.puts "%%%MARSHAL"
+$stdout.puts "%%%MARSHAL"
 
 __marshalled_locals_names__.each do |lv|
   data = Marshal.dump(eval(lv.to_s))
   data_length = data.size
-  STDOUT.puts "#{lv}:#{data_length}"
-  STDOUT.write(data)
+  $stdout.puts "#{lv}:#{data_length}"
+  $stdout.write(data)
 end
