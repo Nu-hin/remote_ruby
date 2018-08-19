@@ -10,7 +10,7 @@ RSpec.describe RemoteRuby do
 
     let(:args) do
       {
-        adapter: ::RemoteRuby::LocalStdinAdapter,
+        adapter: ::RemoteRuby::EvalAdapter,
         working_dir: working_dir
       }
     end
