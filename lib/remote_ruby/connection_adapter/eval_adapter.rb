@@ -2,10 +2,11 @@ module RemoteRuby
   # An adapter to expecute Ruby code in the current process in an isolated
   # scope
   class EvalAdapter < ConnectionAdapter
-    attr_reader :async
+    attr_reader :async, :working_dir
 
-    def initialize(async: false)
+    def initialize(working_dir: Dir.pwd, async: false)
       @async = async
+      @working_dir = working_dir
     end
 
     def connection_name
@@ -28,7 +29,10 @@ module RemoteRuby
 
     def run_code(code)
       binder = Object.new
-      binder.instance_eval(code)
+
+      Dir.chdir(working_dir) do
+        binder.instance_eval(code)
+      end
     end
 
     def run_sync(code)

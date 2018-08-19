@@ -1,5 +1,13 @@
 describe ::RemoteRuby::EvalAdapter do
   shared_context 'Process and IO behaviour' do
+    let(:working_dir) do
+      File.realpath(Dir.mktmpdir)
+    end
+
+    after(:each) do
+      FileUtils.rm_rf(working_dir)
+    end
+
     it 'is launched in the same process' do
       new_pid = nil
 
@@ -24,10 +32,23 @@ describe ::RemoteRuby::EvalAdapter do
       expect($stdout).to eq(STDOUT)
       expect($stderr).to eq(STDERR)
     end
+
+    it 'changes to the working dir' do
+      pwd = nil
+      old_dir = Dir.pwd
+
+      adapter.open('puts Dir.pwd') do |stdout, _stderr|
+        pwd = stdout.read
+        pwd.strip!
+      end
+
+      expect(pwd).to eq(working_dir)
+      expect(Dir.pwd).to eq(old_dir)
+    end
   end
 
   context 'synchronous' do
-    subject(:adapter) { described_class.new }
+    subject(:adapter) { described_class.new(working_dir: working_dir) }
     include_context 'Process and IO behaviour'
 
     it 'is launched in the same thread' do
@@ -44,7 +65,10 @@ describe ::RemoteRuby::EvalAdapter do
   end
 
   context 'asynchronous' do
-    subject(:adapter) { described_class.new(async: true) }
+    subject(:adapter) do
+      described_class.new(async: true, working_dir: working_dir)
+    end
+
     include_context 'Process and IO behaviour'
 
     it 'is launched in a different thread' do
