@@ -5,13 +5,8 @@ describe ::RemoteRuby::LocalStdinAdapter do
     File.realpath(Dir.mktmpdir)
   end
 
-  let(:cache_dir) do
-    Dir.mktmpdir
-  end
-
   after(:each) do
     FileUtils.rm_rf(working_dir)
-    FileUtils.rm_rf(cache_dir)
   end
 
   it 'changes to the working dir' do
@@ -23,5 +18,17 @@ describe ::RemoteRuby::LocalStdinAdapter do
     end
 
     expect(pwd).to eq(working_dir)
+  end
+
+  it 'is launched in a separate process' do
+    new_pid = nil
+
+    adapter.open('puts Process.pid') do |stdout, _stderr|
+      new_pid = stdout.read.to_i
+    end
+
+    expect(new_pid).not_to be_nil
+    expect(new_pid).not_to be_zero
+    expect(new_pid).not_to eq(Process.pid)
   end
 end
