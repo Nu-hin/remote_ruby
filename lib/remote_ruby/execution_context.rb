@@ -78,13 +78,17 @@ module RemoteRuby
       File.exist?("#{hsh}.stdout") || File.exist?("#{hsh}.stderr")
     end
 
-    def execute_code(ruby_code, client_locals = {})
-      compiler = RemoteRuby::Compiler.new(
+    def compiler(ruby_code, client_locals)
+      RemoteRuby::Compiler.new(
         ruby_code,
         client_locals: client_locals,
         ignore_types: self.class,
         flavours: flavours
       )
+    end
+
+    def execute_code(ruby_code, client_locals = {})
+      compiler = compiler(ruby_code, client_locals)
 
       runner = ::RemoteRuby::Runner.new(
         code: compiler.compiled_code,

@@ -30,20 +30,23 @@ module RemoteRuby
       @client_locals_base64 = {}
 
       client_locals.each do |name, data|
-        begin
-          next unless check_type(data)
-          bin_data = Marshal.dump(data)
-          base64_data = Base64.strict_encode64(bin_data)
-          @client_locals_base64[name] = base64_data
-        rescue TypeError => e
-          warn "Cannot send variable #{name}: #{e.message}"
-        end
+        base64_data = process_local(name, data)
+        next if base64_data.nil?
+        @client_locals_base64[name] = base64_data
       end
 
       @client_locals_base64
     end
 
     private
+
+    def process_local(name, data)
+      return nil unless check_type(data)
+      bin_data = Marshal.dump(data)
+      Base64.strict_encode64(bin_data)
+    rescue TypeError => e
+      warn "Cannot send variable #{name}: #{e.message}"
+    end
 
     def check_type(var)
       ignore_types.each do |klass|

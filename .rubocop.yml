@@ -1,5 +1,5 @@
 Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'context']
+  ExcludedMethods: ['describe', 'context', 'shared_context']
 
 Style/MixinUsage:
   Exclude:
