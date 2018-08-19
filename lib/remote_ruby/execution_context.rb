@@ -79,7 +79,7 @@ module RemoteRuby
       )
 
       runner = ::RemoteRuby::Runner.new(
-        code: compiler.compile,
+        code: compiler.compiled_code,
         adapter: adapter(compiler.code_hash),
         out_stream: out_stream,
         err_stream: err_stream
