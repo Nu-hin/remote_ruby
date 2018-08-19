@@ -61,7 +61,7 @@ RUBY
 
     context 'ill-formatted' do
       context 'without arguments' do
-        fit 'returns correct value' do
+        it 'returns correct value' do
           res = subject.extract do a.foo1; foo2; foo3(bar); x=3
             y=5 if x ==4
             return unless y
