@@ -19,6 +19,7 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Adapters](#adapters)
 		* [SSH STDIN adapter](#ssh-stdin-adapter)
 		* [Local SDIN adapter](#local-stdin-adapter)
+		* [Evaluating adapter](#evaluating-adapter)
 	* [Rails](#rails)
 * [Contributing](#contributing)
 * [License](#license)
@@ -318,11 +319,23 @@ This adapter uses SSH console client to connect to the remote machine, launches 
 
 #### Local STDIN adapter
 
-This adapter changes to the specified directory on the **local** machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. Therefore everything will be executed on the local machine, but in a child process. This adapter is mostly used for testing, however it still can be useful if you want to execute some code in context of several code bases you have on the local machine. To use this adapter, pass `adapter: ::RemoteRuby::LocalStdinAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
+This adapter changes to the specified directory on the **local** machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. Therefore everything will be executed on the local machine, but in a child process. This adapter can be used for testing, or it can be useful if you want to execute some code in context of several code bases you have on the local machine. To use this adapter, pass `adapter: ::RemoteRuby::LocalStdinAdapter` parameter to the `ExecutionContext` initializer.
+
 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
 | working_dir | String | no | . | Path to the directory on the local machine where the script should be executed |
+
+
+#### Evaluating adapter
+
+This adapter executes Ruby code in the same process, by running it in an isolated scope. It can optionally change to a specified directory before execution (and change back after completion). There is also an option to run this asynchronously; if enabled, the code will run on a separate thread to mimic SSH connection to a remote machine. Please note, that async feature is experimental, and probably will not work on all platforms. This adapter is intended for testing, and it shows better performance than `LocalStdinAdapter`. To use this adapter, pass `adapter: ::RemoteRuby::EvalAdapter` parameter to the `ExecutionContext` initializer.
+
+| Parameter | Type | Required | Default value | Description |
+| --------- | ---- | ---------| ------------- | ----------- |
+| working_dir | String | no | . | Path to the directory on the local machine where the script should be executed |
+| async | Boolean | no | false | Enables or disables asynchronous mode of the adapter |
+
 
 ### Rails
 RemoteRuby can load Rails environment for you, if you want to execute a script in a Rails context. To do this, simply add `rails` parameter to your call:
