@@ -29,27 +29,35 @@ module RemoteRuby
     end
 
     def execute(locals = nil, &block)
-      if locals.nil?
-        extractor =
-          ::RemoteRuby::LocalsExtractor.new(block, ignore_types: self.class)
-        locals = extractor.locals
-      end
-
-      source_extractor = ::RemoteRuby::SourceExtractor.new
-      source = source_extractor.extract(&block)
+      source = code_source(block)
+      locals ||= extract_locals(block)
 
       result = execute_code(source, **locals)
 
-      locals.each do |key, _|
-        if result[:locals].key?(key)
-          block.binding.local_variable_set(key, result[:locals][key])
-        end
-      end
+      assign_locals(locals.keys, result[:locals], block)
 
       result[:result]
     end
 
     private
+
+    def assign_locals(local_names, values, block)
+      local_names.each do |local|
+        next unless values.key?(local)
+        block.binding.local_variable_set(local, values[local])
+      end
+    end
+
+    def extract_locals(block)
+      extractor =
+        ::RemoteRuby::LocalsExtractor.new(block, ignore_types: self.class)
+      extractor.locals
+    end
+
+    def code_source(block)
+      source_extractor = ::RemoteRuby::SourceExtractor.new
+      source_extractor.extract(&block)
+    end
 
     def context_hash(code_hash)
       Digest::MD5.hexdigest(
