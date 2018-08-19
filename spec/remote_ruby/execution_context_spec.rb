@@ -49,7 +49,10 @@ describe ::RemoteRuby::ExecutionContext do
   end
 
   context 'with use_cache' do
-    let(:base_params) { { save_cache: true, use_cache: true, cache_dir: cache_dir } }
+    let(:base_params) do
+      { save_cache: true, use_cache: true, cache_dir: cache_dir }
+    end
+
     let(:caching_context) { described_class.new(**params) }
 
     it 'uses cache' do
