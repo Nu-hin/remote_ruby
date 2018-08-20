@@ -1,6 +1,7 @@
 describe RemoteRuby::SourceExtractor do
   subject { described_class.new }
 
+  # rubocop:disable Layout/IndentHeredoc, Layout/IndentationWidth
   let(:desired_result) do
 <<-RUBY.strip
 a.foo1
@@ -11,11 +12,15 @@ if (x == 4)
   y = 5
 end
 unless y
-  return
+  return 6
 end
+y
 RUBY
   end
+  # rubocop:enable Layout/IndentHeredoc, Layout/IndentationWidth
 
+  # rubocop:disable Layout/IndentationConsistency, Style/IfUnlessModifier
+  # rubocop:disable Lint/UnusedBlockArgument, Metrics/LineLength
   context 'with do-block' do
     context 'well-formatted' do
       context 'without arguments' do
@@ -30,7 +35,8 @@ RUBY
               y = 5
             end
 
-            return unless y
+            return 6 unless y
+            y
           end
 
           expect(res).to eq(desired_result)
@@ -50,8 +56,9 @@ RUBY
             end
 
             unless y
-              return
+              return 6
             end
+            y
           end
 
           expect(res).to eq(desired_result)
@@ -59,12 +66,14 @@ RUBY
       end
     end
 
+    # rubocop:disable Layout/MultilineBlockLayout, Style/Semicolon
     context 'ill-formatted' do
       context 'without arguments' do
         it 'returns correct value' do
-          res = subject.extract do a.foo1; foo2; foo3(bar); x=3
-            y=5 if x ==4
-            return unless y
+          res = subject.extract do a.foo1; foo2; foo3(bar); x = 3
+            y = 5 if x == 4
+            return 6 unless y
+            y
           end
 
           expect(res).to eq(desired_result)
@@ -73,22 +82,25 @@ RUBY
 
       context 'with arguments' do
         it 'returns correct value' do
-          res = subject.extract do |context, a, b| a.foo1; foo2; foo3(bar); x=3
-            y=5 if x ==4
-            return unless y
+          res = subject.extract do |context, a, b| a.foo1; foo2; foo3(bar); x = 3
+            y = 5 if x == 4
+            return 6 unless y
+            y
           end
 
           expect(res).to eq(desired_result)
         end
       end
     end
+    # rubocop:enable Layout/MultilineBlockLayout, Style/Semicolon
   end
 
   context 'with {}-block' do
+    # rubocop:disable Style/Semicolon
     context 'well-formatted' do
       context 'without arguments' do
         it 'returns correct value' do
-          res = subject.extract { a.foo1; foo2; foo3(bar); x=3; y = 5 if x == 4; return unless y }
+          res = subject.extract { a.foo1; foo2; foo3(bar); x = 3; y = 5 if x == 4; return 6 unless y; y }
 
           expect(res).to eq(desired_result)
         end
@@ -96,14 +108,16 @@ RUBY
 
       context 'with arguments' do
         it 'returns correct value' do
-          res = subject.extract { |context, a, b| a.foo1; foo2; foo3(bar); x=3; y = 5 if x == 4; return unless y }
+          res = subject.extract { |context, a, b| a.foo1; foo2; foo3(bar); x = 3; y = 5 if x == 4; return 6 unless y; y }
 
           expect(res).to eq(desired_result)
         end
       end
     end
+    # rubocop:enable Style/Semicolon
 
     context 'ill-formatted' do
+      # rubocop:disable Style/BlockDelimiters
       context 'without arguments' do
         it 'returns correct value' do
           res = subject.extract {
@@ -116,7 +130,8 @@ RUBY
               y = 5
             end
 
-            return unless y
+            return 6 unless y
+            y
           }
 
           expect(res).to eq(desired_result)
@@ -135,12 +150,16 @@ RUBY
               y = 5
             end
 
-            return unless y
-            }
+            return 6 unless y
+            y
+          }
 
           expect(res).to eq(desired_result)
         end
       end
     end
+    # rubocop:enable Style/BlockDelimiters
   end
+  # rubocop:enable Layout/IndentationConsistency, Style/IfUnlessModifier
+  # rubocop:enable Lint/UnusedBlockArgument, Metrics/LineLength
 end

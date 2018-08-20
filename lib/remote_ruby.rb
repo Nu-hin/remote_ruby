@@ -20,4 +20,6 @@ module RemoteRuby
   end
 end
 
+# rubocop:disable Style/MixinUsage
 include RemoteRuby
+# rubocop:enable Style/MixinUsage

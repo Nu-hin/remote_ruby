@@ -30,7 +30,9 @@ module RemoteRuby
 
       varname, length = line.split(':')
       data = stream.read(length.to_i)
+      # rubocop:disable Security/MarshalLoad
       [varname.to_sym, Marshal.load(data)]
+      # rubocop:enable Security/MarshalLoad
     rescue ArgumentError => e
       raise UnmarshalError,
             "Could not resolve type for #{varname} variable: #{e.message}"
