@@ -58,7 +58,7 @@ describe ::RemoteRuby::Unmarshaler do
     end
 
     context 'because of incorrect data' do
-      it 'raises an error' do
+      it 'raises an error on wrong format' do
         source_stream.write('Some data in an incorrect format')
         source_stream.close_write
         source_stream.rewind
@@ -68,7 +68,7 @@ describe ::RemoteRuby::Unmarshaler do
         )
       end
 
-      it 'raises an error' do
+      it 'raises an error on wrong header' do
         source_stream.write([10, 43])
         source_stream.close_write
         source_stream.rewind
@@ -78,7 +78,7 @@ describe ::RemoteRuby::Unmarshaler do
         )
       end
 
-      it 'raises an error' do
+      it 'raises ummarshaling error' do
         source_stream.puts('mbon:12')
         source_stream.write([10, 43])
         source_stream.close_write
