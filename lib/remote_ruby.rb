@@ -11,7 +11,7 @@ module RemoteRuby
   end
 
   def self.root(*params)
-    root_dir = ::Gem::Specification.find_by_name('remote-ruby').gem_dir
+    root_dir = ::Gem::Specification.find_by_name('remote_ruby').gem_dir
     File.join(root_dir, *params)
   end
 
