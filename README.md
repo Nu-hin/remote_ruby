@@ -1,6 +1,6 @@
-# remote-ruby
+# remote_ruby
 
-[![Build Status](https://travis-ci.org/Nu-hin/remote-ruby.svg?branch=master)](https://travis-ci.org/Nu-hin/remote-ruby)
+[![Build Status](https://travis-ci.org/Nu-hin/remote_ruby.svg?branch=master)](https://travis-ci.org/Nu-hin/remote_ruby)
 
 RemoteRuby allows you to execute Ruby code on remote servers via SSH right from the Ruby script running on your local machine, as if it was executed locally.
 
@@ -93,7 +93,7 @@ puts a # => 100
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'remote-ruby', git: 'https://github.com/nu-hin/remote-ruby'
+gem 'remote_ruby', git: 'https://github.com/nu-hin/remote_ruby'
 ```
 
 And then execute:
@@ -365,7 +365,7 @@ puts phone
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/nu-hin/remote-ruby.
+Bug reports and pull requests are welcome on GitHub at https://github.com/nu-hin/remote_ruby.
 
 ## License
 
