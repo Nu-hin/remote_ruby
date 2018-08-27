@@ -1,4 +1,6 @@
 require 'bundler/setup'
+require 'coveralls'
+Coveralls.wear!
 require 'remote_ruby'
 
 require_relative 'integration/config'

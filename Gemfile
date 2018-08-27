@@ -15,3 +15,7 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'rspec', '~> 3.0'
 end
+
+group :test do
+  gem 'coveralls', require: false
+end
