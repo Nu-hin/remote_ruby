@@ -6,10 +6,9 @@ module RemoteRuby
   # Receives client Ruby code, locals and their values and creates Ruby code
   # to be executed on the remote host.
   class Compiler
-    def initialize(ruby_code, client_locals: {}, ignore_types: [], flavours: [])
+    def initialize(ruby_code, client_locals: {}, flavours: [])
       @ruby_code = ruby_code
       @client_locals = client_locals
-      @ignore_types = Array(ignore_types)
       @flavours = flavours
     end
 
@@ -40,26 +39,17 @@ module RemoteRuby
 
     private
 
+    attr_reader :ruby_code, :client_locals, :flavours
+
     def process_local(name, data)
-      return nil unless check_type(data)
       bin_data = Marshal.dump(data)
       Base64.strict_encode64(bin_data)
     rescue TypeError => e
       warn "Cannot send variable #{name}: #{e.message}"
     end
 
-    def check_type(var)
-      ignore_types.each do |klass|
-        return false if var.is_a? klass
-      end
-
-      true
-    end
-
     def code_headers
       flavours.map(&:code_header)
     end
-
-    attr_reader :ruby_code, :client_locals, :ignore_types, :flavours
   end
 end

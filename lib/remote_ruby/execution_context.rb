@@ -84,7 +84,6 @@ module RemoteRuby
       RemoteRuby::Compiler.new(
         ruby_code,
         client_locals: client_locals,
-        ignore_types: self.class,
         flavours: flavours
       )
     end
