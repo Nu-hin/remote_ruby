@@ -41,9 +41,16 @@ describe RemoteRuby::Compiler do
           expect(compiled_code).to include("#{name} = begin")
         end
       end
+
+      context 'when local cannot be dumped' do
+        let(:client_locals) { { file: File.open('/dev/null', 'w') } }
+        it 'prints out a warning' do
+          expect { compiled_code }.to output(/file/).to_stderr
+        end
+      end
     end
 
-    context 'with locals' do
+    context 'with flavours' do
       let(:flavours) do
         (1..3).map do |i|
           double(

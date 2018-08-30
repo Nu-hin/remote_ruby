@@ -45,7 +45,7 @@ module RemoteRuby
       bin_data = Marshal.dump(data)
       Base64.strict_encode64(bin_data)
     rescue TypeError => e
-      warn "Cannot send variable #{name}: #{e.message}"
+      warn "Cannot send variable '#{name}': #{e.message}"
     end
 
     def code_headers
