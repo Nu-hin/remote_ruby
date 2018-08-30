@@ -39,7 +39,7 @@ describe ::RemoteRuby::StreamCacher do
     end
   end
 
-  describe 'eof?' do
+  describe '#eof?' do
     it 'returns true when source stream is at end' do
       input_stream.read
       expect(cacher.eof?).to be_truthy
@@ -51,7 +51,7 @@ describe ::RemoteRuby::StreamCacher do
     end
   end
 
-  describe 'close' do
+  describe '#close' do
     it 'closes the source stream' do
       cacher.close
       expect(input_stream).to be_closed
