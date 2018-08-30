@@ -9,7 +9,7 @@ __marshalled_locals_names__ = []
   __marshalled_locals_names__ << :<%= name %>
   val
 rescue ArgumentError
-  warn("Warning: could not resolve type for #{<%=name %>} variable")
+  warn("Warning: could not resolve type for '<%=name %>' variable")
   nil
 end
 <% end %>
