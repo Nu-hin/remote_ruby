@@ -1,7 +1,20 @@
 module RemoteRuby
   # Base class for other connection adapters.
   class ConnectionAdapter
+    # Initializers of adapters should receive only keyword arguments.
+    # May be overriden in a child class.
+    def initialize(**args); end
+
+    # This will be displayed as a prefix when adapter writes something to
+    # emulated standard output or standard error. May be overriden in a child
+    # class.
     def connection_name
+      self.class.name
+    end
+
+    # Override in child class. Receives Ruby code as string and yields
+    # two readable streams: for emulated standard output and standard error.
+    def open(_code)
       raise NotImplementedError
     end
   end
