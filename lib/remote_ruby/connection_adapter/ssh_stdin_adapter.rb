@@ -1,6 +1,6 @@
 module RemoteRuby
   # An adapter to execute Ruby code on the remote server via SSH
-  class SSHStdinAdapter < ExternalProcessAdapter
+  class SSHStdinAdapter < StdinProcessAdapter
     attr_reader :server, :working_dir, :user, :key_file
 
     def initialize(server:, working_dir: '~', user: nil, key_file: nil)

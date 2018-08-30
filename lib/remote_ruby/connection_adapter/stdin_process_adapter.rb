@@ -2,14 +2,9 @@ require 'open3'
 
 module RemoteRuby
   # Base class for adapters which launch an external process to execute
-  # Ruby code.
-  class ExternalProcessAdapter < ::RemoteRuby::ConnectionAdapter
+  # Ruby code and send the code to its standard input.
+  class StdinProcessAdapter < ::RemoteRuby::ConnectionAdapter
     include Open3
-
-    # Command to run an external process. Override in a child class.
-    def command
-      raise NotImplementedError
-    end
 
     def open(code)
       result = nil
@@ -26,6 +21,13 @@ module RemoteRuby
       return if result.success?
 
       raise "Remote connection exited with code #{result}"
+    end
+
+    protected
+
+    # Command to run an external process. Override in a child class.
+    def command
+      raise NotImplementedError
     end
   end
 end

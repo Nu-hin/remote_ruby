@@ -1,7 +1,7 @@
 module RemoteRuby
   # An adapter to expecute Ruby code on the local macine
   # inside a specified directory
-  class LocalStdinAdapter < ::RemoteRuby::ExternalProcessAdapter
+  class LocalStdinAdapter < ::RemoteRuby::StdinProcessAdapter
     attr_reader :working_dir
 
     def initialize(working_dir: '.')
