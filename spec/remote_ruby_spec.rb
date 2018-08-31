@@ -20,13 +20,17 @@ RSpec.describe RemoteRuby do
         .with(**args).and_return(double(:ec, execute: nil))
 
       remotely(**args) do
+        # :nocov:
         puts 'Hello RemoteRuby'
+        # :nocov:
       end
     end
 
     it 'returns block result' do
       res = remotely(**args) do
+        # :nocov:
         { username: 'John' }
+        # :nocov:
       end
 
       expect(res).to eq(username: 'John')
@@ -36,7 +40,9 @@ RSpec.describe RemoteRuby do
       a = 3
 
       remotely(**args) do
+        # :nocov:
         a = 4
+        # :nocov:
       end
 
       expect(a).to eq(4)

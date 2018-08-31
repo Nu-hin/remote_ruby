@@ -1,6 +1,11 @@
 require 'bundler/setup'
 require 'coveralls'
-Coveralls.wear!
+require 'simplecov'
+
+SimpleCov.formatter = Coveralls::SimpleCov::Formatter
+SimpleCov.start do
+  add_filter 'spec/integration'
+end
 require 'remote_ruby'
 
 require_relative 'integration/config'

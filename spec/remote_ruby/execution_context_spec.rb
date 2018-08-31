@@ -31,7 +31,9 @@ describe ::RemoteRuby::ExecutionContext do
 
     expect do
       execution_context.execute(s: s) do
+        # :nocov:
         puts s
+        # :nocov:
       end
     end.to output(Regexp.new(s)).to_stdout
   end
@@ -41,7 +43,9 @@ describe ::RemoteRuby::ExecutionContext do
 
     it 'creates cache files' do
       execution_context.execute do
+        # :nocov:
         0
+        # :nocov:
       end
 
       expect(Dir.glob(File.join(cache_dir, '*'))).not_to be_empty
@@ -57,14 +61,18 @@ describe ::RemoteRuby::ExecutionContext do
 
     it 'uses cache' do
       caching_context.execute do
+        # :nocov:
         10
+        # :nocov:
       end
 
       expect(execution_context).to receive(:cache_adapter).and_call_original
       expect(::RemoteRuby::CacheAdapter).to receive(:new).and_call_original
 
       res = execution_context.execute do
+        # :nocov:
         10
+        # :nocov:
       end
 
       expect(res).to eq(10)
@@ -76,7 +84,9 @@ describe ::RemoteRuby::ExecutionContext do
       ec = execution_context
 
       res = ec.execute do
+        # :nocov:
         defined?(ec)
+        # :nocov:
       end
 
       expect(res).to be_falsey
@@ -99,7 +109,9 @@ describe ::RemoteRuby::ExecutionContext do
 
     it 'includes Rails loading code' do
       res = execution_context.execute do
+        # :nocov:
         ENV['RAILS_ENV']
+        # :nocov:
       end
 
       expect(res).to eq('production')
@@ -119,7 +131,9 @@ describe ::RemoteRuby::ExecutionContext do
 
     it 'redirects stdout to the specified stream' do
       execution_context.execute do
+        # :nocov:
         puts 'Hello'
+        # :nocov:
       end
 
       expect(out_str.string).to include('Hello')
@@ -127,7 +141,9 @@ describe ::RemoteRuby::ExecutionContext do
 
     it 'redirects stderr to the specified stream' do
       execution_context.execute do
+        # :nocov:
         warn 'Error'
+        # :nocov:
       end
 
       expect(err_str.string).to include('Error')

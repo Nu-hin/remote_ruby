@@ -26,6 +26,7 @@ RUBY
       context 'without arguments' do
         it 'returns correct value' do
           res = subject.extract do
+            # :nocov:
             a.foo1
             foo2
             foo3(bar)
@@ -37,6 +38,7 @@ RUBY
 
             return 6 unless y
             y
+            # :nocov:
           end
 
           expect(res).to eq(desired_result)
@@ -46,6 +48,7 @@ RUBY
       context 'with arguments' do
         it 'returns correct value' do
           res = subject.extract do |context, a, b|
+            # :nocov:
             a.foo1
             foo2
             foo3(bar)
@@ -59,6 +62,7 @@ RUBY
               return 6
             end
             y
+            # :nocov:
           end
 
           expect(res).to eq(desired_result)
@@ -70,11 +74,13 @@ RUBY
     context 'ill-formatted' do
       context 'without arguments' do
         it 'returns correct value' do
+          # :nocov:
           res = subject.extract do a.foo1; foo2; foo3(bar); x = 3
             y = 5 if x == 4
             return 6 unless y
             y
           end
+          # :nocov:
 
           expect(res).to eq(desired_result)
         end
@@ -82,11 +88,13 @@ RUBY
 
       context 'with arguments' do
         it 'returns correct value' do
+          # :nocov:
           res = subject.extract do |context, a, b| a.foo1; foo2; foo3(bar); x = 3
             y = 5 if x == 4
             return 6 unless y
             y
           end
+          # :nocov:
 
           expect(res).to eq(desired_result)
         end
@@ -100,7 +108,9 @@ RUBY
     context 'well-formatted' do
       context 'without arguments' do
         it 'returns correct value' do
+          # :nocov:
           res = subject.extract { a.foo1; foo2; foo3(bar); x = 3; y = 5 if x == 4; return 6 unless y; y }
+          # :nocov:
 
           expect(res).to eq(desired_result)
         end
@@ -108,7 +118,9 @@ RUBY
 
       context 'with arguments' do
         it 'returns correct value' do
+          # :nocov:
           res = subject.extract { |context, a, b| a.foo1; foo2; foo3(bar); x = 3; y = 5 if x == 4; return 6 unless y; y }
+          # :nocov:
 
           expect(res).to eq(desired_result)
         end
@@ -121,6 +133,7 @@ RUBY
       context 'without arguments' do
         it 'returns correct value' do
           res = subject.extract {
+            # :nocov:
             a.foo1
             foo2
             foo3(bar)
@@ -132,6 +145,7 @@ RUBY
 
             return 6 unless y
             y
+            # :nocov:
           }
 
           expect(res).to eq(desired_result)
@@ -140,6 +154,7 @@ RUBY
 
       context 'with arguments' do
         it 'returns correct value' do
+          # :nocov:
           res = subject.extract { |context, a, b|
             a.foo1
             foo2
@@ -153,6 +168,7 @@ RUBY
             return 6 unless y
             y
           }
+          # :nocov:
 
           expect(res).to eq(desired_result)
         end
