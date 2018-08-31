@@ -95,12 +95,18 @@ puts a # => 100
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'remote_ruby', git: 'https://github.com/nu-hin/remote_ruby'
+gem 'remote_ruby'
 ```
 
 And then execute:
+```bash
+bundle
+```
 
-    $ bundle
+Alternatively, install RemoteRuby in your gemset with the following command:
+```bash
+gem install remote_ruby
+```
 
 ## Usage
 
