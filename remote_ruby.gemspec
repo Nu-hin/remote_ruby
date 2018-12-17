@@ -23,5 +23,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'colorize', '~> 0.8'
   spec.add_runtime_dependency 'method_source', '~> 0.9'
   spec.add_runtime_dependency 'parser', '~> 2.5'
-  spec.add_runtime_dependency 'unparser', '~> 0.2'
+  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5')
+    spec.add_runtime_dependency 'unparser', '~> 0.4.2'
+  else
+    spec.add_runtime_dependency 'unparser', '~> 0.2.6'
+  end
 end
