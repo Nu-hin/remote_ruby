@@ -1,0 +1,38 @@
+variables:
+  BUNDLE_APP_CONFIG: '.bundle'
+
+stages:
+  - build
+  - lint
+  - test
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+  - vendor/bundle/
+  - .bundle/
+
+bundle:
+  stage: build
+  script:
+    - bundle config --local path vendor/bundle
+    - bundle config --local jobs $(nproc)
+    - bundle config --local with development test
+    - bundle install
+    - bundle env
+    - ls -la
+
+rubocop:
+  stage: lint
+  script:
+    - ls -la
+    - ls -la vendor/bundle/ruby/*/gems
+    - bundle exec rubocop
+  dependencies:
+    - bundle
+
+rspec:
+  stage: test
+  script: bundle exec rspec
+  dependencies:
+    - bundle
