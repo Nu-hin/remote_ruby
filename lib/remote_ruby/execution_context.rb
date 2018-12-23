@@ -46,6 +46,7 @@ module RemoteRuby
     def assign_locals(local_names, values, block)
       local_names.each do |local|
         next unless values.key?(local)
+
         block.binding.local_variable_set(local, values[local])
       end
     end

@@ -14,6 +14,7 @@ module RemoteRuby
       local_variable_names.each do |name|
         value = block.binding.eval(name.to_s)
         next if ignored_type?(value)
+
         locals[name] = value
       end
 

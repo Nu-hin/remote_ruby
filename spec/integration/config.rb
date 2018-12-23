@@ -2,6 +2,7 @@ RSpec.shared_context 'integration config' do
   let(:config) do
     config_file_name = File.expand_path('config.yml', __dir__)
     return {} unless File.exist?(config_file_name)
+
     YAML.safe_load(File.read(config_file_name))
   end
 

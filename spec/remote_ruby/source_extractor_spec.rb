@@ -37,6 +37,7 @@ RUBY
             end
 
             return 6 unless y
+
             y
             # :nocov:
           end
@@ -61,6 +62,7 @@ RUBY
             unless y
               return 6
             end
+
             y
             # :nocov:
           end
@@ -78,6 +80,7 @@ RUBY
           res = subject.extract do a.foo1; foo2; foo3(bar); x = 3
             y = 5 if x == 4
             return 6 unless y
+
             y
           end
           # :nocov:
@@ -92,6 +95,7 @@ RUBY
           res = subject.extract do |context, a, b| a.foo1; foo2; foo3(bar); x = 3
             y = 5 if x == 4
             return 6 unless y
+
             y
           end
           # :nocov:
@@ -110,6 +114,7 @@ RUBY
         it 'returns correct value' do
           # :nocov:
           res = subject.extract { a.foo1; foo2; foo3(bar); x = 3; y = 5 if x == 4; return 6 unless y; y }
+
           # :nocov:
 
           expect(res).to eq(desired_result)
@@ -120,6 +125,7 @@ RUBY
         it 'returns correct value' do
           # :nocov:
           res = subject.extract { |context, a, b| a.foo1; foo2; foo3(bar); x = 3; y = 5 if x == 4; return 6 unless y; y }
+
           # :nocov:
 
           expect(res).to eq(desired_result)
@@ -144,6 +150,7 @@ RUBY
             end
 
             return 6 unless y
+
             y
             # :nocov:
           }
@@ -166,6 +173,7 @@ RUBY
             end
 
             return 6 unless y
+
             y
           }
           # :nocov:

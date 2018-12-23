@@ -18,6 +18,7 @@ module RemoteRuby
 
     def compiled_code
       return @compiled_code if @compiled_code
+
       template_file =
         ::RemoteRuby.lib_path('remote_ruby/code_templates/compiler/main.rb.erb')
       template = ERB.new(File.read(template_file))
@@ -26,11 +27,13 @@ module RemoteRuby
 
     def client_locals_base64
       return @client_locals_base64 if @client_locals_base64
+
       @client_locals_base64 = {}
 
       client_locals.each do |name, data|
         base64_data = process_local(name, data)
         next if base64_data.nil?
+
         @client_locals_base64[name] = base64_data
       end
 
