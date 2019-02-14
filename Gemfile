@@ -10,7 +10,6 @@ group :development do
 end
 
 group :development, :test do
-  gem 'bundler', '~> 1.15'
   gem 'byebug', '>= 8.0'
   gem 'pry-byebug'
   gem 'rspec', '~> 3.0'
