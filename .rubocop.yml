@@ -1,2 +1,4 @@
+AllCops:
+  NewCops: enable
 Security/MarshalLoad:
   Enabled: false
