@@ -1,0 +1,7 @@
+#!/bin/bash
+
+RUBY_VERSIONS=("3.0.2" "2.7.4" "2.6.8" "2.5.8")
+
+for ruby_version in ${RUBY_VERSIONS[@]}; do
+	docker run --rm -it -v $(pwd):/remote_ruby remote_ruby "rvm use $ruby_version && bundle exec rspec";
+done
