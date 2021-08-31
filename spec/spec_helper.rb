@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'pry-byebug'
 require 'remote_ruby'
 
 RSpec.configure do |config|
