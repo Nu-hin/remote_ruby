@@ -9,3 +9,4 @@ end
 
 require 'remote_ruby/serializer'
 require 'remote_ruby/renderer'
+require 'remote_ruby/code_extractor'
