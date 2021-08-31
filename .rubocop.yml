@@ -1,4 +1,8 @@
 AllCops:
   NewCops: enable
+
 Security/MarshalLoad:
+  Enabled: false
+
+Security/Eval:
   Enabled: false

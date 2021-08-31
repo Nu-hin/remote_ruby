@@ -13,7 +13,6 @@ RSpec.describe RemoteRuby::Serializer do
     }
 
     encoded = described_class.serialize(data)
-    puts encoded
     decoded = described_class.deserialize(encoded)
 
     expect(decoded).to eq(data)

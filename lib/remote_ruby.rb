@@ -8,3 +8,4 @@ module RemoteRuby
 end
 
 require 'remote_ruby/serializer'
+require 'remote_ruby/renderer'
