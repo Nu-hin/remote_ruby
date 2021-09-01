@@ -2,6 +2,8 @@
 
 RSpec.describe RemoteRuby::Serializer do
   it 'encodes variables' do
+    serializer = described_class.new
+
     data = {
       integer: 1,
       float: 1.0,
@@ -12,8 +14,8 @@ RSpec.describe RemoteRuby::Serializer do
       hash: { e: 3, c: 1.0, f: 'Hi' }
     }
 
-    encoded = described_class.serialize(data)
-    decoded = described_class.deserialize(encoded)
+    encoded = serializer.serialize(data)
+    decoded = serializer.deserialize(encoded)
 
     expect(decoded).to eq(data)
   end

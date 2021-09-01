@@ -6,3 +6,6 @@ Security/MarshalLoad:
 
 Security/Eval:
   Enabled: false
+
+Metrics/MethodLength:
+  Max: 15

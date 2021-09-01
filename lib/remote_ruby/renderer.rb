@@ -4,6 +4,7 @@ require 'parser/current'
 
 require 'remote_ruby/code_writer'
 require 'remote_ruby/serializer'
+require 'remote_ruby/locals_extractor'
 
 module RemoteRuby
   # Compiles the client code along with all required variables, and adds
@@ -13,7 +14,7 @@ module RemoteRuby
       writer = ::RemoteRuby::CodeWriter.new
 
       render_requires(writer)
-      writer.write_method(::RemoteRuby::Serializer.method(:deserialize), :__deserialize)
+      render_methods(writer)
       render_data(writer, data)
       render_user_code(writer, ast)
       writer.close
@@ -21,6 +22,20 @@ module RemoteRuby
     end
 
     private
+
+    def render_methods(writer)
+      methods = {
+        __deserialize: ::RemoteRuby::Serializer.instance_method(:deserialize),
+        __assign_locals: ::RemoteRuby::LocalsExtractor.method(:assign)
+      }
+
+      writer.write_section('methods required by RemoteRuby') do |w|
+        methods.each do |name, method|
+          w.write_method(method, name)
+          w.puts
+        end
+      end
+    end
 
     def render_file(writer, fname)
       path = File.join(__dir__, '..', fname)
@@ -40,11 +55,12 @@ module RemoteRuby
     end
 
     def render_data(writer, data)
+      serializer = ::RemoteRuby::Serializer.new
+      data_base64 = serializer.serialize(data)
+
       writer.write_section('client local variables') do |w|
-        data.each do |name, value|
-          value_encoded = ::RemoteRuby::Serializer.serialize(value)
-          w.puts("#{name} = __deserialize('#{value_encoded}')")
-        end
+        w.puts("__client_locals__ = __deserialize('#{data_base64}')")
+        w.puts('__assign_locals(binding, __client_locals__)')
       end
     end
 
