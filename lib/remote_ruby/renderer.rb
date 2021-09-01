@@ -65,8 +65,11 @@ module RemoteRuby
     end
 
     def render_user_code(writer, ast)
+      transformed = ::RemoteRuby::ASTHelper.wrap_in_block(ast, :__result__)
+
       writer.write_section('user code') do |w|
-        w.write_ast(ast)
+        w.write_ast(transformed)
+        w.puts
       end
     end
   end

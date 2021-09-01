@@ -6,17 +6,14 @@ RSpec.describe ::RemoteRuby::Renderer do
     script = <<~RUBY
       a = a + 1
       b = b + " World"
+      "\#{a} \#{b}"
     RUBY
 
     ast = Parser::CurrentRuby.parse(script)
 
     rb = renderer.render(ast, { a: 1, b: 'Hello' })
 
-    Object.new do
-      binding.eval(rb)
-
-      expect(a).to eq(2)
-      expect(b).to eq('Hello World')
-    end
+    binder = Object.new
+    expect(binder.instance_eval(rb)).to eq('2 Hello World')
   end
 end

@@ -11,5 +11,12 @@ module RemoteRuby
                               *ast.children[-2..-1]
                             ])
     end
+
+    def self.wrap_in_block(ast, result_name)
+      Parser::AST::Node.new(:lvasgn, [
+                              result_name,
+                              Parser::AST::Node.new(:kwbegin, [ast])
+                            ])
+    end
   end
 end
