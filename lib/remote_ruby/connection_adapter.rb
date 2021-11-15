@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # Base class for other connection adapters.
   class ConnectionAdapter

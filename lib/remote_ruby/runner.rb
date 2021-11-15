@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'colorize'
 
 require 'remote_ruby/unmarshaler'

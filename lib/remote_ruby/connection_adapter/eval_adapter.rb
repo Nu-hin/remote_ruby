@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # An adapter to expecute Ruby code in the current process in an isolated
   # scope

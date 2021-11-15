@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe ::RemoteRuby::ConnectionAdapter do
   class TestAdapter < described_class; end
 

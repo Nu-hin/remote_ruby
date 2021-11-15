@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # An adapter to execute Ruby code on the remote server via SSH
   class SSHStdinAdapter < StdinProcessAdapter

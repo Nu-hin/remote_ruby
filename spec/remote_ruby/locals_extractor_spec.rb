@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe ::RemoteRuby::LocalsExtractor do
   def fetch_block(&block)
     block

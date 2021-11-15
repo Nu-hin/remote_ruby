@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe ::RemoteRuby::CachingAdapter do
   subject(:adapter) do
     described_class.new(

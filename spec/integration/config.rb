@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_context 'integration config' do
   let(:config) do
     config_file_name = File.expand_path('config.yml', __dir__)

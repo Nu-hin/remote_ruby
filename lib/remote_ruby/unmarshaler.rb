@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # Unmarshals variables from given stream
   class Unmarshaler

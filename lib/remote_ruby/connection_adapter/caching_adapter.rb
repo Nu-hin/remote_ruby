@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'remote_ruby/stream_cacher'
 
 module RemoteRuby

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # An adapter which takes stdout and stderr from files and ignores
   # all stdin. Only used to read from cache.

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe RemoteRuby::Compiler do
   subject(:compiler) do
     described_class.new(

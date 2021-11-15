@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe ::RemoteRuby::Unmarshaler do
   subject(:result) { described_class.new(source_stream).unmarshal }
 

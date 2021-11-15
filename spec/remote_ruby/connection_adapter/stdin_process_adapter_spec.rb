@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe ::RemoteRuby::StdinProcessAdapter do
   class TestStdinAdapter < described_class; end
 

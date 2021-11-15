@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe RemoteRuby do
   describe '.remotely' do
     let(:working_dir) do

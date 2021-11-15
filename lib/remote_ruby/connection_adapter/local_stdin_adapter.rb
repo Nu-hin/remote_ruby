@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # An adapter to expecute Ruby code on the local macine
   # inside a specified directory

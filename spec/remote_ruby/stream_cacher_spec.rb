@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe ::RemoteRuby::StreamCacher do
   subject(:cacher) { described_class.new(input_stream, cache_stream) }
   let(:cache_stream) { StringIO.new }

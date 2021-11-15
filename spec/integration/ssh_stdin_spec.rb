@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe 'Connecting to remote host with SSH STDIN adapter',
          type: :integration do
   let(:context) do

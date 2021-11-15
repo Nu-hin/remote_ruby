@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # Base class for Flavours: addons to execution context to insert additonal
   # code to the generated remote code.

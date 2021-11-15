@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'remote_ruby/version'
 require 'remote_ruby/execution_context'
 

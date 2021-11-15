@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # Extracts local variable from given context
   class LocalsExtractor
