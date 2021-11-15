@@ -8,5 +8,5 @@ Style/GlobalStdStream:
   Exclude:
     - spec/remote_ruby/connection_adapter/eval_adapter_spec.rb
 
-Lint/DocumentDynamicEvalDefinition:
+Style/DocumentDynamicEvalDefinition:
   Enabled: false
