@@ -14,7 +14,6 @@ module RemoteRuby
   # This class is responsible for executing blocks on the remote host with the
   # specified adapters. This is the entrypoint to RemoteRuby logic.
   class ExecutionContext
-    # rubocop:disable Metrics/CyclomaticComplexity
     def initialize(**params)
       add_flavours(params)
       @use_cache = params.delete(:use_cache)   || false
@@ -27,7 +26,6 @@ module RemoteRuby
 
       FileUtils.mkdir_p(@cache_dir)
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def execute(locals = nil, &block)
       source = code_source(block)

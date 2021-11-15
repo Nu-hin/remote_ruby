@@ -10,6 +10,12 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Nikita Chernukhin']
   spec.email         = ['nuinuhin@gmail.com']
 
+  spec.metadata = {
+    'rubygems_mfa_required' => 'true'
+  }
+
+  spec.required_ruby_version = '>= 2.6'
+
   spec.summary       = 'Execute Ruby code on the remote servers.'
   spec.description   =
     'Execute Ruby code on the remote servers from local Ruby script.'

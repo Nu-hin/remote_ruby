@@ -4,13 +4,13 @@ module RemoteRuby
   # Base class for Flavours: addons to execution context to insert additonal
   # code to the generated remote code.
   class Flavour
-    def self.build_flavours(params = {})
+    def self.build_flavours(args = {})
       res = []
 
       {
         rails: RemoteRuby::RailsFlavour
       }.each do |name, klass|
-        options = params.delete(name)
+        options = args.delete(name)
 
         res << klass.new(**options) if options
       end
@@ -18,7 +18,7 @@ module RemoteRuby
       res
     end
 
-    def initialize(params: {}); end
+    def initialize(**args); end
 
     def code_header; end
   end

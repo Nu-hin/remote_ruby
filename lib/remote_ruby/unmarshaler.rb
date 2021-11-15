@@ -43,9 +43,8 @@ module RemoteRuby
     def read_var_header(line)
       varname, length = line.split(':')
 
-      if varname.nil? || length.nil?
-        raise UnmarshalError, "Incorrect header '#{line}'"
-      end
+      raise UnmarshalError, "Incorrect header '#{line}'" \
+        if varname.nil? || length.nil?
 
       [varname, length]
     end

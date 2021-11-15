@@ -5,6 +5,7 @@ module RemoteRuby
   # all stdin. Only used to read from cache.
   class CacheAdapter < ConnectionAdapter
     def initialize(connection_name:, cache_path:)
+      super
       @cache_path = cache_path
       @connection_name = connection_name
     end

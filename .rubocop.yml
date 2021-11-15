@@ -1,5 +1,12 @@
 AllCops:
   NewCops: enable
-Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'context', 'shared_context']
 
+Metrics/BlockLength:
+  IgnoredMethods: ['describe', 'context', 'shared_context']
+
+Style/GlobalStdStream:
+  Exclude:
+    - spec/remote_ruby/connection_adapter/eval_adapter_spec.rb
+
+Lint/DocumentDynamicEvalDefinition:
+  Enabled: false

@@ -6,6 +6,7 @@ module RemoteRuby
     attr_reader :server, :working_dir, :user, :key_file
 
     def initialize(server:, working_dir: '~', user: nil, key_file: nil)
+      super
       @working_dir = working_dir
       @server = user.nil? ? server : "#{user}@#{server}"
       @user = user

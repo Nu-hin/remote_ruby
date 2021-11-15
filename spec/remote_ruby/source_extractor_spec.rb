@@ -3,7 +3,7 @@
 describe RemoteRuby::SourceExtractor do
   subject { described_class.new }
 
-  # rubocop:disable Layout/IndentHeredoc, Layout/IndentationWidth
+  # rubocop:disable Layout/HeredocIndentation, Layout/IndentationWidth
   let(:desired_result) do
 <<-RUBY
 a.foo1
@@ -19,7 +19,7 @@ end
 y
 RUBY
   end
-  # rubocop:enable Layout/IndentHeredoc, Layout/IndentationWidth
+  # rubocop:enable Layout/HeredocIndentation, Layout/IndentationWidth
 
   # rubocop:disable Layout/IndentationConsistency, Style/IfUnlessModifier
   # rubocop:disable Lint/UnusedBlockArgument, Metrics/LineLength
