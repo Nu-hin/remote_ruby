@@ -3,12 +3,12 @@ describe RemoteRuby::SourceExtractor do
 
   # rubocop:disable Layout/IndentHeredoc, Layout/IndentationWidth
   let(:desired_result) do
-<<-RUBY.strip
+<<-RUBY
 a.foo1
 foo2
 foo3(bar)
 x = 3
-if (x == 4)
+if x == 4
   y = 5
 end
 unless y
