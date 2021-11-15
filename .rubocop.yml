@@ -1,3 +1,5 @@
+AllCops:
+  NewCops: enable
 Metrics/BlockLength:
   ExcludedMethods: ['describe', 'context', 'shared_context']
 
