@@ -23,13 +23,15 @@ module RemoteRuby
 
       gzip.close
       output.close
-
-      Base64.strict_encode64(output.string)
+      output.string
     end
 
-    def deserialize(string)
-      input = StringIO.new(Base64.strict_decode64(string))
-      gzip = Zlib::GzipReader.new(input)
+    def serialize_base64(values)
+      Base64.strict_encode64(serialize(values))
+    end
+
+    def deserialize(stream)
+      gzip = Zlib::GzipReader.new(stream)
       res = {}
 
       until gzip.eof?
@@ -39,6 +41,12 @@ module RemoteRuby
       end
 
       gzip.close
+      res
+    end
+
+    def deserialize_base64(string)
+      input = StringIO.new(Base64.strict_decode64(string))
+      res = deserialize(input)
       input.close
       res
     end

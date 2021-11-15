@@ -15,7 +15,7 @@ RSpec.describe RemoteRuby::Serializer do
     }
 
     encoded = serializer.serialize(data)
-    decoded = serializer.deserialize(encoded)
+    decoded = serializer.deserialize(StringIO.new(encoded))
 
     expect(decoded).to eq(data)
   end

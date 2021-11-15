@@ -26,6 +26,7 @@ module RemoteRuby
     def render_methods(writer)
       methods = {
         __deserialize: ::RemoteRuby::Serializer.instance_method(:deserialize),
+        __deserialize_base64: ::RemoteRuby::Serializer.instance_method(:deserialize_base64),
         __assign_locals: ::RemoteRuby::LocalsExtractor.method(:assign)
       }
 
@@ -56,10 +57,10 @@ module RemoteRuby
 
     def render_data(writer, data)
       serializer = ::RemoteRuby::Serializer.new
-      data_base64 = serializer.serialize(data)
+      data_base64 = serializer.serialize_base64(data)
 
       writer.write_section('client local variables') do |w|
-        w.puts("__client_locals__ = __deserialize('#{data_base64}')")
+        w.puts("__client_locals__ = __deserialize_base64('#{data_base64}')")
         w.puts('__assign_locals(binding, __client_locals__)')
       end
     end

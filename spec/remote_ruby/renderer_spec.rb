@@ -12,6 +12,7 @@ RSpec.describe ::RemoteRuby::Renderer do
     ast = Parser::CurrentRuby.parse(script)
 
     rb = renderer.render(ast, { a: 1, b: 'Hello' })
+    puts rb
 
     binder = Object.new
     expect(binder.instance_eval(rb)).to eq('2 Hello World')
