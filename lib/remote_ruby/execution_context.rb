@@ -105,7 +105,7 @@ module RemoteRuby
     end
 
     def adapter(code_hash)
-      actual_adapter = adapter_klass.new(params)
+      actual_adapter = adapter_klass.new(**params)
 
       if use_cache && cache_exists?(code_hash)
         cache_adapter(actual_adapter, code_hash)

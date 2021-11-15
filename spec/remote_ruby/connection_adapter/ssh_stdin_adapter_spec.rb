@@ -5,7 +5,7 @@ require 'support/shared_examples/stdin_process_adapter'
 describe ::RemoteRuby::SSHStdinAdapter do
   include_context 'STDIN adapter'
 
-  subject(:adapter) { described_class.new(params) }
+  subject(:adapter) { described_class.new(**params) }
 
   let(:working_dir) { '/var/ruby_project' }
   let(:server) { 'ssh_host' }
