@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # An adapter to expecute Ruby code in the current process in an isolated
   # scope
@@ -5,6 +7,7 @@ module RemoteRuby
     attr_reader :async, :working_dir
 
     def initialize(working_dir: Dir.pwd, async: false)
+      super
       @async = async
       @working_dir = working_dir
     end
@@ -13,15 +16,11 @@ module RemoteRuby
       ''
     end
 
-    def open(code)
+    def open(code, &block)
       if async
-        run_async(code) do |out, err|
-          yield out, err
-        end
+        run_async(code, &block)
       else
-        run_sync(code) do |out, err|
-          yield out, err
-        end
+        run_sync(code, &block)
       end
     end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe ::RemoteRuby::Unmarshaler do
   subject(:result) { described_class.new(source_stream).unmarshal }
 
@@ -35,6 +37,7 @@ describe ::RemoteRuby::Unmarshaler do
   end
 
   context 'when data can not be deserialized' do
+    # rubocop:disable Lint/ConstantDefinitionInBlock
     context 'because constant cannot be resolved' do
       class UnknownClass
         def initialize(val)
@@ -56,6 +59,7 @@ describe ::RemoteRuby::Unmarshaler do
         )
       end
     end
+    # rubocop:enable Lint/ConstantDefinitionInBlock
 
     context 'because of incorrect data' do
       it 'raises an error on wrong format' do

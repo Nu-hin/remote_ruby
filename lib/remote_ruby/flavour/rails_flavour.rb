@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # Flavour to load Rails environment
   class RailsFlavour < ::RemoteRuby::Flavour
     def initialize(environment: :development)
+      super
       @environment = environment
     end
 

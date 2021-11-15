@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 shared_context 'STDIN adapter' do
   describe '#open' do
     let(:code) { '1 + 1' }
@@ -18,6 +20,7 @@ shared_context 'STDIN adapter' do
       )
     end
 
+    # rubocop:disable Lint/EmptyBlock
     it 'writes code to stdin' do
       adapter.open(code) {}
       expect(fake_stdin.string).to eq(code)
@@ -46,5 +49,6 @@ shared_context 'STDIN adapter' do
         end.to raise_error(RuntimeError, Regexp.new(value.to_s))
       end
     end
+    # rubocop:enable Lint/EmptyBlock
   end
 end

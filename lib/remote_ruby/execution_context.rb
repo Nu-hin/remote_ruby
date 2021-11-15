@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'digest'
 require 'fileutils'
 
@@ -12,7 +14,6 @@ module RemoteRuby
   # This class is responsible for executing blocks on the remote host with the
   # specified adapters. This is the entrypoint to RemoteRuby logic.
   class ExecutionContext
-    # rubocop:disable Metrics/CyclomaticComplexity
     def initialize(**params)
       add_flavours(params)
       @use_cache = params.delete(:use_cache)   || false
@@ -25,7 +26,6 @@ module RemoteRuby
 
       FileUtils.mkdir_p(@cache_dir)
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def execute(locals = nil, &block)
       source = code_source(block)
@@ -103,7 +103,7 @@ module RemoteRuby
     end
 
     def adapter(code_hash)
-      actual_adapter = adapter_klass.new(params)
+      actual_adapter = adapter_klass.new(**params)
 
       if use_cache && cache_exists?(code_hash)
         cache_adapter(actual_adapter, code_hash)

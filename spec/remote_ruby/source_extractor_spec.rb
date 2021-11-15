@@ -1,14 +1,16 @@
+# frozen_string_literal: true
+
 describe RemoteRuby::SourceExtractor do
   subject { described_class.new }
 
-  # rubocop:disable Layout/IndentHeredoc, Layout/IndentationWidth
+  # rubocop:disable Layout/HeredocIndentation, Layout/IndentationWidth
   let(:desired_result) do
-<<-RUBY.strip
+<<-RUBY
 a.foo1
 foo2
 foo3(bar)
 x = 3
-if (x == 4)
+if x == 4
   y = 5
 end
 unless y
@@ -17,10 +19,10 @@ end
 y
 RUBY
   end
-  # rubocop:enable Layout/IndentHeredoc, Layout/IndentationWidth
+  # rubocop:enable Layout/HeredocIndentation, Layout/IndentationWidth
 
   # rubocop:disable Layout/IndentationConsistency, Style/IfUnlessModifier
-  # rubocop:disable Lint/UnusedBlockArgument, Metrics/LineLength
+  # rubocop:disable Lint/UnusedBlockArgument, Layout/LineLength
   context 'with do-block' do
     context 'well-formatted' do
       context 'without arguments' do
@@ -185,5 +187,5 @@ RUBY
     # rubocop:enable Style/BlockDelimiters
   end
   # rubocop:enable Layout/IndentationConsistency, Style/IfUnlessModifier
-  # rubocop:enable Lint/UnusedBlockArgument, Metrics/LineLength
+  # rubocop:enable Lint/UnusedBlockArgument, Layout/LineLength
 end

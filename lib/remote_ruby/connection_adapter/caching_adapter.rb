@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'remote_ruby/stream_cacher'
 
 module RemoteRuby
@@ -5,6 +7,7 @@ module RemoteRuby
   # initializer to cache stdout and stderr to local filesystem
   class CachingAdapter < ConnectionAdapter
     def initialize(cache_path:, adapter:)
+      super
       @cache_path = cache_path
       @adapter = adapter
     end

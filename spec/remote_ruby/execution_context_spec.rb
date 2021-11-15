@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'tmpdir'
 
 describe ::RemoteRuby::ExecutionContext do
@@ -119,8 +121,8 @@ describe ::RemoteRuby::ExecutionContext do
   end
 
   context 'with stream redirection' do
-    let(:err_str) { StringIO.new('') }
-    let(:out_str) { StringIO.new('') }
+    let(:err_str) { StringIO.new }
+    let(:out_str) { StringIO.new }
 
     let(:base_params) do
       {

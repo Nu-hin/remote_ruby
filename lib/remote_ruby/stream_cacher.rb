@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # Decorates the source stream and writes to the cache stream as
   # the source is being read

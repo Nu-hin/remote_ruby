@@ -1,0 +1,28 @@
+name: "Lint & Test"
+on: [push, pull_request]
+jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0.2
+          bundler-cache: true
+      - run: bundle exec rubocop
+  rspec:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        ruby: [2.6, 2.7, '3.0', head]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle exec rspec
+
+
+

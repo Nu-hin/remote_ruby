@@ -1,6 +1,5 @@
 # remote_ruby
-
-[![Build Status](https://travis-ci.org/Nu-hin/remote_ruby.svg?branch=master)](https://travis-ci.org/Nu-hin/remote_ruby)
+![Lint & Test](https://github.com/nu-hin/remote_ruby/actions/workflows/main.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/Nu-hin/remote_ruby/badge.svg?branch=master)](https://coveralls.io/github/Nu-hin/remote_ruby?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/e57430aa6f626aeca41d/maintainability)](https://codeclimate.com/github/Nu-hin/remote_ruby/maintainability)
 [![Gem Version](https://badge.fury.io/rb/remote_ruby.svg)](https://badge.fury.io/rb/remote_ruby)
@@ -8,6 +7,7 @@
 RemoteRuby allows you to execute Ruby code on remote servers via SSH right from the Ruby script running on your local machine, as if it was executed locally.
 
 ## Contents
+* [Requirements](#requirements)
 * [Overview](#overview)
 	* [How it works](#how-it-works)
 	* [Key features](#key-features)
@@ -26,6 +26,10 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Rails](#rails)
 * [Contributing](#contributing)
 * [License](#license)
+
+## Requirements
+
+RemoteRuby requires at least Ruby 2.6 to run.
 
 ## Overview
 
