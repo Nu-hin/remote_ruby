@@ -13,7 +13,7 @@ module RemoteRuby
     def locals
       locals = {}
 
-      local_variable_names.each do |name|
+      block.binding.local_variables.each do |name|
         value = block.binding.eval(name.to_s)
         next if ignored_type?(value)
 
@@ -24,18 +24,6 @@ module RemoteRuby
     end
 
     private
-
-    def local_variable_names
-      if RUBY_VERSION >= '2.2'
-        block.binding.local_variables
-      else
-        # A hack to support Ruby 2.1 due to the absence
-        # of Binding#local_variables method. For some reason
-        # just calling `block.binding.send(:local_variables)`
-        # returns variables of the current context.
-        block.binding.eval('binding.send(:local_variables)')
-      end
-    end
 
     def ignored_type?(var)
       ignore_types.any? { |klass| var.is_a? klass }
