@@ -18,5 +18,5 @@ group :development, :test do
 end
 
 group :test do
-  gem 'coveralls' ,'~> 0.8', require: false
+  gem 'coveralls', '~> 0.8', require: false
 end
