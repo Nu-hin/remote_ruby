@@ -8,6 +8,7 @@
 RemoteRuby allows you to execute Ruby code on remote servers via SSH right from the Ruby script running on your local machine, as if it was executed locally.
 
 ## Contents
+* [Requirements](#requirements)
 * [Overview](#overview)
 	* [How it works](#how-it-works)
 	* [Key features](#key-features)
@@ -26,6 +27,10 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Rails](#rails)
 * [Contributing](#contributing)
 * [License](#license)
+
+## Requirements
+
+RemoteRuby requires at least Ruby 2.6 to run.
 
 ## Overview
 
