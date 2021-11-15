@@ -22,7 +22,7 @@ RUBY
   # rubocop:enable Layout/HeredocIndentation, Layout/IndentationWidth
 
   # rubocop:disable Layout/IndentationConsistency, Style/IfUnlessModifier
-  # rubocop:disable Lint/UnusedBlockArgument, Metrics/LineLength
+  # rubocop:disable Lint/UnusedBlockArgument, Layout/LineLength
   context 'with do-block' do
     context 'well-formatted' do
       context 'without arguments' do
@@ -187,5 +187,5 @@ RUBY
     # rubocop:enable Style/BlockDelimiters
   end
   # rubocop:enable Layout/IndentationConsistency, Style/IfUnlessModifier
-  # rubocop:enable Lint/UnusedBlockArgument, Metrics/LineLength
+  # rubocop:enable Lint/UnusedBlockArgument, Layout/LineLength
 end
