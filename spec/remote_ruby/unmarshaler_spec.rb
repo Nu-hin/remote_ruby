@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe ::RemoteRuby::Unmarshaler do
+describe RemoteRuby::Unmarshaler do
   subject(:result) { described_class.new(source_stream).unmarshal }
 
   let(:source_stream) { StringIO.new }
@@ -55,7 +55,7 @@ describe ::RemoteRuby::Unmarshaler do
 
       it 'raises an UnmarshalError' do
         expect { result }.to(
-          raise_error ::RemoteRuby::Unmarshaler::UnmarshalError
+          raise_error RemoteRuby::Unmarshaler::UnmarshalError
         )
       end
     end
@@ -68,7 +68,7 @@ describe ::RemoteRuby::Unmarshaler do
         source_stream.rewind
 
         expect { result }.to(
-          raise_error ::RemoteRuby::Unmarshaler::UnmarshalError
+          raise_error RemoteRuby::Unmarshaler::UnmarshalError
         )
       end
 
@@ -78,7 +78,7 @@ describe ::RemoteRuby::Unmarshaler do
         source_stream.rewind
 
         expect { result }.to(
-          raise_error ::RemoteRuby::Unmarshaler::UnmarshalError
+          raise_error RemoteRuby::Unmarshaler::UnmarshalError
         )
       end
 
@@ -89,7 +89,7 @@ describe ::RemoteRuby::Unmarshaler do
         source_stream.rewind
 
         expect { result }.to(
-          raise_error ::RemoteRuby::Unmarshaler::UnmarshalError
+          raise_error RemoteRuby::Unmarshaler::UnmarshalError
         )
       end
     end

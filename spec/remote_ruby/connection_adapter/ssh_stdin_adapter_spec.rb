@@ -2,7 +2,7 @@
 
 require 'support/shared_examples/stdin_process_adapter'
 
-describe ::RemoteRuby::SSHStdinAdapter do
+describe RemoteRuby::SSHStdinAdapter do
   include_context 'STDIN adapter'
 
   subject(:adapter) { described_class.new(**params) }

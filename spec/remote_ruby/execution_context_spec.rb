@@ -2,7 +2,7 @@
 
 require 'tmpdir'
 
-describe ::RemoteRuby::ExecutionContext do
+describe RemoteRuby::ExecutionContext do
   subject(:execution_context) do
     described_class.new(**params)
   end
@@ -23,7 +23,7 @@ describe ::RemoteRuby::ExecutionContext do
   let(:base_params) { {} }
   let(:params) do
     {
-      adapter: ::RemoteRuby::EvalAdapter,
+      adapter: RemoteRuby::EvalAdapter,
       working_dir: working_dir
     }.merge(base_params)
   end
@@ -69,7 +69,7 @@ describe ::RemoteRuby::ExecutionContext do
       end
 
       expect(execution_context).to receive(:cache_adapter).and_call_original
-      expect(::RemoteRuby::CacheAdapter).to receive(:new).and_call_original
+      expect(RemoteRuby::CacheAdapter).to receive(:new).and_call_original
 
       res = execution_context.execute do
         # :nocov:
@@ -112,7 +112,7 @@ describe ::RemoteRuby::ExecutionContext do
     it 'includes Rails loading code' do
       res = execution_context.execute do
         # :nocov:
-        ENV['RAILS_ENV']
+        ENV.fetch('RAILS_ENV', nil)
         # :nocov:
       end
 

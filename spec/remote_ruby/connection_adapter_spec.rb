@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe ::RemoteRuby::ConnectionAdapter do
+describe RemoteRuby::ConnectionAdapter do
   # rubocop:disable Lint/ConstantDefinitionInBlock
   class TestAdapter < described_class; end
   # rubocop:enable Lint/ConstantDefinitionInBlock

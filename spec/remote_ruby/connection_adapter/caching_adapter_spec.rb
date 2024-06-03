@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe ::RemoteRuby::CachingAdapter do
+describe RemoteRuby::CachingAdapter do
   subject(:adapter) do
     described_class.new(
       adapter: base_adapter,
@@ -8,7 +8,7 @@ describe ::RemoteRuby::CachingAdapter do
     )
   end
 
-  let(:base_adapter) { ::RemoteRuby::EvalAdapter.new }
+  let(:base_adapter) { RemoteRuby::EvalAdapter.new }
 
   let(:cache_path) do
     File.join(Dir.mktmpdir, 'test')

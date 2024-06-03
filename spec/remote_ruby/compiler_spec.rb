@@ -39,7 +39,7 @@ describe RemoteRuby::Compiler do
       include_context 'normal behaviour'
 
       it 'includes locals serialization' do
-        client_locals.each do |name, _|
+        client_locals.each_key do |name|
           expect(compiled_code).to include("#{name} = begin")
         end
       end

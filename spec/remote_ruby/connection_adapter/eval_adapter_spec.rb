@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe ::RemoteRuby::EvalAdapter do
+describe RemoteRuby::EvalAdapter do
   shared_context 'Process and IO behaviour' do
     let(:working_dir) do
       File.realpath(Dir.mktmpdir)

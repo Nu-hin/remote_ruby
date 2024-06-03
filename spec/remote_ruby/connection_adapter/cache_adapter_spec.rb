@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe ::RemoteRuby::CacheAdapter do
+describe RemoteRuby::CacheAdapter do
   subject(:adapter) do
     described_class.new(
       connection_name: connection_name,
@@ -15,12 +15,8 @@ describe ::RemoteRuby::CacheAdapter do
   let(:cache_path) do
     cache_path = File.join(Dir.mktmpdir, 'test')
 
-    File.open("#{cache_path}.stdout", 'wb') do |f|
-      f.write(output)
-    end
-    File.open("#{cache_path}.stderr", 'wb') do |f|
-      f.write(output)
-    end
+    File.binwrite("#{cache_path}.stdout", output)
+    File.binwrite("#{cache_path}.stderr", output)
 
     cache_path
   end
