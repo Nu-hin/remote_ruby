@@ -1,3 +1,6 @@
+# Set up Bundler if Gemfile is present
+require 'bundler/setup' if File.exist?('Gemfile')
+
 require 'base64'
 
 __marshalled_locals_names__ = []
