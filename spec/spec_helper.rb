@@ -1,11 +1,20 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'coveralls'
 require 'simplecov'
 
-SimpleCov.formatter = Coveralls::SimpleCov::Formatter
 SimpleCov.start do
+  if ENV['CI']
+    require 'simplecov-lcov'
+
+    SimpleCov::Formatter::LcovFormatter.config do |c|
+      c.report_with_single_file = true
+      c.single_report_path = 'coverage/lcov.info'
+    end
+
+    formatter SimpleCov::Formatter::LcovFormatter
+  end
+
   add_filter 'spec/integration'
 end
 require 'remote_ruby'

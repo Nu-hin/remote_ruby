@@ -18,5 +18,6 @@ group :development, :test do
 end
 
 group :test do
-  gem 'coveralls', '~> 0.8', require: false
+  gem 'simplecov', '~> 0.22'
+  gem 'simplecov-lcov', '~> 0.8'
 end

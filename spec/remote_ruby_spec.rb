@@ -12,7 +12,7 @@ RSpec.describe RemoteRuby do
 
     let(:args) do
       {
-        adapter: ::RemoteRuby::EvalAdapter,
+        adapter: RemoteRuby::EvalAdapter,
         working_dir: working_dir
       }
     end

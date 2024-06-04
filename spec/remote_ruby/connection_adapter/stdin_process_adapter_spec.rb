@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe ::RemoteRuby::StdinProcessAdapter do
+describe RemoteRuby::StdinProcessAdapter do
   # rubocop:disable Lint/ConstantDefinitionInBlock
   class TestStdinAdapter < described_class; end
   # rubocop:enable Lint/ConstantDefinitionInBlock
