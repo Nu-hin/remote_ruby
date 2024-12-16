@@ -40,7 +40,7 @@ describe RemoteRuby::ExecutionContext do
     end.to output("#{s}\n").to_stdout
   end
 
-  context 'with out prefix' do
+  context 'with output prefix' do
     let(:base_params) { { out_prefix: 'PREFIX' } }
 
     it 'prints with prefix' do
@@ -72,7 +72,7 @@ describe RemoteRuby::ExecutionContext do
 
   context 'with use_cache' do
     let(:base_params) do
-      { save_cache: true, use_cache: true, cache_dir: cache_dir }
+      { save_cache: true, use_cache: true, cache_dir: cache_dir, cache_prefix: '[C] ' }
     end
 
     let(:caching_context) { described_class.new(**params) }
@@ -94,6 +94,24 @@ describe RemoteRuby::ExecutionContext do
       end
 
       expect(res).to eq(10)
+    end
+
+    it 'prints with prefix' do
+      expect do
+        caching_context.execute do
+          # :nocov:
+          puts 'Hello'
+          # :nocov:
+        end
+      end.to output("Hello\n").to_stdout
+
+      expect do
+        execution_context.execute do
+          # :nocov:
+          puts 'Hello'
+          # :nocov:
+        end
+      end.to output("[C] Hello\n").to_stdout
     end
   end
 
