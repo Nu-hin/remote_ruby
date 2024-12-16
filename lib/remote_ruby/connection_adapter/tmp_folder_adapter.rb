@@ -1,0 +1,53 @@
+# frozen_string_literal: true
+
+require 'open3'
+
+module RemoteRuby
+  # An adapter to expecute Ruby code on the local macine
+  # inside a temporary directory
+  class TmpFolderAdapter < ::RemoteRuby::ConnectionAdapter
+    include Open3
+
+    attr_reader :working_dir, :bundler
+
+    def initialize(working_dir: '.', bundler: false)
+      super
+      @working_dir = working_dir
+      @bundler = bundler
+    end
+
+    def open(code)
+      with_temp_file(code) do |filename|
+        result = nil
+
+        popen3(command(filename)) do |_, stdout, stderr, wait_thr|
+          yield stdout, stderr
+
+          result = wait_thr.value
+        end
+
+        return if result.success?
+
+        raise "Remote connection exited with code #{result}"
+      end
+    end
+
+    protected
+
+    def with_temp_file(code)
+      Dir.mktmpdir do |dir|
+        filename = File.join(dir, 'remote_ruby.rb')
+        File.write(filename, code)
+        yield filename
+      end
+    end
+
+    def command(code_path)
+      if bundler
+        "cd \"#{working_dir}\" && bundle exec ruby #{code_path}"
+      else
+        "cd \"#{working_dir}\" && ruby #{code_path}"
+      end
+    end
+  end
+end
