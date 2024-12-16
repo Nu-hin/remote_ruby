@@ -10,6 +10,7 @@ shared_context 'STDIN adapter' do
     let(:value) { double(:value, success?: success?, to_s: exit_code.to_s) }
     let(:success?) { true }
     let(:exit_code) { 0 }
+    let(:bundler) { false }
 
     before(:example) do
       allow(adapter).to receive(:popen3).and_yield(
@@ -37,6 +38,15 @@ shared_context 'STDIN adapter' do
       allow(adapter).to receive(:command).and_return('echo')
       expect(adapter).to receive(:popen3).with('echo')
       adapter.open(code) {}
+    end
+
+    context 'with bundler' do
+      let(:bundler) { true }
+
+      it 'includes bundle exec to the command' do
+        expect(adapter).to receive(:popen3).with(match(/bundle exec/))
+        adapter.open(code) {}
+      end
     end
 
     context 'when process fails' do

@@ -17,7 +17,8 @@ describe RemoteRuby::SSHStdinAdapter do
       working_dir: working_dir,
       server: server,
       user: username,
-      key_file: key_file
+      key_file: key_file,
+      bundler: bundler
     }
   end
 end
