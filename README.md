@@ -151,6 +151,7 @@ The list of general parameters:
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
 | cache_dir | String | no | ./cache | Path to the directory on the local machine, where cache files should be saved. If the directory doesn't exist, RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
+| out_prefix | String | no | `nil` | Specifies a prefix to be added to each line of output stream |
 | stdout | Stream open for writing | no | `$stdout` | Redirection stream for server standard output |
 | stderr | Stream open for writing | no | `$stderr` | Redirection stream for server standard error output |
 

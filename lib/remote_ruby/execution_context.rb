@@ -14,6 +14,7 @@ module RemoteRuby
   # This class is responsible for executing blocks on the remote host with the
   # specified adapters. This is the entrypoint to RemoteRuby logic.
   class ExecutionContext
+    # rubocop:disable Metrics/CyclomaticComplexity
     def initialize(**params)
       add_flavours(params)
       @use_cache = params.delete(:use_cache)   || false
@@ -22,10 +23,12 @@ module RemoteRuby
       @out_stream = params.delete(:out_stream) || $stdout
       @err_stream = params.delete(:err_stream) || $stderr
       @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHStdinAdapter
+      @out_prefix = params.delete(:out_prefix) || nil
       @params = params
 
       FileUtils.mkdir_p(@cache_dir)
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def execute(locals = nil, &block)
       source = code_source(block)
@@ -41,7 +44,7 @@ module RemoteRuby
     private
 
     attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-                :out_stream, :err_stream, :flavours
+                :out_prefix, :out_stream, :err_stream, :flavours
 
     def assign_locals(local_names, values, block)
       local_names.each do |local|
@@ -95,6 +98,7 @@ module RemoteRuby
       runner = ::RemoteRuby::Runner.new(
         code: compiler.compiled_code,
         adapter: adapter(compiler.code_hash),
+        prefix: out_prefix,
         out_stream: out_stream,
         err_stream: err_stream
       )

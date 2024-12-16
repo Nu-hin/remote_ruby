@@ -37,7 +37,23 @@ describe RemoteRuby::ExecutionContext do
         puts s
         # :nocov:
       end
-    end.to output(Regexp.new(s)).to_stdout
+    end.to output("#{s}\n").to_stdout
+  end
+
+  context 'with out prefix' do
+    let(:base_params) { { out_prefix: 'PREFIX' } }
+
+    it 'prints with prefix' do
+      s = 'Something'
+
+      expect do
+        execution_context.execute(s: s) do
+          # :nocov:
+          puts s
+          # :nocov:
+        end
+      end.to output("PREFIX#{s}\n").to_stdout
+    end
   end
 
   context 'with save_cache' do
@@ -138,7 +154,7 @@ describe RemoteRuby::ExecutionContext do
         # :nocov:
       end
 
-      expect(out_str.string).to include('Hello')
+      expect(out_str.string).to eq("Hello\n")
     end
 
     it 'redirects stderr to the specified stream' do
@@ -148,7 +164,7 @@ describe RemoteRuby::ExecutionContext do
         # :nocov:
       end
 
-      expect(err_str.string).to include('Error')
+      expect(err_str.string).to eq("Error\n")
     end
   end
 end
