@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'colorize'
-
 require 'remote_ruby/unmarshaler'
 
 module RemoteRuby
@@ -20,8 +18,8 @@ module RemoteRuby
       locals = nil
 
       adapter.open(code) do |stdout, stderr|
-        out_thread = read_stream(stdout, out_stream, :green)
-        err_thread = read_stream(stderr, err_stream, :red)
+        out_thread = read_stream(stdout, out_stream)
+        err_thread = read_stream(stderr, err_stream)
         [out_thread, err_thread].each(&:join)
         locals = out_thread[:locals]
       end
@@ -33,7 +31,7 @@ module RemoteRuby
 
     attr_reader :code, :adapter, :out_stream, :err_stream
 
-    def read_stream(read_from, write_to, color)
+    def read_stream(read_from, write_to)
       Thread.new do
         until read_from.eof?
           line = read_from.readline
@@ -41,7 +39,7 @@ module RemoteRuby
           if line.start_with?('%%%MARSHAL')
             Thread.current[:locals] ||= unmarshal(read_from)
           else
-            write_to.puts "#{adapter.connection_name.send(color)}>\t#{line}"
+            write_to.puts line
           end
         end
       end

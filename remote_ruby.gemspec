@@ -33,7 +33,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'base64', '~> 0.2'
-  spec.add_dependency 'colorize', '~> 1.1'
   spec.add_dependency 'method_source', '~> 1.1'
   spec.add_dependency 'parser', '~> 3.0'
   spec.add_dependency 'unparser', '~> 0.6'
