@@ -328,6 +328,7 @@ This adapter uses SSH console client to connect to the remote machine, launches 
 | working_dir | String | no | ~ | Path to the directory on the remote server where the script should be executed |
 | user | String | no | - | User on the remote host to connect as |
 | key_file| String | no | - | Path to the private SSH key |
+| bundler | Boolean | no | false | Specifies, whether the code should be executed with `bundle exec` on the remote server |
 
 
 #### Local STDIN adapter
@@ -338,6 +339,7 @@ This adapter changes to the specified directory on the **local** machine, launch
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
 | working_dir | String | no | . | Path to the directory on the local machine where the script should be executed |
+| bundler | Boolean | no | false | Specifies, whether the code should be executed with `bundle exec` |
 
 
 #### Evaluating adapter

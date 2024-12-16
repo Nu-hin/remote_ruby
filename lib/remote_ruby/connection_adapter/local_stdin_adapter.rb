@@ -4,11 +4,12 @@ module RemoteRuby
   # An adapter to expecute Ruby code on the local macine
   # inside a specified directory
   class LocalStdinAdapter < ::RemoteRuby::StdinProcessAdapter
-    attr_reader :working_dir
+    attr_reader :working_dir, :bundler
 
-    def initialize(working_dir: '.')
+    def initialize(working_dir: '.', bundler: false)
       super
       @working_dir = working_dir
+      @bundler = bundler
     end
 
     def connection_name
@@ -18,7 +19,11 @@ module RemoteRuby
     private
 
     def command
-      "cd \"#{working_dir}\" && ruby"
+      if bundler
+        "cd \"#{working_dir}\" && bundle exec ruby"
+      else
+        "cd \"#{working_dir}\" && ruby"
+      end
     end
   end
 end
