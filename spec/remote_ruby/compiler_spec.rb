@@ -45,7 +45,7 @@ describe RemoteRuby::Compiler do
       end
 
       context 'when local cannot be dumped' do
-        let(:client_locals) { { file: File.open('/dev/null', 'w') } }
+        let(:client_locals) { { file: File.open(File::NULL, 'w') } }
         it 'prints out a warning' do
           expect { compiled_code }.to output(/file/).to_stderr
         end
