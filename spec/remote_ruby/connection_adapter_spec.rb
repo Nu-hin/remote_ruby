@@ -14,10 +14,4 @@ describe RemoteRuby::ConnectionAdapter do
       end.to raise_error NotImplementedError
     end
   end
-
-  describe '#connection_name' do
-    it 'equals to class name by default' do
-      expect(adapter.connection_name).to eq('TestAdapter')
-    end
-  end
 end

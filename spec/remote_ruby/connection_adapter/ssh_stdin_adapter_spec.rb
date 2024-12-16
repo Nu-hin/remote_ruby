@@ -20,12 +20,4 @@ describe RemoteRuby::SSHStdinAdapter do
       key_file: key_file
     }
   end
-
-  describe '#connection_name' do
-    it 'includes host name and dir' do
-      expect(adapter.connection_name).to(
-        eq("#{username}@#{server}:#{working_dir}")
-      )
-    end
-  end
 end

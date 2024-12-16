@@ -3,12 +3,10 @@
 describe RemoteRuby::CacheAdapter do
   subject(:adapter) do
     described_class.new(
-      connection_name: connection_name,
       cache_path: cache_path
     )
   end
 
-  let(:connection_name) { 'test' }
   let(:output) { 'output' }
   let(:errors) { 'errors' }
 
@@ -23,12 +21,6 @@ describe RemoteRuby::CacheAdapter do
 
   after(:each) do
     FileUtils.rm_rf(cache_path)
-  end
-
-  describe '#connection_name' do
-    it 'adds [CACHE] prefix' do
-      expect(adapter.connection_name).to eq("[CACHE] #{connection_name}")
-    end
   end
 
   describe '#open' do

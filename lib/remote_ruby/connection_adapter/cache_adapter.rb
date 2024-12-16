@@ -4,14 +4,9 @@ module RemoteRuby
   # An adapter which takes stdout and stderr from files and ignores
   # all stdin. Only used to read from cache.
   class CacheAdapter < ConnectionAdapter
-    def initialize(connection_name:, cache_path:)
+    def initialize(cache_path:)
       super
       @cache_path = cache_path
-      @connection_name = connection_name
-    end
-
-    def connection_name
-      "[CACHE] #{@connection_name}"
     end
 
     def open(_code)

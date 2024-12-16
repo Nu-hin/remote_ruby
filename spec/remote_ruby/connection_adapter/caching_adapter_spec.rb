@@ -26,14 +26,6 @@ describe RemoteRuby::CachingAdapter do
     FileUtils.rm_rf(cache_path)
   end
 
-  describe '#connection_name' do
-    it 'equals to base adapter connection name' do
-      connection_name = 'test'
-      allow(base_adapter).to receive(:connection_name).and_return('test')
-      expect(adapter.connection_name).to eq(connection_name)
-    end
-  end
-
   describe '#open' do
     def run(code)
       adapter.open(code) do |stdout, stderr|

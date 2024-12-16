@@ -12,10 +12,6 @@ module RemoteRuby
       @adapter = adapter
     end
 
-    def connection_name
-      adapter.connection_name
-    end
-
     def open(code)
       with_cache do |stdout_cache, stderr_cache|
         adapter.open(code) do |stdout, stderr|

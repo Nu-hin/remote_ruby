@@ -110,7 +110,7 @@ module RemoteRuby
       actual_adapter = adapter_klass.new(**params)
 
       if use_cache && cache_exists?(code_hash)
-        cache_adapter(actual_adapter, code_hash)
+        cache_adapter(code_hash)
       elsif save_cache
         caching_adapter(actual_adapter, code_hash)
       else
@@ -118,9 +118,8 @@ module RemoteRuby
       end
     end
 
-    def cache_adapter(adapter, code_hash)
+    def cache_adapter(code_hash)
       ::RemoteRuby::CacheAdapter.new(
-        connection_name: adapter.connection_name,
         cache_path: cache_path(code_hash)
       )
     end

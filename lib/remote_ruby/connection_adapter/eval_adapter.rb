@@ -12,10 +12,6 @@ module RemoteRuby
       @working_dir = working_dir
     end
 
-    def connection_name
-      ''
-    end
-
     def open(code, &block)
       if async
         run_async(code, &block)

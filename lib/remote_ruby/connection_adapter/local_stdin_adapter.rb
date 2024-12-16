@@ -12,10 +12,6 @@ module RemoteRuby
       @bundler = bundler
     end
 
-    def connection_name
-      working_dir
-    end
-
     private
 
     def command

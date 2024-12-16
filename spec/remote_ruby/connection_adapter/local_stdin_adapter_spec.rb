@@ -14,12 +14,6 @@ describe RemoteRuby::LocalStdinAdapter do
     FileUtils.rm_rf(working_dir)
   end
 
-  describe '#connection_name' do
-    it 'equals to working_dir' do
-      expect(adapter.connection_name).to eq(working_dir)
-    end
-  end
-
   describe '#open' do
     it 'changes to the working dir' do
       pwd = nil
