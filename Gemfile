@@ -2,19 +2,17 @@
 
 source 'https://rubygems.org'
 
-git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
-
 gemspec
 
 group :development do
-  gem 'rubocop', '~> 1.23'
+  gem 'rubocop', '~> 1.69'
   gem 'yard', '~> 0.9'
 end
 
 group :development, :test do
   gem 'byebug', '~> 11.1'
-  gem 'pry-byebug', '~> 3.9'
-  gem 'rspec', '~> 3.10'
+  gem 'pry-byebug', '~> 3.10'
+  gem 'rspec', '~> 3.13'
 end
 
 group :test do
