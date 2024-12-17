@@ -22,9 +22,18 @@ describe RemoteRuby::TmpFolderAdapter do
 
   it 'runs the script from a file' do
     script = "puts __FILE__\n"
-    adapter.open(script) do |stdout, _stderr|
+    adapter.open(script) do |_stdin, stdout, _stderr|
       fname = stdout.read.strip
       expect(fname).to match(%r{/remote_ruby\.rb$})
+    end
+  end
+
+  it 'reads the input from stdin' do
+    input = 'puts gets'
+    adapter.open(input) do |stdin, stdout, _stderr|
+      stdin.puts 'Hello, world!'
+      stdin.close
+      expect(stdout.read).to eq("Hello, world!\n")
     end
   end
 
@@ -50,7 +59,7 @@ describe RemoteRuby::TmpFolderAdapter do
 
     # rubocop:disable Lint/EmptyBlock
     it 'yields streams' do
-      adapter.open(code) do |stdout, stderr|
+      adapter.open(code) do |_stdin, stdout, stderr|
         expect(stdout.read).to eq(output_content)
         expect(stderr.read).to eq(error_content)
       end

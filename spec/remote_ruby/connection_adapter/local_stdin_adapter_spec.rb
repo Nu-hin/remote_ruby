@@ -20,7 +20,7 @@ describe RemoteRuby::LocalStdinAdapter do
     it 'changes to the working dir' do
       pwd = nil
 
-      adapter.open('puts Dir.pwd') do |stdout, _stderr|
+      adapter.open('puts Dir.pwd') do |_stdin, stdout, _stderr|
         pwd = stdout.read
         pwd.strip!
       end
@@ -31,7 +31,7 @@ describe RemoteRuby::LocalStdinAdapter do
     it 'is launched in a separate process' do
       new_pid = nil
 
-      adapter.open('puts Process.pid') do |stdout, _stderr|
+      adapter.open('puts Process.pid') do |_stdin, stdout, _stderr|
         new_pid = stdout.read.to_i
       end
 

@@ -15,7 +15,7 @@ module RemoteRuby
         stdin.write(code)
         stdin.close
 
-        yield stdout, stderr
+        yield nil, stdout, stderr
 
         result = wait_thr.value
       end

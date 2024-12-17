@@ -20,8 +20,8 @@ module RemoteRuby
       with_temp_file(code) do |filename|
         result = nil
 
-        popen3(command(filename)) do |_, stdout, stderr, wait_thr|
-          yield stdout, stderr
+        popen3(command(filename)) do |stdin, stdout, stderr, wait_thr|
+          yield stdin, stdout, stderr
 
           result = wait_thr.value
         end

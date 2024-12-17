@@ -13,7 +13,7 @@ module RemoteRuby
       stdout = File.open(stdout_file_path, 'r')
       stderr = File.open(stderr_file_path, 'r')
 
-      yield stdout, stderr
+      yield nil, stdout, stderr
     ensure
       stderr.close unless stderr.closed?
       stdout.close unless stdout.closed?

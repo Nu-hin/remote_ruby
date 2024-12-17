@@ -25,13 +25,13 @@ describe RemoteRuby::CacheAdapter do
 
   describe '#open' do
     it 'reads stdout from cache' do
-      adapter.open(nil) do |stdout|
+      adapter.open(nil) do |_stdin, stdout, _stderr|
         expect(stdout.read).to eq(output)
       end
     end
 
     it 'reads stderr from cache' do
-      adapter.open(nil) do |_, stderr|
+      adapter.open(nil) do |_stdin, _stdout, stderr|
         expect(stderr.read).to eq(output)
       end
     end

@@ -32,7 +32,7 @@ module RemoteRuby
 
     def run_sync(code)
       with_stringio do |tmp_stdout, tmp_stderr|
-        with_tmp_streams(tmp_stdout, tmp_stderr) do
+        with_tmp_streams($stdin, tmp_stdout, tmp_stderr) do
           run_code(code)
         end
 
@@ -40,30 +40,34 @@ module RemoteRuby
         tmp_stderr.close_write
         tmp_stdout.rewind
         tmp_stderr.rewind
-        yield tmp_stdout, tmp_stderr
+        yield nil, tmp_stdout, tmp_stderr
       end
     end
 
     def run_async(code)
-      with_pipes do |out_read, out_write, err_read, err_write|
-        Thread.new do
-          with_tmp_streams(out_write, err_write) do
+      with_pipes do |in_read, in_write, out_read, out_write, err_read, err_write|
+        t = Thread.new do
+          with_tmp_streams(in_read, out_write, err_write) do
             run_code(code)
           end
 
+          in_read.close
           out_write.close
           err_write.close
         end
 
-        yield out_read, err_read
+        yield in_write, out_read, err_read
+        t.join
       end
     end
 
     def with_pipes
+      in_read, in_write = IO.pipe
       out_read, out_write = IO.pipe
       err_read, err_write = IO.pipe
-      yield out_read, out_write, err_read, err_write
+      yield in_read, in_write, out_read, out_write, err_read, err_write
     ensure
+      in_read.close
       out_read.close
       err_read.close
     end
@@ -78,13 +82,16 @@ module RemoteRuby
       err.close
     end
 
-    def with_tmp_streams(out, err)
+    def with_tmp_streams(ins, out, err)
+      old_stdin = $stdin
       old_stdout = $stdout
       old_stderr = $stderr
+      $stdin = ins
       $stdout = out
       $stderr = err
       yield
     ensure
+      $stdin = old_stdin
       $stdout = old_stdout
       $stderr = old_stderr
     end

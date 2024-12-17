@@ -8,6 +8,7 @@ module RemoteRuby
     def initialize(**args); end
 
     # Override in child class. Receives Ruby code as string and yields
+    # a writeable stream for standard input and
     # two readable streams: for emulated standard output and standard error.
     def open(_code)
       raise NotImplementedError

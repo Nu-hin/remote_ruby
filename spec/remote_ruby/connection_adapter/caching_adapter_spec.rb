@@ -28,7 +28,7 @@ describe RemoteRuby::CachingAdapter do
 
   describe '#open' do
     def run(code)
-      adapter.open(code) do |stdout, stderr|
+      adapter.open(code) do |_stdin, stdout, stderr|
         stdout.read
         stderr.read
       end

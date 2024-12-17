@@ -13,7 +13,7 @@ describe RemoteRuby::EvalAdapter do
     it 'is launched in the same process' do
       new_pid = nil
 
-      adapter.open('puts Process.pid') do |stdout, _stderr|
+      adapter.open('puts Process.pid') do |_stdin, stdout, _stderr|
         new_pid = stdout.read.to_i
       end
 
@@ -23,12 +23,9 @@ describe RemoteRuby::EvalAdapter do
     end
 
     it 'restores $stdout and $stderr variables' do
-      new_pid = nil
-
-      adapter.open('puts Process.pid') do |stdout, stderr|
+      adapter.open('puts Process.pid') do |_stdin, stdout, stderr|
         expect(stdout).not_to eq(STDOUT)
         expect(stderr).not_to eq(STDERR)
-        new_pid = stdout.read.to_i
       end
 
       expect($stdout).to eq(STDOUT)
@@ -39,7 +36,7 @@ describe RemoteRuby::EvalAdapter do
       pwd = nil
       old_dir = Dir.pwd
 
-      adapter.open('puts Dir.pwd') do |stdout, _stderr|
+      adapter.open('puts Dir.pwd') do |_stdin, stdout, _stderr|
         pwd = stdout.read
         pwd.strip!
       end
@@ -56,7 +53,7 @@ describe RemoteRuby::EvalAdapter do
     it 'is launched in the same thread' do
       new_thread_id = nil
 
-      adapter.open('puts Thread.current.object_id') do |stdout, _stderr|
+      adapter.open('puts Thread.current.object_id') do |_stdin, stdout, _stderr|
         new_thread_id = stdout.read.to_i
       end
 
@@ -76,7 +73,7 @@ describe RemoteRuby::EvalAdapter do
     it 'is launched in a different thread' do
       new_thread_id = nil
 
-      adapter.open('puts Thread.current.object_id') do |stdout, _stderr|
+      adapter.open('puts Thread.current.object_id') do |_stdin, stdout, _stderr|
         new_thread_id = stdout.read.to_i
       end
 

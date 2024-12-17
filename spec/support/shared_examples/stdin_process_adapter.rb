@@ -28,7 +28,7 @@ shared_context 'STDIN adapter' do
     end
 
     it 'yields streams' do
-      adapter.open(code) do |stdout, stderr|
+      adapter.open(code) do |_stdin, stdout, stderr|
         expect(stdout.read).to eq(output_content)
         expect(stderr.read).to eq(error_content)
       end
