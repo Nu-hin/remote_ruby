@@ -23,7 +23,7 @@ describe RemoteRuby::ExecutionContext do
   let(:base_params) { {} }
   let(:params) do
     {
-      adapter: RemoteRuby::TmpFolderAdapter,
+      adapter: RemoteRuby::TmpFileAdapter,
       working_dir: working_dir
     }.merge(base_params)
   end

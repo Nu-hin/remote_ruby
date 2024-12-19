@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe RemoteRuby::TmpFolderAdapter do
+describe RemoteRuby::TmpFileAdapter do
   subject(:adapter) { described_class.new(**params) }
 
   let(:bundler) { false }

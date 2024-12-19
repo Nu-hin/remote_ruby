@@ -3,9 +3,9 @@
 require 'open3'
 
 module RemoteRuby
-  # An adapter to expecute Ruby code on the local macine
-  # inside a temporary directory
-  class TmpFolderAdapter < ::RemoteRuby::ConnectionAdapter
+  # An adapter to expecute Ruby code on the local machine
+  # inside a temporary file
+  class TmpFileAdapter < ::RemoteRuby::ConnectionAdapter
     include Open3
 
     attr_reader :working_dir, :bundler
@@ -28,7 +28,7 @@ module RemoteRuby
 
         return if result.success?
 
-        raise "Remote connection exited with code #{result}"
+        raise "Process exited with code #{result}"
       end
     end
 
