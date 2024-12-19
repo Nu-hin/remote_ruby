@@ -25,6 +25,9 @@ __return_val__ = begin
   # End of flavour-added code
 <% end %>
 
+  STDOUT.sync = true
+  STDERR.sync = true
+
   # Start of client code
 <%= ruby_code %>
   # End of client code
