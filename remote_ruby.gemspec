@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   =
     'Execute Ruby code on the remote servers from local Ruby script.'
   spec.homepage      = 'https://github.com/nu-hin/remote_ruby'
-  spec.required_ruby_version = '>= 2.6'
+  spec.required_ruby_version = '>= 2.7'
   spec.license = 'MIT'
 
   spec.metadata = {
