@@ -4,10 +4,9 @@ describe 'Connecting to remote host with SSH STDIN adapter',
          type: :integration do
   let(:context) do
     RemoteRuby::ExecutionContext.new(
-      adapter: RemoteRuby::SSHStdinAdapter,
-      server: ssh_host,
+      adapter: RemoteRuby::SSHAdapter,
+      host: ssh_host,
       user: ssh_user,
-      key_file: ssh_key_file,
       working_dir: ssh_workdir
     )
   end

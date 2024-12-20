@@ -22,7 +22,7 @@ module RemoteRuby
       @cache_dir = params.delete(:cache_dir)   || File.join(Dir.pwd, 'cache')
       @out_stream = params.delete(:out_stream) || $stdout
       @err_stream = params.delete(:err_stream) || $stderr
-      @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHTmpFileAdapter
+      @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHAdapter
       @out_prefix = params.delete(:out_prefix) || nil
       @cache_prefix = params.delete(:cache_prefix) || '[CACHE] '
       @params = params
