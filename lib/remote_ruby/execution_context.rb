@@ -20,6 +20,7 @@ module RemoteRuby
       @use_cache = params.delete(:use_cache)   || false
       @save_cache = params.delete(:save_cache) || false
       @cache_dir = params.delete(:cache_dir)   || File.join(Dir.pwd, 'cache')
+      @in_stream = params.delete(:in_stream) || $stdin
       @out_stream = params.delete(:out_stream) || $stdout
       @err_stream = params.delete(:err_stream) || $stderr
       @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHAdapter
@@ -45,7 +46,7 @@ module RemoteRuby
     private
 
     attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-                :out_prefix, :out_stream, :err_stream, :flavours, :cache_prefix
+                :out_prefix, :in_stream, :out_stream, :err_stream, :flavours, :cache_prefix
 
     def assign_locals(local_names, values, block)
       local_names.each do |local|
@@ -102,6 +103,7 @@ module RemoteRuby
         code: compiler.compiled_code,
         adapter: adapter(compiler.code_hash),
         prefix: "#{cp}#{out_prefix}",
+        in_stream: in_stream,
         out_stream: out_stream,
         err_stream: err_stream
       )

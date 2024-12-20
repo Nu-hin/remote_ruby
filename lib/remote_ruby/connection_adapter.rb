@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RemoteRuby
-  # Base class for other connection adapters.
+  # Base class for connection adapters.
   class ConnectionAdapter
     # Initializers of adapters should receive only keyword arguments.
     # May be overriden in a child class.
@@ -17,11 +17,7 @@ module RemoteRuby
 end
 
 require 'remote_ruby/connection_adapter/eval_adapter'
-require 'remote_ruby/connection_adapter/stdin_process_adapter'
-require 'remote_ruby/connection_adapter/ssh_stdin_adapter'
-require 'remote_ruby/connection_adapter/local_stdin_adapter'
 require 'remote_ruby/connection_adapter/cache_adapter'
 require 'remote_ruby/connection_adapter/caching_adapter'
-require 'remote_ruby/connection_adapter/tmp_file_adapter'
-require 'remote_ruby/connection_adapter/ssh_tmp_file_adapter'
 require 'remote_ruby/connection_adapter/ssh_adapter'
+require 'remote_ruby/connection_adapter/tmp_file_adapter'
