@@ -2,13 +2,51 @@
 
 describe 'Connecting to remote host with SSH adapter',
          type: :integration do
+  let(:save_cache) { false }
+
   let(:ec) do
     RemoteRuby::ExecutionContext.new(
       adapter: RemoteRuby::SSHAdapter,
       host: ssh_host,
       user: ssh_user,
-      working_dir: ssh_workdir
+      working_dir: ssh_workdir,
+      use_cache: false,
+      save_cache: save_cache
     )
+  end
+
+  context 'in caching mode' do
+    let(:cache_prefix) { '[C] ' }
+    let(:save_cache) { true }
+    let(:cec) do
+      RemoteRuby::ExecutionContext.new(
+        adapter: RemoteRuby::SSHAdapter,
+        host: ssh_host,
+        user: ssh_user,
+        working_dir: ssh_workdir,
+        use_cache: true,
+        save_cache: false,
+        cache_prefix: cache_prefix
+      )
+    end
+
+    it 'replays stdout and stderr' do
+      expect do
+        ec.execute do
+          puts 'Hello, World!'
+          warn 'Something went wrong!'
+        end
+      end.to output("Hello, World!\n").to_stdout.and output("Something went wrong!\n").to_stderr
+
+      expect do
+        cec.execute do
+          puts 'Hello, World!'
+          warn 'Something went wrong!'
+        end
+      end.to output("#{cache_prefix}Hello, World!\n")
+        .to_stdout
+        .and output("#{cache_prefix}Something went wrong!\n").to_stderr
+    end
   end
 
   context 'with do-blocks' do
