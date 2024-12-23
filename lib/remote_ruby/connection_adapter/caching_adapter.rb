@@ -14,8 +14,8 @@ module RemoteRuby
 
     def open(code)
       with_cache do |stdout_cache, stderr_cache|
-        adapter.open(code) do |_stdin, stdout, stderr|
-          yield nil, ::RemoteRuby::StreamCacher.new(stdout, stdout_cache),
+        adapter.open(code) do |stdin, stdout, stderr|
+          yield stdin, ::RemoteRuby::StreamCacher.new(stdout, stdout_cache),
           ::RemoteRuby::StreamCacher.new(stderr, stderr_cache)
         end
       end

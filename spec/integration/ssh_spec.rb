@@ -47,6 +47,22 @@ describe 'Connecting to remote host with SSH adapter',
         .to_stdout
         .and output("#{cache_prefix}Something went wrong!\n").to_stderr
     end
+
+    it 'ignores stdin on replay' do
+      with_stdin_redirect("John doe\n") do
+        expect do
+          ec.execute do
+            puts gets
+          end
+        end.to output("John doe\n").to_stdout
+      end
+
+      expect do
+        cec.execute do
+          puts gets
+        end.to output("John doe\n").to_stdout
+      end
+    end
   end
 
   context 'with do-blocks' do
