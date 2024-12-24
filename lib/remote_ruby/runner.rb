@@ -7,13 +7,12 @@ module RemoteRuby
   # connection adapter, reading output and unmarshalling result and local
   # variables values.
   class Runner
-    def initialize(code:, adapter:, prefix: nil, in_stream: $stdin, out_stream: $stdout, err_stream: $stderr)
+    def initialize(code:, adapter:, in_stream: $stdin, out_stream: $stdout, err_stream: $stderr)
       @code = code
       @adapter = adapter
       @in_stream = in_stream
       @out_stream = out_stream
       @err_stream = err_stream
-      @prefix = prefix
     end
 
     def run
@@ -33,7 +32,7 @@ module RemoteRuby
 
     private
 
-    attr_reader :code, :adapter, :in_stream, :out_stream, :err_stream, :prefix
+    attr_reader :code, :adapter, :in_stream, :out_stream, :err_stream
 
     def read_stream(read_from, write_to)
       Thread.new do
@@ -43,7 +42,7 @@ module RemoteRuby
           if line.start_with?('%%%MARSHAL')
             Thread.current[:locals] ||= unmarshal(read_from)
           else
-            write_to.puts "#{prefix}#{line}"
+            write_to.puts line
           end
         end
       end

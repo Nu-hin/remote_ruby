@@ -16,7 +16,6 @@ describe 'Connecting to remote host with SSH adapter',
   end
 
   context 'in caching mode' do
-    let(:cache_prefix) { '[C] ' }
     let(:save_cache) { true }
     let(:cec) do
       RemoteRuby::ExecutionContext.new(
@@ -25,8 +24,7 @@ describe 'Connecting to remote host with SSH adapter',
         user: ssh_user,
         working_dir: ssh_workdir,
         use_cache: true,
-        save_cache: false,
-        cache_prefix: cache_prefix
+        save_cache: false
       )
     end
 
@@ -43,9 +41,9 @@ describe 'Connecting to remote host with SSH adapter',
           puts 'Hello, World!'
           warn 'Something went wrong!'
         end
-      end.to output("#{cache_prefix}Hello, World!\n")
+      end.to output("Hello, World!\n")
         .to_stdout
-        .and output("#{cache_prefix}Something went wrong!\n").to_stderr
+        .and output("Something went wrong!\n").to_stderr
     end
 
     it 'ignores stdin on replay' do

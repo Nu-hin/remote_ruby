@@ -151,14 +151,13 @@ The list of general parameters:
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
 | cache_dir | String | no | ./cache | Path to the directory on the local machine, where cache files should be saved. If the directory doesn't exist, RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
-| out_prefix | String | no | `nil` | Specifies a prefix to be added to each line of output stream |
-| out_prefix | String | no | `'[CACHE] '` | Specifies a prefix to be added to each line of output stream, when the context is reading from cache |
+when the context is reading from cache |
 | stdout | Stream open for writing | no | `$stdout` | Redirection stream for server standard output |
 | stderr | Stream open for writing | no | `$stderr` | Redirection stream for server standard error output |
 
 ### Output
 
-Standard output and standard error streams from the remote process are captured, and then, depending on your parameters are either forwarded to local STOUT/STDERR or to the specified streams. RemoteRuby will add a prefix to each line of server output to distinguish between local and server output. STDOUT prefix is displayed in green, STDERR prefix is red. If output is read from cache, then `[CACHE]` prefix will also be added. The prefix may also depend on the adapter used.
+Standard output and standard error streams from the remote process are captured, and then, depending on your parameters are either forwarded to local STOUT/STDERR or to the specified streams.
 
 ```ruby
   remotely(server: 'my_ssh_server', working_dir: '/home/john') do
@@ -167,10 +166,6 @@ Standard output and standard error streams from the remote process are captured,
   end
 ```
 
-```bash
-my_ssh_server:/home/john> This is an output
-my_ssh_server:/home/john> This is a warning
-```
 
 ### Local variables and return value
 

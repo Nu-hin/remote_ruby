@@ -24,8 +24,6 @@ module RemoteRuby
       @out_stream = params.delete(:out_stream) || $stdout
       @err_stream = params.delete(:err_stream) || $stderr
       @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHAdapter
-      @out_prefix = params.delete(:out_prefix) || nil
-      @cache_prefix = params.delete(:cache_prefix) || '[CACHE] '
       @params = params
 
       FileUtils.mkdir_p(@cache_dir)
@@ -46,7 +44,7 @@ module RemoteRuby
     private
 
     attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-                :out_prefix, :in_stream, :out_stream, :err_stream, :flavours, :cache_prefix
+                :in_stream, :out_stream, :err_stream, :flavours
 
     def assign_locals(local_names, values, block)
       local_names.each do |local|
@@ -96,13 +94,10 @@ module RemoteRuby
 
     def execute_code(ruby_code, client_locals = {})
       compiler = compiler(ruby_code, client_locals)
-      code_hash = compiler.code_hash
-      cp = use_cache && cache_exists?(code_hash) ? cache_prefix : nil
 
       runner = ::RemoteRuby::Runner.new(
         code: compiler.compiled_code,
         adapter: adapter(compiler.code_hash),
-        prefix: "#{cp}#{out_prefix}",
         in_stream: in_stream,
         out_stream: out_stream,
         err_stream: err_stream
