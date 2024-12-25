@@ -4,6 +4,12 @@ describe 'Connecting to remote host with SSH adapter',
          type: :integration do
   let(:save_cache) { false }
 
+  let(:cache_dir) { Dir.mktmpdir }
+
+  after(:each) do
+    FileUtils.rm_rf(cache_dir)
+  end
+
   let(:ec) do
     RemoteRuby::ExecutionContext.new(
       adapter: RemoteRuby::SSHAdapter,
@@ -11,7 +17,8 @@ describe 'Connecting to remote host with SSH adapter',
       user: ssh_user,
       working_dir: ssh_workdir,
       use_cache: false,
-      save_cache: save_cache
+      save_cache: save_cache,
+      cache_dir: cache_dir
     )
   end
 
