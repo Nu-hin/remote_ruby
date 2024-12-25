@@ -35,12 +35,12 @@ describe RemoteRuby::CachingAdapter do
     end
 
     it 'saves output to file' do
-      run("print 'text'")
+      run("puts; print 'text'")
       expect(File.read(stdout_cache_path)).to eq('text')
     end
 
     it 'saved errors to file' do
-      run("$stderr.print 'text'")
+      run("puts; $stderr.print 'text'")
       expect(File.read(stderr_cache_path)).to eq('text')
     end
 

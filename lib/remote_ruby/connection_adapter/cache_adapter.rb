@@ -19,9 +19,18 @@ module RemoteRuby
       stdout.close unless stdout.closed?
     end
 
+    def with_result_stream(&block)
+      File.open(result_file_path, 'r', &block)
+    end
+
     private
 
     attr_reader :cache_path
+
+    def result_file_path
+      fp = "#{cache_path}.result"
+      File.exist?(fp) ? fp : File::NULL
+    end
 
     def stdout_file_path
       fp = "#{cache_path}.stdout"

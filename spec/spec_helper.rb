@@ -23,10 +23,10 @@ require_relative 'integration/config'
 
 Bundler.require(:development, :test)
 
-require_relative 'support/stdin_helper'
+require_relative 'support/stream_helper'
 
 RSpec.configure do |config|
-  config.include StdinHelper
+  config.include StreamHelper
 
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true

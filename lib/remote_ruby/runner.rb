@@ -24,7 +24,10 @@ module RemoteRuby
         err_thread = read_stream(stderr, err_stream)
         [out_thread, err_thread].compact.each(&:join)
         stdin&.close
-        locals = out_thread[:locals]
+      end
+
+      adapter.with_result_stream do |result_stream|
+        locals = unmarshal(result_stream)
       end
 
       { result: locals[:__return_val__], locals: locals }
@@ -36,15 +39,7 @@ module RemoteRuby
 
     def read_stream(read_from, write_to)
       Thread.new do
-        until read_from.eof?
-          line = read_from.readline
-
-          if line.start_with?('%%%MARSHAL')
-            Thread.current[:locals] ||= unmarshal(read_from)
-          else
-            write_to.puts line
-          end
-        end
+        IO.copy_stream(read_from, write_to)
       end
     end
 

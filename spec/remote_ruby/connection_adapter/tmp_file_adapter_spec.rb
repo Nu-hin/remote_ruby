@@ -21,7 +21,7 @@ describe RemoteRuby::TmpFileAdapter do
   end
 
   it 'runs the script from a file' do
-    script = "puts __FILE__\n"
+    script = "puts; puts __FILE__\n"
     adapter.open(script) do |_stdin, stdout, _stderr|
       fname = stdout.read.strip
       expect(fname).to match(%r{/remote_ruby\.rb$})
@@ -29,7 +29,7 @@ describe RemoteRuby::TmpFileAdapter do
   end
 
   it 'reads the input from stdin' do
-    input = 'puts gets'
+    input = 'puts "mbon"; $stdout.flush; puts gets'
     adapter.open(input) do |stdin, stdout, _stderr|
       stdin.puts 'Hello, world!'
       stdin.close
@@ -51,7 +51,7 @@ describe RemoteRuby::TmpFileAdapter do
     before(:example) do
       allow(adapter).to receive(:popen3).and_yield(
         fake_stdin,
-        StringIO.new(output_content),
+        StringIO.new("\n#{output_content}"),
         StringIO.new(error_content),
         wait_thr
       )

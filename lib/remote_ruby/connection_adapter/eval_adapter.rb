@@ -23,9 +23,16 @@ module RemoteRuby
           err_write.close
         end
 
+        @result_fname = out_read.readline.chomp
         yield in_write, out_read, err_read
         t.join
       end
+    end
+
+    def with_result_stream(&block)
+      File.open(@result_fname, 'r', &block)
+    ensure
+      File.unlink(@result_fname)
     end
 
     private

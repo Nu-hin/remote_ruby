@@ -21,6 +21,14 @@ module RemoteRuby
       end
     end
 
+    def with_result_stream
+      File.open(result_file_path, 'w') do |result_cache|
+        adapter.with_result_stream do |stream|
+          yield ::RemoteRuby::StreamCacher.new(stream, result_cache)
+        end
+      end
+    end
+
     private
 
     attr_reader :cache_path, :adapter
@@ -33,6 +41,10 @@ module RemoteRuby
     ensure
       stdout_cache.close
       stderr_cache.close
+    end
+
+    def result_file_path
+      "#{cache_path}.result"
     end
 
     def stdout_file_path

@@ -2,6 +2,7 @@
 require 'bundler/setup' if File.exist?('Gemfile')
 
 require 'base64'
+require 'tempfile'
 
 __marshalled_locals_names__ = []
 
@@ -17,6 +18,13 @@ rescue ArgumentError
 end
 <% end %>
 
+
+__result_file__ = Tempfile.create('remote_ruby_result.dat')
+
+$stdout.sync = true
+$stdout.sync = true
+$stdout.puts __result_file__.path
+
 __return_val__ = begin
 
 <% if code_headers.any? %>
@@ -25,8 +33,6 @@ __return_val__ = begin
   # End of flavour-added code
 <% end %>
 
-  STDOUT.sync = true
-  STDERR.sync = true
 
   # Start of client code
 <%= ruby_code %>
@@ -36,12 +42,11 @@ end
 __marshalled_locals_names__ << :__return_val__
 
 # Marshalling local variables and result
-
-$stdout.puts "%%%MARSHAL"
-
 __marshalled_locals_names__.each do |lv|
   data = Marshal.dump(eval(lv.to_s))
   data_length = data.size
-  $stdout.puts "#{lv}:#{data_length}"
-  $stdout.write(data)
+  __result_file__.puts "#{lv}:#{data_length}"
+  __result_file__.write(data)
 end
+
+__result_file__.close
