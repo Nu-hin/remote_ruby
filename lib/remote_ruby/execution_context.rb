@@ -24,6 +24,7 @@ module RemoteRuby
       @out_stream = params.delete(:out_stream) || $stdout
       @err_stream = params.delete(:err_stream) || $stderr
       @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHAdapter
+      @text_mode = params.delete(:text_mode) || nil
       @params = params
 
       FileUtils.mkdir_p(@cache_dir)
@@ -44,7 +45,7 @@ module RemoteRuby
     private
 
     attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-                :in_stream, :out_stream, :err_stream, :flavours
+                :in_stream, :out_stream, :err_stream, :flavours, :text_mode
 
     def assign_locals(local_names, values, block)
       local_names.each do |local|
@@ -107,20 +108,39 @@ module RemoteRuby
     end
 
     def adapter(code_hash)
-      actual_adapter = adapter_klass.new(**params)
+      res = adapter_klass.new(**params)
 
-      if use_cache && cache_exists?(code_hash)
-        cache_adapter(code_hash)
-      elsif save_cache
-        caching_adapter(actual_adapter, code_hash)
-      else
-        actual_adapter
-      end
+      cache_mode = use_cache && cache_exists?(code_hash)
+
+      res = if cache_mode
+              cache_adapter(code_hash, res.connection_name)
+            elsif save_cache
+              caching_adapter(res, code_hash)
+            else
+              res
+            end
+
+      wrap_text_mode(res, cache_mode)
     end
 
-    def cache_adapter(code_hash)
+    def wrap_text_mode(ad, cache_mode)
+      return ad unless text_mode
+
+      params = ::RemoteRuby::TextModeAdapter::DEFAULT_SETTINGS.merge(
+        stdout_prefix: ad.connection_name,
+        stderr_prefix: ad.connection_name,
+        cache_used: cache_mode
+      )
+
+      params = params.merge(text_mode) if text_mode.is_a? Hash
+
+      ::RemoteRuby::TextModeAdapter.new(ad, **params)
+    end
+
+    def cache_adapter(code_hash, connection_name)
       ::RemoteRuby::CacheAdapter.new(
-        cache_path: cache_path(code_hash)
+        cache_path: cache_path(code_hash),
+        connection_name: connection_name
       )
     end
 

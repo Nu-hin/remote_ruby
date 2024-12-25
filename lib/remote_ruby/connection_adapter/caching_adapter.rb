@@ -29,6 +29,10 @@ module RemoteRuby
       end
     end
 
+    def connection_name
+      adapter.connection_name
+    end
+
     private
 
     attr_reader :cache_path, :adapter

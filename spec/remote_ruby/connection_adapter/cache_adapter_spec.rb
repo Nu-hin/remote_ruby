@@ -3,7 +3,8 @@
 describe RemoteRuby::CacheAdapter do
   subject(:adapter) do
     described_class.new(
-      cache_path: cache_path
+      cache_path: cache_path,
+      connection_name: 'conn'
     )
   end
 

@@ -3,11 +3,18 @@ require 'colorize'
 
 module RemoteRuby
   class TextModeAdapter < ConnectionAdapter
+    DEFAULT_SETTINGS = {
+      stdout_mode: { color: :green, mode: :italic },
+      stderr_mode: { color: :red, mode: :italic },
+      cache_mode: { color: :blue, mode: :bold },
+      cache_prefix: '[C] '
+    }
+
     attr_reader :adapter, :stdout_prefix, :stderr_prefix, :cache_prefix, :cache_used, :stdout_mode, :stderr_mode,
                 :cache_mode
 
     def initialize(
-      adapter:,
+      adapter,
       stdout_prefix:,
       stderr_prefix:,
       cache_prefix:,
@@ -16,7 +23,7 @@ module RemoteRuby
       stderr_mode:,
       cache_mode:
     )
-      super
+      super()
       @adapter = adapter
       @stdout_prefix = stdout_prefix
       @stderr_prefix = stderr_prefix

@@ -13,6 +13,10 @@ module RemoteRuby
     def open(_code)
       raise NotImplementedError
     end
+
+    def connection_name
+      "#{self.class.name} "
+    end
   end
 end
 

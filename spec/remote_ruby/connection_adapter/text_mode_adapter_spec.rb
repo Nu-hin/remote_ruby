@@ -15,7 +15,7 @@ RSpec.describe RemoteRuby::TextModeAdapter do
   let(:result) { '' }
   subject(:adapter) do
     described_class.new(
-      adapter: base_adapter,
+      base_adapter,
       stdout_prefix: stdout_prefix,
       stderr_prefix: stderr_prefix,
       cache_prefix: cache_prefix,

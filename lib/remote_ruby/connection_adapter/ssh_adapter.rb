@@ -21,7 +21,7 @@ module RemoteRuby
 
           t = Thread.new do
             ssh.open_channel do |channel|
-              channel.exec("cd #{working_dir} && ruby #{fname}") do |ch, success|
+              channel.exec("cd '#{working_dir}' && ruby #{fname}") do |ch, success|
                 raise 'Could not execute command' unless success
 
                 ssh.listen_to(stdin_r) do |io|
@@ -58,6 +58,10 @@ module RemoteRuby
 
     def with_result_stream
       yield StringIO.new(@result)
+    end
+
+    def connection_name
+      "#{user}@#{host}:#{working_dir || '~'}> "
     end
 
     def with_temp_file(code, ssh)
