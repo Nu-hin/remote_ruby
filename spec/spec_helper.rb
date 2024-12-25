@@ -24,6 +24,7 @@ require_relative 'integration/config'
 Bundler.require(:development, :test)
 
 require_relative 'support/stream_helper'
+require 'remote_ruby/connection_adapter/test_adapter'
 
 RSpec.configure do |config|
   config.include StreamHelper
