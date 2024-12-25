@@ -25,6 +25,7 @@ module RemoteRuby
       @err_stream = params.delete(:err_stream) || $stderr
       @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHAdapter
       @text_mode = params.delete(:text_mode) || nil
+      @code_dump_dir = params.delete(:code_dump_dir) || nil
       @params = params
 
       FileUtils.mkdir_p(@cache_dir)
@@ -45,7 +46,7 @@ module RemoteRuby
     private
 
     attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-                :in_stream, :out_stream, :err_stream, :flavours, :text_mode
+                :in_stream, :out_stream, :err_stream, :flavours, :text_mode, :code_dump_dir
 
     def assign_locals(local_names, values, block)
       local_names.each do |local|
@@ -96,6 +97,8 @@ module RemoteRuby
     def execute_code(ruby_code, client_locals = {})
       compiler = compiler(ruby_code, client_locals)
 
+      dump_code(compiler.code_hash, compiler.compiled_code)
+
       runner = ::RemoteRuby::Runner.new(
         code: compiler.compiled_code,
         adapter: adapter(compiler.code_hash),
@@ -105,6 +108,13 @@ module RemoteRuby
       )
 
       runner.run
+    end
+
+    def dump_code(code_hash, code)
+      return unless code_dump_dir
+
+      path = File.join(code_dump_dir, "remote_ruby_#{code_hash}.rb")
+      File.write(path, code)
     end
 
     def adapter(code_hash)
