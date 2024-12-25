@@ -21,9 +21,8 @@ module RemoteRuby
         result = nil
 
         popen3(command(filename)) do |stdin, stdout, stderr, wait_thr|
-          @result_fname = stdout.readline.chomp
-
-          yield stdin, stdout, stderr
+          out, res = split_output_stream(stdout)
+          yield stdin, out, stderr, res
 
           result = wait_thr.value
         end
@@ -32,12 +31,6 @@ module RemoteRuby
 
         raise "Process exited with code #{result}"
       end
-    end
-
-    def with_result_stream(&block)
-      File.open(@result_fname, 'r', &block)
-    ensure
-      File.unlink(@result_fname)
     end
 
     protected

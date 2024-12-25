@@ -40,6 +40,16 @@ describe RemoteRuby::ExecutionContext do
     end.to output("#{s}\n").to_stdout
   end
 
+  it 'serializes binary data correctly' do
+    fname = File.join(__dir__, '../support/test_files/noise.png')
+
+    res = execution_context.execute(fname: fname) do
+      File.read(fname)
+    end
+
+    expect(res).to eq(File.read(fname))
+  end
+
   context 'with save_cache' do
     let(:base_params) { { save_cache: true, cache_dir: cache_dir } }
 

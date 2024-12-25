@@ -9,6 +9,12 @@ module RemoteRuby
       @cache_stream = cache_stream
     end
 
+    def readpartial(*args)
+      res = source_stream.readpartial(*args)
+      cache_stream.write(res)
+      res
+    end
+
     def read(*args)
       res = source_stream.read(*args)
       cache_stream.write(res)

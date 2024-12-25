@@ -13,18 +13,12 @@ module RemoteRuby
     end
 
     def open(code)
-      with_cache do |stdout_cache, stderr_cache|
-        adapter.open(code) do |stdin, stdout, stderr|
-          yield stdin, ::RemoteRuby::StreamCacher.new(stdout, stdout_cache),
-          ::RemoteRuby::StreamCacher.new(stderr, stderr_cache)
-        end
-      end
-    end
-
-    def with_result_stream
-      File.open(result_file_path, 'w') do |result_cache|
-        adapter.with_result_stream do |stream|
-          yield ::RemoteRuby::StreamCacher.new(stream, result_cache)
+      with_cache do |stdout_cache, stderr_cache, result_cache|
+        adapter.open(code) do |stdin, stdout, stderr, result|
+          yield stdin,
+          ::RemoteRuby::StreamCacher.new(stdout, stdout_cache),
+          ::RemoteRuby::StreamCacher.new(stderr, stderr_cache),
+          ::RemoteRuby::StreamCacher.new(result, result_cache)
         end
       end
     end
@@ -40,15 +34,13 @@ module RemoteRuby
     def with_cache
       stderr_cache = File.open(stderr_file_path, 'w')
       stdout_cache = File.open(stdout_file_path, 'w')
+      result_cache = File.open(result_file_path, 'w')
 
-      yield stdout_cache, stderr_cache
+      yield stdout_cache, stderr_cache, result_cache
     ensure
       stdout_cache.close
       stderr_cache.close
-    end
-
-    def result_file_path
-      "#{cache_path}.result"
+      result_cache.close
     end
 
     def stdout_file_path
@@ -57,6 +49,10 @@ module RemoteRuby
 
     def stderr_file_path
       "#{cache_path}.stderr"
+    end
+
+    def result_file_path
+      "#{cache_path}.result"
     end
   end
 end

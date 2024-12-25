@@ -24,18 +24,6 @@ describe RemoteRuby::Compiler do
     it 'produces correct code' do
       expect { eval("lambda { #{compiled_code} }") }.not_to raise_error
     end
-
-    it 'creates a temp file for result' do
-      fname, = with_capture do
-        eval(compiled_code)
-      end
-
-      expect(Pathname.new(fname.chomp)).to exist
-    end
-
-    it 'outputs result file name' do
-      expect { eval(compiled_code) }.to output(%r{^/tmp/remote_ruby_result\.dat.+$}).to_stdout
-    end
     # rubocop:enable Security/Eval, Style/EvalWithLocation
   end
 

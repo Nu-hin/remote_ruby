@@ -49,8 +49,9 @@ module RemoteRuby
             end.wait
           end
 
-          @result_fname = stdout_r.readline.chomp
-          yield stdin_w, stdout_r, stderr_r
+          out, res = split_output_stream(stdout_r)
+
+          yield stdin_w, out, stderr_r, res
           t.join
           @result = ssh.exec!("cat '#{@result_fname}'")
           ssh.exec!("rm #{@result_fname}")
@@ -58,16 +59,12 @@ module RemoteRuby
       end
     end
 
-    def with_result_stream
-      yield StringIO.new(@result)
-    end
-
     def connection_name
       "#{user}@#{host}:#{working_dir || '~'}> "
     end
 
     def with_temp_file(code, ssh)
-      fname = ''
+      fname = String.new
       code_channel = ssh.open_channel do |channel|
         channel.exec('f=$(mktemp remote_ruby.rb.XXXXXX) && cat > $f && echo $f') do |ch, success|
           raise 'Could not execute command' unless success

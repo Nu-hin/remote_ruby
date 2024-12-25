@@ -43,18 +43,14 @@ module RemoteRuby
     end
 
     def open(code)
-      adapter.open(code) do |stdin, stdout, stderr|
+      adapter.open(code) do |stdin, stdout, stderr, result|
         stdout_pref = "#{cache_prefix_string}#{stdout_prefix_string}"
         stderr_pref = "#{cache_prefix_string}#{stderr_prefix_string}"
         stdout = StreamPrefixer.new(stdout, stdout_pref) unless disable_stdout_prefixing
         stderr = StreamPrefixer.new(stderr, stderr_pref) unless disable_stderr_prefixing
 
-        yield stdin, stdout, stderr
+        yield stdin, stdout, stderr, result
       end
-    end
-
-    def with_result_stream(&block)
-      adapter.with_result_stream(&block)
     end
 
     private

@@ -16,7 +16,7 @@ describe RemoteRuby::EvalAdapter do
   it 'is launched in the same process' do
     new_pid = nil
 
-    adapter.open('puts; puts Process.pid') do |_stdin, stdout, _stderr|
+    adapter.open('puts; puts Process.pid') do |_stdin, stdout, _stderr, _result|
       new_pid = stdout.read.to_i
     end
 
@@ -26,7 +26,7 @@ describe RemoteRuby::EvalAdapter do
   end
 
   it 'restores $stdout and $stderr variables' do
-    adapter.open('puts; puts Process.pid') do |_stdin, stdout, stderr|
+    adapter.open('puts; puts Process.pid') do |_stdin, stdout, stderr, _result|
       expect(stdout).not_to eq(STDOUT)
       expect(stderr).not_to eq(STDERR)
     end
@@ -39,7 +39,7 @@ describe RemoteRuby::EvalAdapter do
     pwd = nil
     old_dir = Dir.pwd
 
-    adapter.open('puts; puts Dir.pwd') do |_stdin, stdout, _stderr|
+    adapter.open('puts; puts Dir.pwd') do |_stdin, stdout, _stderr, _result|
       pwd = stdout.read
       pwd.strip!
     end
@@ -51,12 +51,25 @@ describe RemoteRuby::EvalAdapter do
   it 'is launched in a different thread' do
     new_thread_id = nil
 
-    adapter.open('puts; puts Thread.current.object_id') do |_stdin, stdout, _stderr|
+    adapter.open('puts; puts Thread.current.object_id') do |_stdin, stdout, _stderr, _result|
       new_thread_id = stdout.read.to_i
     end
 
     expect(new_thread_id).not_to be_nil
     expect(new_thread_id).not_to be_zero
     expect(new_thread_id).not_to eq(Thread.current.object_id)
+  end
+
+  it 'returns marshalled result' do
+    result = nil
+    out = nil
+
+    adapter.open('puts 2; print "%%%MARSHAL\nTEST"') do |_stdin, stdout, _stderr, res|
+      out = stdout.read
+      result = res.read
+    end
+
+    expect(out).to eq("2\n")
+    expect(result).to eq('TEST')
   end
 end

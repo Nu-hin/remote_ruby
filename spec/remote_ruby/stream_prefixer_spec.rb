@@ -12,31 +12,31 @@ RSpec.describe RemoteRuby::StreamPrefixer do
     end
   end
 
-  describe '#read' do
+  describe '#readpartial' do
     context 'when reading without max_len' do
       it 'reads and prefixes lines from the stream' do
-        result = stream_prefixer.read
+        result = stream_prefixer.readpartial
         expect(result).to eq("PREFIX: line1\nPREFIX: line2\nPREFIX: line3\n")
       end
     end
 
     context 'when reading with max_len' do
       it 'reads and prefixes lines up to max_len' do
-        result = stream_prefixer.read(10)
+        result = stream_prefixer.readpartial(10)
         expect(result).to eq('PREFIX: li')
       end
 
       it 'continues reading from the buffer on subsequent reads' do
-        stream_prefixer.read(10)
-        result = stream_prefixer.read(10)
+        stream_prefixer.readpartial(10)
+        result = stream_prefixer.readpartial(10)
         expect(result).to eq("ne1\nPREFIX")
       end
     end
 
     context 'when reaching EOF' do
       it 'reads remaining buffer when EOF is reached' do
-        stream_prefixer.read(30)
-        result = stream_prefixer.read(100)
+        stream_prefixer.readpartial(30)
+        result = stream_prefixer.readpartial(100)
         expect(result).to eq("EFIX: line3\n")
       end
     end

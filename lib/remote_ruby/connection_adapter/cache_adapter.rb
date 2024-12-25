@@ -15,25 +15,18 @@ module RemoteRuby
     def open(_code)
       stdout = File.open(stdout_file_path, 'r')
       stderr = File.open(stderr_file_path, 'r')
+      result = File.open(result_file_path, 'r')
 
-      yield nil, stdout, stderr
+      yield nil, stdout, stderr, result
     ensure
       stderr.close unless stderr.closed?
       stdout.close unless stdout.closed?
-    end
-
-    def with_result_stream(&block)
-      File.open(result_file_path, 'r', &block)
+      result.close unless result.closed?
     end
 
     private
 
     attr_reader :cache_path
-
-    def result_file_path
-      fp = "#{cache_path}.result"
-      File.exist?(fp) ? fp : File::NULL
-    end
 
     def stdout_file_path
       fp = "#{cache_path}.stdout"
@@ -42,6 +35,11 @@ module RemoteRuby
 
     def stderr_file_path
       fp = "#{cache_path}.stderr"
+      File.exist?(fp) ? fp : File::NULL
+    end
+
+    def result_file_path
+      fp = "#{cache_path}.result"
       File.exist?(fp) ? fp : File::NULL
     end
   end
