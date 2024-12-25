@@ -7,11 +7,13 @@ module RemoteRuby
       stdout_mode: { color: :green, mode: :italic },
       stderr_mode: { color: :red, mode: :italic },
       cache_mode: { color: :blue, mode: :bold },
-      cache_prefix: '[C] '
+      cache_prefix: '[C] ',
+      disable_stdout_prefixing: false,
+      disable_stderr_prefixing: false
     }
 
     attr_reader :adapter, :stdout_prefix, :stderr_prefix, :cache_prefix, :cache_used, :stdout_mode, :stderr_mode,
-                :cache_mode
+                :cache_mode, :disable_stdout_prefixing, :disable_stderr_prefixing
 
     def initialize(
       adapter,
@@ -21,7 +23,9 @@ module RemoteRuby
       cache_used:,
       stdout_mode:,
       stderr_mode:,
-      cache_mode:
+      cache_mode:,
+      disable_stdout_prefixing:,
+      disable_stderr_prefixing:
     )
       super()
       @adapter = adapter
@@ -32,14 +36,16 @@ module RemoteRuby
       @stdout_mode = stdout_mode
       @stderr_mode = stderr_mode
       @cache_mode = cache_mode
+      @disable_stdout_prefixing = disable_stdout_prefixing
+      @disable_stderr_prefixing = disable_stderr_prefixing
     end
 
     def open(code)
       adapter.open(code) do |stdin, stdout, stderr|
         stdout_pref = "#{cache_prefix_string}#{stdout_prefix_string}"
         stderr_pref = "#{cache_prefix_string}#{stderr_prefix_string}"
-        stdout = StreamPrefixer.new(stdout, stdout_pref)
-        stderr = StreamPrefixer.new(stderr, stderr_pref)
+        stdout = StreamPrefixer.new(stdout, stdout_pref) unless disable_stdout_prefixing
+        stderr = StreamPrefixer.new(stderr, stderr_pref) unless disable_stderr_prefixing
 
         yield stdin, stdout, stderr
       end

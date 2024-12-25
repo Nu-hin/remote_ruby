@@ -134,6 +134,14 @@ module RemoteRuby
 
       params = params.merge(text_mode) if text_mode.is_a? Hash
 
+      disable_unless_tty = params.delete(:disable_unless_tty)
+      disable_unless_tty = true if disable_unless_tty.nil?
+
+      params[:disable_stdout_prefixing] = true if disable_unless_tty && !out_stream.tty?
+      params[:disable_stderr_prefixing] = true if disable_unless_tty && !err_stream.tty?
+
+      return ad if params[:disable_stdout_prefixing] && params[:disable_stderr_prefixing]
+
       ::RemoteRuby::TextModeAdapter.new(ad, **params)
     end
 

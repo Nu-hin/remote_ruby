@@ -10,6 +10,8 @@ RSpec.describe RemoteRuby::TextModeAdapter do
   let(:stdout_mode) { { color: :green, mode: :italic } }
   let(:stderr_mode) { { color: :red, mode: :italic } }
   let(:cache_mode) { { color: :blue, mode: :bold } }
+  let(:disable_stdout_prefixing) { false }
+  let(:disable_stderr_prefixing) { false }
   let(:output) { 'Sample output' }
   let(:error) { 'Sample warning' }
   let(:result) { '' }
@@ -22,7 +24,9 @@ RSpec.describe RemoteRuby::TextModeAdapter do
       cache_used: cache_used,
       stdout_mode: stdout_mode,
       stderr_mode: stderr_mode,
-      cache_mode: cache_mode
+      cache_mode: cache_mode,
+      disable_stdout_prefixing: disable_stdout_prefixing,
+      disable_stderr_prefixing: disable_stderr_prefixing
     )
   end
 
