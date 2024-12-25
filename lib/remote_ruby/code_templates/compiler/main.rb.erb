@@ -26,16 +26,13 @@ $stdout.sync = true
 $stdout.puts __result_file__.path
 
 __return_val__ = begin
-
 <% if code_headers.any? %>
   # Start of flavour-added code
- <%= code_headers.join %>
+<%= code_headers.join.gsub(/^/,'  ') %>
   # End of flavour-added code
 <% end %>
-
-
   # Start of client code
-<%= ruby_code %>
+<%= ruby_code.gsub(/^/, '  ') %>
   # End of client code
 end
 
