@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module StreamHelper
   def with_stdin_redirect(input)
     old_stdin = $stdin

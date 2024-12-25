@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe RemoteRuby::StreamPrefixer do
   let(:stream) { StringIO.new("line1\nline2\nline3\n") }
   let(:prefix) { 'PREFIX: ' }

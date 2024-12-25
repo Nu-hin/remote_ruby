@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'remote_ruby/stream_prefixer'
 require 'colorize'
 
@@ -10,7 +12,7 @@ module RemoteRuby
       cache_prefix: '[C] ',
       disable_stdout_prefixing: false,
       disable_stderr_prefixing: false
-    }
+    }.freeze
 
     attr_reader :adapter, :stdout_prefix, :stderr_prefix, :cache_prefix, :cache_used, :stdout_mode, :stderr_mode,
                 :cache_mode, :disable_stdout_prefixing, :disable_stderr_prefixing

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   class TestAdapter < ConnectionAdapter
     attr_reader :input, :out, :err, :result

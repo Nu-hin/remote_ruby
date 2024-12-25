@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   class StreamPrefixer
     attr_reader :stream, :prefix
@@ -5,11 +7,11 @@ module RemoteRuby
     def initialize(stream, prefix)
       @stream = stream
       @prefix = prefix
-      @buffer = ''
+      @buffer = String.new
     end
 
     def read(max_len = nil, out_string = nil)
-      out_string ||= ''
+      out_string ||= String.new
       while (line = @stream.readline)
         @buffer << "#{@prefix}#{line}"
         break if max_len && @buffer.length >= max_len

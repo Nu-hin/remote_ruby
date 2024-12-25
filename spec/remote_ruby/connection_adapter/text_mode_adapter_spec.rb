@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'remote_ruby/connection_adapter/text_mode_adapter'
 require 'remote_ruby/stream_prefixer'
 
