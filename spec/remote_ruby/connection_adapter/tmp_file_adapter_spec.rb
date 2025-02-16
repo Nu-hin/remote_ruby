@@ -3,12 +3,9 @@
 describe RemoteRuby::TmpFileAdapter do
   subject(:adapter) { described_class.new(**params) }
 
-  let(:bundler) { false }
-
   let(:params) do
     {
-      working_dir: working_dir,
-      bundler: bundler
+      working_dir: working_dir
     }
   end
 
@@ -46,7 +43,6 @@ describe RemoteRuby::TmpFileAdapter do
     let(:value) { double(:value, success?: success?, to_s: exit_code.to_s) }
     let(:success?) { true }
     let(:exit_code) { 0 }
-    let(:bundler) { false }
 
     before(:example) do
       allow(adapter).to receive(:popen3).and_yield(
@@ -69,15 +65,6 @@ describe RemoteRuby::TmpFileAdapter do
       allow(adapter).to receive(:command).and_return('echo')
       expect(adapter).to receive(:popen3).with('echo')
       adapter.open(code) {}
-    end
-
-    context 'with bundler' do
-      let(:bundler) { true }
-
-      it 'includes bundle exec to the command' do
-        expect(adapter).to receive(:popen3).with(match(/bundle exec/))
-        adapter.open(code) {}
-      end
     end
 
     context 'when process fails' do

@@ -8,12 +8,11 @@ module RemoteRuby
   class TmpFileAdapter < ::RemoteRuby::ConnectionAdapter
     include Open3
 
-    attr_reader :working_dir, :bundler
+    attr_reader :working_dir
 
-    def initialize(working_dir: '.', bundler: false)
+    def initialize(working_dir: '.')
       super
       @working_dir = working_dir
-      @bundler = bundler
     end
 
     def open(code)
@@ -44,11 +43,7 @@ module RemoteRuby
     end
 
     def command(code_path)
-      if bundler
-        "cd \"#{working_dir}\" && bundle exec ruby #{code_path}"
-      else
-        "cd \"#{working_dir}\" && ruby #{code_path}"
-      end
+      "cd \"#{working_dir}\" && ruby #{code_path}"
     end
   end
 end
