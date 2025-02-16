@@ -3,6 +3,7 @@
 require 'net/ssh'
 
 module RemoteRuby
+  # An adapter for executing Ruby code on a remote host via SSH
   class SSHAdapter < ConnectionAdapter
     attr_reader :host, :user, :config, :working_dir
 

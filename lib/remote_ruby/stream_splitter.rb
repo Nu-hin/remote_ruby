@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module RemoteRuby
+  # Implements a reader. Receives a steram and a terminator.
+  # Reads from the stream until the terminator is found.
   class StreamSplitter
     attr_reader :stream, :terminator
     attr_accessor :buffer

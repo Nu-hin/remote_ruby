@@ -133,12 +133,12 @@ module RemoteRuby
       wrap_text_mode(res, cache_mode)
     end
 
-    def wrap_text_mode(ad, cache_mode)
-      return ad unless text_mode
+    def wrap_text_mode(adapter, cache_mode)
+      return adapter unless text_mode
 
       params = ::RemoteRuby::TextModeAdapter::DEFAULT_SETTINGS.merge(
-        stdout_prefix: ad.connection_name,
-        stderr_prefix: ad.connection_name,
+        stdout_prefix: adapter.connection_name,
+        stderr_prefix: adapter.connection_name,
         cache_used: cache_mode
       )
 
@@ -152,7 +152,7 @@ module RemoteRuby
 
       return ad if params[:disable_stdout_prefixing] && params[:disable_stderr_prefixing]
 
-      ::RemoteRuby::TextModeAdapter.new(ad, **params)
+      ::RemoteRuby::TextModeAdapter.new(adapter, **params)
     end
 
     def cache_adapter(code_hash, connection_name)

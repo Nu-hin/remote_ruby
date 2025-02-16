@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module RemoteRuby
+  # Decorates the source stream prepending a prefix to each line
+  # read from the source
   class StreamPrefixer
     attr_reader :stream, :prefix
 
