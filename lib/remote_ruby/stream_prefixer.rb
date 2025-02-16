@@ -18,7 +18,7 @@ module RemoteRuby
       res = String.new
 
       loop do
-        res << readpartial(max_len.nil? ? nil : max_len - res.length)
+        res << readpartial_direct(max_len.nil? ? nil : max_len - res.length)
         break if !max_len.nil? && res.length >= max_len
       rescue EOFError
         break
@@ -28,35 +28,21 @@ module RemoteRuby
       out_str.replace(res)
     end
 
-    def readpartial(max_len = nil, out_string = nil)
-      out_string ||= String.new
+    def readpartial(max_len = nil, out_str = nil)
+      out_str ||= String.new
+      out_str.replace(readpartial_direct(max_len))
+    end
 
-      loop do
-        unless @out_buffer.empty?
-          if max_len.nil? || @out_buffer.length <= max_len
-            out_string.replace(@out_buffer)
-            @out_buffer.clear
-          else
-            res = @out_buffer[0..max_len - 1]
-            @out_buffer = @out_buffer[max_len..]
-            out_string.replace(res)
-          end
+    private
 
-          return out_string
-        end
-
-        raise EOFError if @eof
-
+    def readpartial_direct(max_len)
+      if @out_buffer.empty?
         begin
           read = stream.readpartial(max_len)
+          raise EOFError if read.empty?
         rescue EOFError
           @eof = true
-          raise EOFError if @out_buffer.empty?
-        end
-
-        if read.empty?
-          @eof = true
-          raise EOFError if @out_buffer.empty?
+          raise
         end
 
         read.each_line do |line|
@@ -66,8 +52,7 @@ module RemoteRuby
         end
       end
 
-      out_string.replace(res)
-      out_string
+      @out_buffer.slice!(0, max_len || @out_buffer.length)
     end
   end
 end
