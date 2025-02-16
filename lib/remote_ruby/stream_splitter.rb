@@ -7,6 +7,13 @@ module RemoteRuby
     attr_reader :stream, :terminator
     attr_accessor :buffer
 
+    def self.split(stream, terminator)
+      [
+        new(stream, terminator),
+        stream
+      ]
+    end
+
     def initialize(stream, terminator)
       @stream = stream
       @eof = false

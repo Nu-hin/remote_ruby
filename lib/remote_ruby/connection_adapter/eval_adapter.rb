@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'remote_ruby/pipes'
+require 'remote_ruby/stream_splitter'
+
 module RemoteRuby
   # An adapter to expecute Ruby code in the current process in an isolated
   # scope
@@ -12,18 +15,15 @@ module RemoteRuby
     end
 
     def open(code)
-      with_pipes do |in_read, in_write, out_read, out_write, err_read, err_write|
+      Pipes.with_pipes do |p|
         t = Thread.new do
-          run_code(code, in_read, out_write, err_write)
-
-          in_read.close
-          out_write.close
-          err_write.close
+          run_code(code, p.in_r, p.out_w, p.err_w)
+          p.close_w
         end
 
-        out, res = split_output_stream(out_read)
+        out, res = StreamSplitter.split(p.out_r, Compiler::MARSHAL_TERMINATOR)
 
-        yield in_write, out, err_read, res
+        yield p.in_w, out, p.err_r, res
         t.join
       end
     end
@@ -40,14 +40,18 @@ module RemoteRuby
       end
     end
 
-    # rubocop:disable Style/ParallelAssignment
     def with_tmp_streams(ins, out, err)
-      old_stdin, old_stdout, old_stderr = $stdin, $stdout, $stderr
-      $stdin, $stdout, $stderr = ins, out, err
+      old_stdin = $stdin
+      old_stdout = $stdout
+      old_stderr = $stderr
+      $stdin = ins
+      $stdout = out
+      $stderr = err
       yield
     ensure
-      $stdin, $stdout, $stderr = old_stdin, old_stdout, old_stderr
+      $stdin = old_stdin
+      $stdout = old_stdout
+      $stderr = old_stderr
     end
-    # rubocop:enable Style/ParallelAssignment
   end
 end

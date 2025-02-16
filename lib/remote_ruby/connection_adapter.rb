@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'remote_ruby/stream_splitter'
-
 module RemoteRuby
   # Base class for connection adapters.
   class ConnectionAdapter
@@ -18,26 +16,6 @@ module RemoteRuby
 
     def connection_name
       "#{self.class.name} "
-    end
-
-    protected
-
-    def with_pipes
-      in_read, in_write = IO.pipe
-      out_read, out_write = IO.pipe
-      err_read, err_write = IO.pipe
-      yield in_read, in_write, out_read, out_write, err_read, err_write
-    ensure
-      in_write.close
-      out_read.close
-      err_read.close
-    end
-
-    def split_output_stream(stdout)
-      [
-        StreamSplitter.new(stdout, ::RemoteRuby::Compiler::MARSHAL_TERMINATOR),
-        stdout
-      ]
     end
   end
 end

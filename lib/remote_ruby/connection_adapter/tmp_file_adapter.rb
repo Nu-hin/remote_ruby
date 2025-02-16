@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'open3'
+require 'remote_ruby/stream_splitter'
 
 module RemoteRuby
   # An adapter to expecute Ruby code on the local machine
@@ -20,7 +21,7 @@ module RemoteRuby
         result = nil
 
         popen3(command(filename)) do |stdin, stdout, stderr, wait_thr|
-          out, res = split_output_stream(stdout)
+          out, res = StreamSplitter.split(stdout, Compiler::MARSHAL_TERMINATOR)
           yield stdin, out, stderr, res
 
           result = wait_thr.value
