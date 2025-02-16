@@ -9,7 +9,7 @@ describe RemoteRuby::EvalAdapter do
     File.realpath(Dir.mktmpdir)
   end
 
-  after(:each) do
+  after do
     FileUtils.rm_rf(working_dir)
   end
 

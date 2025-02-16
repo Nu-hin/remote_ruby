@@ -13,7 +13,7 @@ describe RemoteRuby::TmpFileAdapter do
     File.realpath(Dir.mktmpdir)
   end
 
-  after(:each) do
+  after do
     FileUtils.rm_rf(working_dir)
   end
 
@@ -44,7 +44,7 @@ describe RemoteRuby::TmpFileAdapter do
     let(:success?) { true }
     let(:exit_code) { 0 }
 
-    before(:example) do
+    before do
       allow(adapter).to receive(:popen3).and_yield(
         fake_stdin,
         StringIO.new(output_content),

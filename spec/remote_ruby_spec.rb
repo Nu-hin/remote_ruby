@@ -5,16 +5,15 @@ RSpec.describe RemoteRuby do
     let(:working_dir) do
       Dir.mktmpdir
     end
-
-    after(:each) do
-      FileUtils.rm_rf(working_dir)
-    end
-
     let(:args) do
       {
         adapter: RemoteRuby::EvalAdapter,
         working_dir: working_dir
       }
+    end
+
+    after do
+      FileUtils.rm_rf(working_dir)
     end
 
     it 'proxies call to ExecutionContext' do

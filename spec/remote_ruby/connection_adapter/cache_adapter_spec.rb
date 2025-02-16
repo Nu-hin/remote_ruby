@@ -20,7 +20,7 @@ describe RemoteRuby::CacheAdapter do
     cache_path
   end
 
-  after(:each) do
+  after do
     FileUtils.rm_rf(cache_path)
   end
 

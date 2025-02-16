@@ -32,6 +32,7 @@ describe RemoteRuby::Compiler do
 
     context 'with locals' do
       let(:client_locals) { { a: 1, b: 'string', c: [1, 2] } }
+
       include_context 'normal behaviour'
 
       it 'includes locals serialization' do
@@ -42,6 +43,7 @@ describe RemoteRuby::Compiler do
 
       context 'when local cannot be dumped' do
         let(:client_locals) { { file: File.open(File::NULL, 'w') } }
+
         it 'prints out a warning' do
           expect { compiled_code }.to output(/file/).to_stderr
         end

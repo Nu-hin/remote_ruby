@@ -3,13 +3,6 @@
 describe 'Connecting to remote host with SSH adapter',
          type: :integration do
   let(:save_cache) { false }
-
-  let(:cache_dir) { Dir.mktmpdir }
-
-  after(:each) do
-    FileUtils.rm_rf(cache_dir)
-  end
-
   let(:ec) do
     RemoteRuby::ExecutionContext.new(
       adapter: RemoteRuby::SSHAdapter,
@@ -20,6 +13,12 @@ describe 'Connecting to remote host with SSH adapter',
       save_cache: save_cache,
       cache_dir: cache_dir
     )
+  end
+
+  let(:cache_dir) { Dir.mktmpdir }
+
+  after do
+    FileUtils.rm_rf(cache_dir)
   end
 
   context 'in caching mode' do
@@ -195,7 +194,7 @@ describe 'Connecting to remote host with SSH adapter',
       expect(b).to eq('Hello World')
       expect(c).to eq(10.0)
       expect(d).to eq(Time.new(2026, 1, 1))
-      expect(e).to eq(true)
+      expect(e).to be(true)
       expect(f).to eq([2, 4, 6])
       expect(g).to eq(a: 2, b: 4)
     end

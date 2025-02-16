@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe RemoteRuby::StreamPrefixer do
+  subject(:stream_prefixer) { described_class.new(stream, prefix) }
+
   let(:stream) { StringIO.new("line1\nline2\nline3\n") }
   let(:prefix) { 'PREFIX: ' }
-  subject(:stream_prefixer) { described_class.new(stream, prefix) }
 
   describe '#initialize' do
     it 'initializes with a stream and a prefix' do

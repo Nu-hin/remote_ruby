@@ -10,22 +10,21 @@ describe RemoteRuby::ExecutionContext do
   let(:working_dir) do
     Dir.mktmpdir
   end
-
-  let(:cache_dir) do
-    Dir.mktmpdir
-  end
-
-  after(:each) do
-    FileUtils.rm_rf(working_dir)
-    FileUtils.rm_rf(cache_dir)
-  end
-
   let(:base_params) { {} }
   let(:params) do
     {
       adapter: RemoteRuby::TmpFileAdapter,
       working_dir: working_dir
     }.merge(base_params)
+  end
+
+  let(:cache_dir) do
+    Dir.mktmpdir
+  end
+
+  after do
+    FileUtils.rm_rf(working_dir)
+    FileUtils.rm_rf(cache_dir)
   end
 
   it 'prints to stdout' do
@@ -115,7 +114,7 @@ describe RemoteRuby::ExecutionContext do
       }
     end
 
-    before(:example) do
+    before do
       path = File.join(working_dir, 'config/environment.rb')
       dirname = File.dirname(path)
       Dir.mkdir(dirname)

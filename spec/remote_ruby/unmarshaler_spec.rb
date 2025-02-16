@@ -17,7 +17,7 @@ describe RemoteRuby::Unmarshaler do
     let(:array_value) { [str_value, int_value] }
     let(:hash_value) { { str_value => int_value } }
 
-    before(:example) do
+    before do
       dump('str_value', str_value)
       dump('int_value', int_value)
       dump('array_value', array_value)
@@ -45,7 +45,7 @@ describe RemoteRuby::Unmarshaler do
         end
       end
 
-      before(:example) do
+      before do
         class_val = UnknownClass.new(10)
         dump('class_val', class_val)
         source_stream.close_write
