@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'remote_ruby/connection_adapter/text_mode_adapter'
-require 'remote_ruby/stream_prefixer'
-
 RSpec.describe RemoteRuby::TextModeAdapter do
-  let(:base_adapter) { RemoteRuby::TestAdapter.new(out: output, err: error, result: result) }
+  let(:base_adapter) { TestAdapter.new(out: output, err: error, result: result) }
   let(:stdout_prefix) { 'STDOUT: ' }
   let(:stderr_prefix) { 'STDERR: ' }
   let(:cache_prefix) { '[C] ' }
