@@ -14,9 +14,7 @@ module RemoteRuby
     def open(code)
       with_pipes do |in_read, in_write, out_read, out_write, err_read, err_write|
         t = Thread.new do
-          with_tmp_streams(in_read, out_write, err_write) do
-            run_code(code)
-          end
+          run_code(code, in_read, out_write, err_write)
 
           in_read.close
           out_write.close
@@ -32,37 +30,24 @@ module RemoteRuby
 
     private
 
-    def run_code(code)
+    def run_code(code, in_read, out_write, err_write)
       binder = Object.new
 
       Dir.chdir(working_dir) do
-        binder.instance_eval(code)
+        with_tmp_streams(in_read, out_write, err_write) do
+          binder.instance_eval(code)
+        end
       end
     end
 
-    def with_pipes
-      in_read, in_write = IO.pipe
-      out_read, out_write = IO.pipe
-      err_read, err_write = IO.pipe
-      yield in_read, in_write, out_read, out_write, err_read, err_write
-    ensure
-      in_read.close
-      out_read.close
-      err_read.close
-    end
-
+    # rubocop:disable Style/ParallelAssignment
     def with_tmp_streams(ins, out, err)
-      old_stdin = $stdin
-      old_stdout = $stdout
-      old_stderr = $stderr
-      $stdin = ins
-      $stdout = out
-      $stderr = err
+      old_stdin, old_stdout, old_stderr = $stdin, $stdout, $stderr
+      $stdin, $stdout, $stderr = ins, out, err
       yield
     ensure
-      $stdin = old_stdin
-      $stdout = old_stdout
-      $stderr = old_stderr
+      $stdin, $stdout, $stderr = old_stdin, old_stdout, old_stderr
     end
+    # rubocop:enable Style/ParallelAssignment
   end
 end

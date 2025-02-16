@@ -5,9 +5,12 @@ AllCops:
 Metrics/BlockLength:
   AllowedMethods: ['describe', 'context', 'shared_context']
 
+Metrics/MethodLength:
+  Max: 15
+
+Metrics/ParameterLists:
+  Max: 6
+
 Style/GlobalStdStream:
   Exclude:
     - spec/remote_ruby/connection_adapter/eval_adapter_spec.rb
-
-Style/DocumentDynamicEvalDefinition:
-  Enabled: false

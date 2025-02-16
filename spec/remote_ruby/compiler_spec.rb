@@ -20,11 +20,11 @@ describe RemoteRuby::Compiler do
       expect(compiled_code).to include(client_code)
     end
 
-    # rubocop:disable Security/Eval, Style/EvalWithLocation
+    # rubocop:disable Security/Eval, Style/EvalWithLocation, Style/DocumentDynamicEvalDefinition
     it 'produces correct code' do
       expect { eval("lambda { #{compiled_code} }") }.not_to raise_error
     end
-    # rubocop:enable Security/Eval, Style/EvalWithLocation
+    # rubocop:enable Security/Eval, Style/EvalWithLocation, Style/DocumentDynamicEvalDefinition
   end
 
   describe '#compiled_code' do

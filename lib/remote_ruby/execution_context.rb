@@ -17,14 +17,14 @@ module RemoteRuby
     # rubocop:disable Metrics/CyclomaticComplexity
     def initialize(**params)
       add_flavours(params)
-      @use_cache = params.delete(:use_cache)   || false
-      @save_cache = params.delete(:save_cache) || false
-      @cache_dir = params.delete(:cache_dir)   || File.join(Dir.pwd, 'cache')
-      @in_stream = params.delete(:in_stream) || $stdin
-      @out_stream = params.delete(:out_stream) || $stdout
-      @err_stream = params.delete(:err_stream) || $stderr
-      @adapter_klass = params.delete(:adapter) || ::RemoteRuby::SSHAdapter
-      @text_mode = params.delete(:text_mode) || nil
+      @use_cache = params.delete(:use_cache)         || false
+      @save_cache = params.delete(:save_cache)       || false
+      @cache_dir = params.delete(:cache_dir)         || File.join(Dir.pwd, 'cache')
+      @in_stream = params.delete(:in_stream)         || $stdin
+      @out_stream = params.delete(:out_stream)       || $stdout
+      @err_stream = params.delete(:err_stream)       || $stderr
+      @adapter_klass = params.delete(:adapter)       || ::RemoteRuby::SSHAdapter
+      @text_mode = params.delete(:text_mode)         || nil
       @code_dump_dir = params.delete(:code_dump_dir) || nil
       @params = params
 
