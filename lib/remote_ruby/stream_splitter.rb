@@ -17,19 +17,15 @@ module RemoteRuby
     def read(max_len = nil, out_str = nil)
       res = String.new
 
-      if max_len.nil?
-        loop do
+      loop do
+        if max_len.nil?
           res << readpartial
-        rescue EOFError
-          break
-        end
-      else
-        loop do
+        else
           res << readpartial(max_len - res.length)
           break if res.length >= max_len
-        rescue EOFError
-          break
         end
+      rescue EOFError
+        break
       end
 
       out_str ||= String.new
@@ -38,6 +34,7 @@ module RemoteRuby
 
     def readpartial(max_len = nil, out_str = nil)
       out_str ||= String.new
+
       loop do
         raise EOFError if @eof && buffer.empty?
 

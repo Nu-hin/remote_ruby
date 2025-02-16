@@ -99,6 +99,19 @@ describe 'Connecting to remote host with SSH adapter',
       expect(result).to eq(22)
     end
 
+    it 'passes binary data' do
+      fname = File.join(__dir__, '../support/test_files/noise.png')
+
+      var = nil
+      res = ec.execute(fname: fname, data: File.read(fname), var: var) do
+        var = data
+        var
+      end
+
+      expect(res).to eq(File.read(fname))
+      expect(res).to eq(var)
+    end
+
     it 'receives string result' do
       result = ec.execute do
         'a' * 3

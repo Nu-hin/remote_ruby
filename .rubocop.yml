@@ -1,12 +1,16 @@
+plugins:
+  - rubocop-rspec
+
 AllCops:
   NewCops: enable
   TargetRubyVersion: 2.7
 
 Metrics/BlockLength:
   AllowedMethods: ['describe', 'context', 'shared_context']
+  Max: 30
 
 Metrics/MethodLength:
-  Max: 15
+  Max: 30
 
 Metrics/ParameterLists:
   Max: 6

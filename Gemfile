@@ -5,7 +5,8 @@ source 'https://rubygems.org'
 gemspec
 
 group :development do
-  gem 'rubocop', '~> 1.69'
+  gem 'rubocop', '~> 1.72'
+  gem 'rubocop-rspec', '~> 3.5'
   gem 'yard', '~> 0.9'
 end
 
