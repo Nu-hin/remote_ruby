@@ -11,8 +11,8 @@ group :development do
 end
 
 group :development, :test do
-  gem 'byebug', '~> 11.1'
-  gem 'pry-byebug', '~> 3.10'
+  gem 'byebug', '~> 11.1', require: false
+  gem 'pry-byebug', '~> 3.10', require: false
   gem 'rspec', '~> 3.13'
 end
 
