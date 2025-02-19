@@ -25,12 +25,8 @@ module RemoteRuby
       res = String.new
 
       loop do
-        if max_len.nil?
-          res << readpartial
-        else
-          res << readpartial(max_len - res.length)
-          break if res.length >= max_len
-        end
+        res << readpartial(max_len.nil? ? nil : max_len - res.length)
+        break if !max_len.nil? && res.length >= max_len
       rescue EOFError
         break
       end
@@ -41,79 +37,54 @@ module RemoteRuby
 
     def readpartial(max_len = nil, out_str = nil)
       out_str ||= String.new
-
-      loop do
-        raise EOFError if @eof && buffer.empty?
-
-        res, self.buffer = separate_prefix(buffer)
-
-        unless res.empty?
-          return out_str.replace(res) if max_len.nil? || res.length <= max_len
-
-          rem = res[max_len..]
-          self.buffer = "#{rem}#{buffer}"
-
-          return out_str.replace(res[0..max_len - 1])
-        end
-
-        if buffer == terminator
-          @eof = true
-          self.buffer = ''
-          raise EOFError
-        elsif @eof
-          if max_len.nil? || buffer.length <= max_len
-            res = buffer
-            self.buffer = ''
-            return out_str.replace(res)
-          end
-
-          res = buffer[0..max_len - 1]
-          self.buffer = buffer[max_len..]
-          return out_str.replace(res)
-        else
-          begin
-            read = stream.readpartial(terminator.length - buffer.length)
-            self.buffer = "#{buffer}#{read}"
-          rescue EOFError
-            @eof = true
-            raise EOFError if buffer.empty?
-          end
-        end
-      end
+      out_str.replace(readpartial_direct(max_len))
     end
 
     def eof?
       @eof
     end
 
-    # Returns the longest prefix of the string that
-    # is not a prefix of the terminator.
-    def separate_prefix(str)
-      return [nil, nil] if str.nil?
-      return [String.new, String.new] if str.empty?
+    def slice_safe!(buffer, max_len, terminator, eof)
+      safe_len = 0
 
-      i = 0
-      j = 0
+      safe_len += 1 until terminator.start_with?(buffer[safe_len..]) || safe_len == buffer.length
 
-      until i >= str.length
-        i += 1
-        if terminator[j] == str[i - 1]
-          j += 1
+      safe_len = buffer.length if eof && (safe_len.positive? || terminator.length > buffer.length)
 
-          if j == terminator.length || i == str.length
-            i -= j
+      actual_len = max_len.nil? ? safe_len : [max_len, safe_len].min
+      buffer.slice!(0, actual_len)
+    end
 
-            return [String.new, str] if i.zero?
+    private
 
-            return [str[0..i - 1], str[i..]]
-
-          end
-        else
-          j = 0
-        end
+    def read_chunk(len)
+      begin
+        buffer << stream.readpartial(terminator.length - buffer.length)
+      rescue EOFError
+        @eof = true
       end
 
-      [str, String.new]
+      safe = slice_safe!(buffer, len, terminator, eof?)
+
+      return safe unless safe.empty?
+
+      @eof = true if eof? || buffer == terminator
+
+      safe
+    end
+
+    def readpartial_direct(max_len)
+      res = String.new
+
+      while max_len.nil? || res.length < max_len
+        read_len = max_len.nil? ? nil : max_len - res.length
+        res << read_chunk(read_len)
+        break if eof?
+      end
+
+      raise EOFError if res.empty?
+
+      res
     end
   end
 end
