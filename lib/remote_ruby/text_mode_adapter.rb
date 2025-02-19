@@ -4,6 +4,8 @@ require 'remote_ruby/stream_prefixer'
 require 'colorize'
 
 module RemoteRuby
+  # Decorates a connection adapter.
+  # Reads the output streams line-by-line and prefixes them according to the settings.
   class TextModeAdapter < ConnectionAdapter
     DEFAULT_SETTINGS = {
       stdout_mode: { color: :green, mode: :italic },
@@ -17,6 +19,7 @@ module RemoteRuby
     attr_reader :adapter, :stdout_prefix, :stderr_prefix, :cache_prefix, :cache_used, :stdout_mode, :stderr_mode,
                 :cache_mode, :disable_stdout_prefixing, :disable_stderr_prefixing
 
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
       adapter,
       stdout_prefix:,
@@ -41,6 +44,7 @@ module RemoteRuby
       @disable_stdout_prefixing = disable_stdout_prefixing
       @disable_stderr_prefixing = disable_stderr_prefixing
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def open(code)
       adapter.open(code) do |stdin, stdout, stderr, result|

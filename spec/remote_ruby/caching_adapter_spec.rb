@@ -55,9 +55,12 @@ describe RemoteRuby::CachingAdapter do
     end
 
     it 'proxies call to base adapter' do
+      allow(base_adapter).to receive(:open)
+
       code = '1 + 1'
-      expect(base_adapter).to receive(:open).with(code)
+
       run(code)
+      expect(base_adapter).to have_received(:open).with(code)
     end
   end
 end

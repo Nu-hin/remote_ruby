@@ -25,6 +25,7 @@ describe RemoteRuby::EvalAdapter do
     expect(new_pid).to eq(Process.pid)
   end
 
+  # rubocop:disable Style/GlobalStdStream
   it 'restores $stdout and $stderr variables' do
     adapter.open('puts; puts Process.pid') do |_stdin, stdout, stderr, _result|
       expect(stdout).not_to eq(STDOUT)
@@ -34,6 +35,7 @@ describe RemoteRuby::EvalAdapter do
     expect($stdout).to eq(STDOUT)
     expect($stderr).to eq(STDERR)
   end
+  # rubocop:enable Style/GlobalStdStream
 
   it 'changes to the working dir' do
     pwd = nil

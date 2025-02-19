@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_context 'integration config' do
+RSpec.shared_context 'integration config' do # rubocop:disable RSpec/ContextWording
   let(:config) do
     config_file_name = File.expand_path('config.yml', __dir__)
     return {} unless File.exist?(config_file_name)

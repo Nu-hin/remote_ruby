@@ -39,18 +39,19 @@ describe RemoteRuby::TmpFileAdapter do
     let(:output_content) { 'output' }
     let(:error_content) { 'error' }
     let(:fake_stdin) { StringIO.new }
-    let(:wait_thr) { double(:wait_thr, value: value) }
-    let(:value) { double(:value, success?: success?, to_s: exit_code.to_s) }
+    let(:wait_thr) { instance_double(Process::Waiter, value: value) }
+    let(:value) { instance_double(Process::Status, success?: success?, to_s: exit_code.to_s) }
     let(:success?) { true }
     let(:exit_code) { 0 }
-
-    before do
-      allow(adapter).to receive(:popen3).and_yield(
+    let!(:open_double) do
+      cd = class_double(Open3)
+      allow(cd).to receive(:popen3).and_yield(
         fake_stdin,
         StringIO.new(output_content),
         StringIO.new(error_content),
         wait_thr
       )
+      cd.as_stubbed_const
     end
 
     # rubocop:disable Lint/EmptyBlock
@@ -62,9 +63,8 @@ describe RemoteRuby::TmpFileAdapter do
     end
 
     it 'calls external command' do
-      allow(adapter).to receive(:command).and_return('echo')
-      expect(adapter).to receive(:popen3).with('echo')
       adapter.open(code) {}
+      expect(open_double).to have_received(:popen3).with(%r{ruby.*/remote_ruby\.rb})
     end
 
     context 'when process fails' do

@@ -7,8 +7,6 @@ module RemoteRuby
   # An adapter to expecute Ruby code on the local machine
   # inside a temporary file
   class TmpFileAdapter < ::RemoteRuby::ConnectionAdapter
-    include Open3
-
     attr_reader :working_dir
 
     def initialize(working_dir: '.')
@@ -20,7 +18,7 @@ module RemoteRuby
       with_temp_file(code) do |filename|
         result = nil
 
-        popen3(command(filename)) do |stdin, stdout, stderr, wait_thr|
+        Open3.popen3(command(filename)) do |stdin, stdout, stderr, wait_thr|
           out, res = StreamSplitter.split(stdout, Compiler::MARSHAL_TERMINATOR)
           yield stdin, out, stderr, res
 

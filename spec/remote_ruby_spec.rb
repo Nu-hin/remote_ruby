@@ -17,14 +17,16 @@ RSpec.describe RemoteRuby do
     end
 
     it 'proxies call to ExecutionContext' do
-      expect(RemoteRuby::ExecutionContext).to receive(:new)
-        .with(**args).and_return(double(:ec, execute: nil))
+      allow(RemoteRuby::ExecutionContext).to receive(:new)
+        .with(**args).and_return(instance_double(RemoteRuby::ExecutionContext, execute: nil))
 
       remotely(**args) do
         # :nocov:
         puts 'Hello RemoteRuby'
         # :nocov:
       end
+
+      expect(RemoteRuby::ExecutionContext).to have_received(:new)
     end
 
     it 'returns block result' do

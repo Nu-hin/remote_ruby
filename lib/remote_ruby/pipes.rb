@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RemoteRuby
   # Wraps three pairs of pipes for stdin, stdout, and stderr
   class Pipes

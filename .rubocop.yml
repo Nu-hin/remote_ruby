@@ -5,16 +5,39 @@ AllCops:
   NewCops: enable
   TargetRubyVersion: 2.7
 
-Metrics/BlockLength:
-  AllowedMethods: ['describe', 'context', 'shared_context']
-  Max: 30
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/ClassLength:
+  Max: 200
 
 Metrics/MethodLength:
+  Max: 40
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/ExampleLength:
   Max: 30
 
-Metrics/ParameterLists:
-  Max: 6
+RSpec/MultipleMemoizedHelpers:
+  Max: 15
 
-Style/GlobalStdStream:
-  Exclude:
-    - spec/remote_ruby/connection_adapter/eval_adapter_spec.rb
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/DescribeClass:
+  IgnoredMetadata:
+    type:
+      - integration
+
+RSpec/ContextWording:
+  Prefixes:
+    - and
+    - with
+    - because
+    - when
+    - without
+
+RSpec/RepeatedExampleGroupBody:
+  Enabled: false

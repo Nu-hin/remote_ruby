@@ -20,9 +20,9 @@ module RemoteRuby
   end
 end
 
-require 'remote_ruby/connection_adapter/eval_adapter'
-require 'remote_ruby/connection_adapter/cache_adapter'
-require 'remote_ruby/connection_adapter/caching_adapter'
-require 'remote_ruby/connection_adapter/ssh_adapter'
-require 'remote_ruby/connection_adapter/tmp_file_adapter'
-require 'remote_ruby/connection_adapter/text_mode_adapter'
+require 'remote_ruby/eval_adapter'
+require 'remote_ruby/cache_adapter'
+require 'remote_ruby/caching_adapter'
+require 'remote_ruby/ssh_adapter'
+require 'remote_ruby/tmp_file_adapter'
+require 'remote_ruby/text_mode_adapter'

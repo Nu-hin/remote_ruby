@@ -15,6 +15,7 @@ module RemoteRuby
   # specified adapters. This is the entrypoint to RemoteRuby logic.
   class ExecutionContext
     # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def initialize(**params)
       add_flavours(params)
       @use_cache = params.delete(:use_cache)         || false
@@ -30,6 +31,7 @@ module RemoteRuby
 
       FileUtils.mkdir_p(@cache_dir)
     end
+    # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def execute(locals = nil, &block)
@@ -133,9 +135,7 @@ module RemoteRuby
       wrap_text_mode(res, cache_mode)
     end
 
-    def wrap_text_mode(adapter, cache_mode)
-      return adapter unless text_mode
-
+    def text_mode_params(adapter, cache_mode)
       params = ::RemoteRuby::TextModeAdapter::DEFAULT_SETTINGS.merge(
         stdout_prefix: adapter.connection_name,
         stderr_prefix: adapter.connection_name,
@@ -144,13 +144,19 @@ module RemoteRuby
 
       params = params.merge(text_mode) if text_mode.is_a? Hash
 
-      disable_unless_tty = params.delete(:disable_unless_tty)
-      disable_unless_tty = true if disable_unless_tty.nil?
+      disable_unless_tty = params.delete(:disable_unless_tty) { |_| true }
 
       params[:disable_stdout_prefixing] = true if disable_unless_tty && !out_stream.tty?
       params[:disable_stderr_prefixing] = true if disable_unless_tty && !err_stream.tty?
+      params
+    end
 
-      return ad if params[:disable_stdout_prefixing] && params[:disable_stderr_prefixing]
+    def wrap_text_mode(adapter, cache_mode)
+      return adapter unless text_mode
+
+      params = text_mode_params(adapter, cache_mode)
+
+      return adapter if params[:disable_stdout_prefixing] && params[:disable_stderr_prefixing]
 
       ::RemoteRuby::TextModeAdapter.new(adapter, **params)
     end

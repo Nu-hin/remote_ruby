@@ -13,7 +13,7 @@ describe RemoteRuby::Compiler do
   let(:client_locals) { {} }
   let(:flavours) { [] }
 
-  shared_context 'normal behaviour' do
+  shared_context 'normal behaviour' do # rubocop:disable RSpec/ContextWording
     subject(:compiled_code) { compiler.compiled_code }
 
     it 'includes client code' do
@@ -53,8 +53,8 @@ describe RemoteRuby::Compiler do
     context 'with flavours' do
       let(:flavours) do
         (1..3).map do |i|
-          double(
-            :flavour_a,
+          instance_double(
+            RemoteRuby::Flavour,
             code_header: "\"code header from flavour #{i}\""
           )
         end
@@ -80,7 +80,7 @@ describe RemoteRuby::Compiler do
       different_locals_hash =
         described_class.new(client_code, client_locals: { e: 34 }).code_hash
 
-      flavour = double(:flavour, code_header: "require 'open3'")
+      flavour = instance_double(RemoteRuby::Flavour, code_header: "require 'open3'")
 
       different_flavours_hash =
         described_class.new(

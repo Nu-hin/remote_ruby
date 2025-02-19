@@ -21,7 +21,7 @@ describe 'Connecting to remote host with SSH adapter',
     FileUtils.rm_rf(cache_dir)
   end
 
-  context 'in caching mode' do
+  context 'when caching mode is enabled' do
     let(:save_cache) { true }
     let(:cec) do
       RemoteRuby::ExecutionContext.new(
@@ -30,7 +30,8 @@ describe 'Connecting to remote host with SSH adapter',
         user: ssh_user,
         working_dir: ssh_workdir,
         use_cache: true,
-        save_cache: false
+        save_cache: false,
+        cache_dir: cache_dir
       )
     end
 
@@ -64,8 +65,8 @@ describe 'Connecting to remote host with SSH adapter',
       expect do
         cec.execute do
           puts gets
-        end.to output("John doe\n").to_stdout
-      end
+        end
+      end.to output("John doe\n").to_stdout
     end
   end
 

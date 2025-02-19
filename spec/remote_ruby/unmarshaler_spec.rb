@@ -38,6 +38,8 @@ describe RemoteRuby::Unmarshaler do
 
   context 'when data can not be deserialized' do
     # rubocop:disable Lint/ConstantDefinitionInBlock
+    # rubocop:disable RSpec/LeakyConstantDeclaration
+    # rubocop:disable RSpec/RemoveConst
     context 'because constant cannot be resolved' do
       class UnknownClass
         def initialize(val)
@@ -59,9 +61,11 @@ describe RemoteRuby::Unmarshaler do
         )
       end
     end
+    # rubocop:enable RSpec/RemoveConst
+    # rubocop:enable RSpec/LeakyConstantDeclaration
     # rubocop:enable Lint/ConstantDefinitionInBlock
 
-    context 'because of incorrect data' do
+    context 'because data is incorrect' do
       it 'raises an error on wrong format' do
         source_stream.write('Some data in an incorrect format')
         source_stream.close_write

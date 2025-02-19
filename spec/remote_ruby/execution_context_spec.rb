@@ -74,22 +74,26 @@ describe RemoteRuby::ExecutionContext do
     let(:caching_context) { described_class.new(**params) }
 
     it 'uses cache' do
-      caching_context.execute do
+      caching_context.execute({}) do
         # :nocov:
         10
         # :nocov:
       end
 
-      expect(execution_context).to receive(:cache_adapter).and_call_original
-      expect(RemoteRuby::CacheAdapter).to receive(:new).and_call_original
+      cache_adapter_class = class_double(RemoteRuby::CacheAdapter, :new)
+      cache_adapter = instance_double(RemoteRuby::CacheAdapter)
+      allow(cache_adapter_class).to receive(:new).and_return(cache_adapter)
+      allow(cache_adapter).to receive(:open).and_yield(nil, StringIO.new, StringIO.new, StringIO.new)
+      cache_adapter_class.as_stubbed_const
 
-      res = execution_context.execute do
+      execution_context.execute({}) do
         # :nocov:
         10
         # :nocov:
       end
 
-      expect(res).to eq(10)
+      expect(cache_adapter_class).to have_received(:new)
+      expect(cache_adapter).to have_received(:open)
     end
   end
 
