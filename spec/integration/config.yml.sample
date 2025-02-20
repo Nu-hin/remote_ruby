@@ -1,5 +1,4 @@
 ssh:
   host: 'my_ssh_host'
   user: 'user'
-  key_file: 'path/to/key_file'
   working_dir: 'path/to/dir/on/remote/host'
