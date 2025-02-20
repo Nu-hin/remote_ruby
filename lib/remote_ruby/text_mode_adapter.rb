@@ -55,21 +55,21 @@ module RemoteRuby
       return nil if stdout_prefix.nil? || stdout_prefix.empty?
       return stdout_prefix if stdout_mode.nil?
 
-      stdout_prefix.colorize(**stdout_mode)
+      stdout_prefix.colorize(stdout_mode)
     end
 
     def stderr_prefix_string
       return nil if stderr_prefix.nil? || stderr_prefix.empty?
       return stderr_prefix if stderr_mode.nil?
 
-      stderr_prefix.colorize(**stderr_mode)
+      stderr_prefix.colorize(stderr_mode)
     end
 
     def cache_prefix_string
       return nil if cache_prefix.nil? || cache_prefix.empty?
       return cache_prefix if cache_mode.nil?
 
-      cache_prefix.colorize(**cache_mode)
+      cache_prefix.colorize(cache_mode)
     end
   end
 end
