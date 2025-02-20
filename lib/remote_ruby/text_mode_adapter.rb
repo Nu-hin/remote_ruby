@@ -11,13 +11,11 @@ module RemoteRuby
       stdout_mode: { color: :green, mode: :italic },
       stderr_mode: { color: :red, mode: :italic },
       cache_mode: { color: :blue, mode: :bold },
-      cache_prefix: '[C] ',
-      disable_stdout_prefixing: false,
-      disable_stderr_prefixing: false
+      cache_prefix: '[C] '
     }.freeze
 
-    attr_reader :adapter, :stdout_prefix, :stderr_prefix, :cache_prefix, :cache_used, :stdout_mode, :stderr_mode,
-                :cache_mode, :disable_stdout_prefixing, :disable_stderr_prefixing
+    attr_reader :adapter, :stdout_prefix, :stderr_prefix, :cache_prefix, :stdout_mode, :stderr_mode,
+                :cache_mode
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(
@@ -25,24 +23,18 @@ module RemoteRuby
       stdout_prefix:,
       stderr_prefix:,
       cache_prefix:,
-      cache_used:,
       stdout_mode:,
       stderr_mode:,
-      cache_mode:,
-      disable_stdout_prefixing:,
-      disable_stderr_prefixing:
+      cache_mode:
     )
       super()
       @adapter = adapter
       @stdout_prefix = stdout_prefix
       @stderr_prefix = stderr_prefix
       @cache_prefix = cache_prefix
-      @cache_used = cache_used
       @stdout_mode = stdout_mode
       @stderr_mode = stderr_mode
       @cache_mode = cache_mode
-      @disable_stdout_prefixing = disable_stdout_prefixing
-      @disable_stderr_prefixing = disable_stderr_prefixing
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -50,8 +42,8 @@ module RemoteRuby
       adapter.open(code) do |stdin, stdout, stderr, result|
         stdout_pref = "#{cache_prefix_string}#{stdout_prefix_string}"
         stderr_pref = "#{cache_prefix_string}#{stderr_prefix_string}"
-        stdout = StreamPrefixer.new(stdout, stdout_pref) unless disable_stdout_prefixing
-        stderr = StreamPrefixer.new(stderr, stderr_pref) unless disable_stderr_prefixing
+        stdout = StreamPrefixer.new(stdout, stdout_pref) unless stdout_prefix_string.nil?
+        stderr = StreamPrefixer.new(stderr, stderr_pref) unless stderr_prefix_string.nil?
 
         yield stdin, stdout, stderr, result
       end
@@ -74,7 +66,6 @@ module RemoteRuby
     end
 
     def cache_prefix_string
-      return nil unless cache_used
       return nil if cache_prefix.nil? || cache_prefix.empty?
       return cache_prefix if cache_mode.nil?
 

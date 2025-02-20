@@ -138,16 +138,16 @@ module RemoteRuby
     def text_mode_params(adapter, cache_mode)
       params = ::RemoteRuby::TextModeAdapter::DEFAULT_SETTINGS.merge(
         stdout_prefix: adapter.connection_name,
-        stderr_prefix: adapter.connection_name,
-        cache_used: cache_mode
+        stderr_prefix: adapter.connection_name
       )
 
       params = params.merge(text_mode) if text_mode.is_a? Hash
 
       disable_unless_tty = params.delete(:disable_unless_tty) { |_| true }
 
-      params[:disable_stdout_prefixing] = true if disable_unless_tty && !out_stream.tty?
-      params[:disable_stderr_prefixing] = true if disable_unless_tty && !err_stream.tty?
+      params[:stdout_prefix] = nil if disable_unless_tty && !out_stream.tty?
+      params[:stderr_prefix] = nil if disable_unless_tty && !err_stream.tty?
+      params[:cache_prefix] = nil unless cache_mode
       params
     end
 
@@ -156,7 +156,7 @@ module RemoteRuby
 
       params = text_mode_params(adapter, cache_mode)
 
-      return adapter if params[:disable_stdout_prefixing] && params[:disable_stderr_prefixing]
+      return adapter unless params[:stdout_prefix] || params[:stderr_prefix]
 
       ::RemoteRuby::TextModeAdapter.new(adapter, **params)
     end
