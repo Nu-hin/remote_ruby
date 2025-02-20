@@ -9,7 +9,10 @@ module RemoteRuby
 
     # Override in child class. Receives Ruby code as string and yields
     # a writeable stream for standard input and
-    # two readable streams: for emulated standard output and standard error.
+    # three readable streams:
+    # - for standard output
+    # - for standard error
+    # - for binary representation of the result and local variables
     def open(_code)
       raise NotImplementedError
     end
