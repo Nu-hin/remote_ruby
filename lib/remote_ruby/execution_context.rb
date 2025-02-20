@@ -25,7 +25,7 @@ module RemoteRuby
       @out_stream = params.delete(:out_stream)       || $stdout
       @err_stream = params.delete(:err_stream)       || $stderr
       @adapter_klass = params.delete(:adapter)       || ::RemoteRuby::SSHAdapter
-      @text_mode = params.delete(:text_mode)         || nil
+      @text_mode = params.delete(:text_mode)         || false
       @code_dump_dir = params.delete(:code_dump_dir) || nil
       @params = params
 
