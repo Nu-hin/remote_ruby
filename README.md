@@ -19,17 +19,18 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Parameters](#parameters)
 	* [Local variables and return value](#local-variables-and-return-value)
 	* [Caching](#caching)
+  * [Text mode](#text-mode)
 	* [Adapters](#adapters)
-		* [SSH STDIN adapter](#ssh-stdin-adapter)
-		* [Local SDIN adapter](#local-stdin-adapter)
+		* [SSH adapter](#ssh-adapter)
 		* [Evaluating adapter](#evaluating-adapter)
+    * [Temporary file adapter](#temporarily-file-adapter)
 	* [Rails](#rails)
 * [Contributing](#contributing)
 * [License](#license)
 
 ## Requirements
 
-RemoteRuby requires at least Ruby 2.6 to run.
+RemoteRuby requires at least Ruby 2.7 to run.
 
 ## Overview
 
@@ -40,7 +41,7 @@ Here is a short example on how you can run your code remotely.
 
 require 'remote_ruby'
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   # Everything inside this block is executed on my_ssh_server
   puts 'Hello, RemoteRuby!'
 end
@@ -50,7 +51,7 @@ end
 
 When you call `#remotely` or `RemoteRuby::ExecutionContext#execute`, the passed block source is read and is then transformed to a standalone Ruby script, which also includes serialization/deserialization of local variables and return value, and other features (see [compiler.rb](lib/remote_ruby/compiler.rb) for more detail).
 
-After that, RemoteRuby opens an SSH connection to the specified host, launches Ruby interpreter there, and feeds the generated script to it. Standard output and standard error streams of SSH client are being captured.
+After that, RemoteRuby opens an SSH connection to the specified host, copies the script to the host (to a temporary file), and then launches runs this script using the Ruby interpreter on the host. Standard output and standard error streams of SSH client are being captured. Standard input is passed to the remote code as well.
 
 ### Key features
 
@@ -59,20 +60,19 @@ After that, RemoteRuby opens an SSH connection to the specified host, launches R
 ```ruby
 user_id = 1213
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   puts user_id # => 1213
 end
-
 ```
 
 * Access return value of the remote block, just as in case of a regular block:
+
 ```ruby
-res = remotely(server: 'my_ssh_server') do
+res = remotely(host: 'my_ssh_server') do
   'My result'
 end
 
 puts res # => My result
-
 ```
 
 * Assignment to local variables inside remote block, just as in case of a regular block:
@@ -80,19 +80,29 @@ puts res # => My result
 ```ruby
 a = 1
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   a = 100
 end
 
 puts a # => 100
 ```
 
+* Reading from the client's standard input in the remote block:
+
+
+```ruby
+remotely(host: 'my_ssh_server') do
+  puts 'What is your name?'
+  name = gets
+  puts "Hello, #{name}!"
+end
+```
+
 ### Limitations
 *  Remote SSH server must be accessible with public-key authentication. Password authentication is not supported.
 
-* Currently, code to be executed remotely cannot read anything from STDIN, because STDIN is used to pass the source to the Ruby interpreter.
-
 * As RemoteRuby reads the block source from the script's source file, the script source file should reside on your machine's disk (e.g. you cannot use RemoteRuby from IRB console).
+
 * Since local and server scripts have different execution contexts, can have different gems (and even Ruby versions) installed, sometimes local variables as well as the block return value, will not be accessible, assigned or can even cause exception. See [usage](#local-variables-and-return-value) section below for more detail.
 
 ## Installation
@@ -120,10 +130,10 @@ gem install remote_ruby
 The main class to work with is the `ExecutionContext`, which provides an `#execute` method:
 
 ```ruby
-my_server = ::RemoteRuby::ExecutionContext.new(server: 'my_ssh_server')
+my_server = ::RemoteRuby::ExecutionContext.new(host: 'my_ssh_server')
 
 my_server.execute do
-  put Dir.pwd
+  puts Dir.pwd
 end
 ```
 
@@ -132,8 +142,8 @@ You can easily define more than one context to access several servers.
 Along with `ExecutionContext#execute` method there is also `.remotely` method, which is included into the global scope. For instance, the code above is equivalent to the code below:
 
 ```ruby
-remotely(server: 'my_ssh_server') do
-  put Dir.pwd
+remotely(host: 'my_ssh_server') do
+  puts Dir.pwd
 end
 ```
 
@@ -147,25 +157,39 @@ The list of general parameters:
 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
-| adapter | Class | no | `::RemoteRuby::SSHStdinAdapter` | An adapter to use. Refer to the [Adapters](#adapters) section to learn about available adapters. |
+| adapter | Class | no | `::RemoteRuby::SSHAdapter` | An adapter to use. Refer to the [Adapters](#adapters) section to learn about available adapters. |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
 | cache_dir | String | no | ./cache | Path to the directory on the local machine, where cache files should be saved. If the directory doesn't exist, RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
-when the context is reading from cache |
-| stdout | Stream open for writing | no | `$stdout` | Redirection stream for server standard output |
-| stderr | Stream open for writing | no | `$stderr` | Redirection stream for server standard error output |
+| in_stream | Stream open for reading | no | `$stdin` | Source stream for server standard input |
+| out_stream | Stream open for writing | no | `$stdout` | Redirection stream for server standard output |
+| err_stream | Stream open for writing | no | `$stderr` | Redirection stream for server standard error|
+| text_mode | Boolean or Hash | no | `false` | Specifies, if the connection should be run in text mode. See [Text Mode](#text-mode) section below to find out more about text mode. |
+| code_dump_dir | String | no | `nil` | Specifies a directory to dump the actual code, executed by the context on the remote server. The directory must exist. |
 
 ### Output
 
-Standard output and standard error streams from the remote process are captured, and then, depending on your parameters are either forwarded to local STOUT/STDERR or to the specified streams.
+Standard output and standard error streams from the remote process are captured, and then, depending on your parameters are either forwarded to local STDOUT/STDERR or to the specified streams.
 
 ```ruby
-  remotely(server: 'my_ssh_server', working_dir: '/home/john') do
+  remotely(host: 'my_ssh_server', working_dir: '/home/john') do
     puts 'This is an output'
     warn 'This is a warning'
   end
 ```
 
+### Input
+
+Standard input from the client is captured and passed to the remote code. By default the input is captured from STDIN.
+
+```ruby
+  name = remotely(host: 'my_ssh_server') do
+    puts "What is your name?"
+    gets
+  end
+
+  puts "Hello locally, #{name}!"
+```
 
 ### Local variables and return value
 
@@ -178,7 +202,7 @@ some_number = 3
 name = 'Alice'
 
 # Explicitly setting locals with .remotely method
-remotely(locals: { name: 'John Doe' }, server: 'my_ssh_server') do
+remotely(locals: { name: 'John Doe' }, host: 'my_ssh_server') do
   # name is 'John Doe', not 'Alice'
   puts name # => John Doe
   # some_number is not defined
@@ -186,7 +210,7 @@ remotely(locals: { name: 'John Doe' }, server: 'my_ssh_server') do
 end
 
 # Explicitly setting locals with ExecutionContext#execute method
-execution_context = ::RemoteRuby::ExecutionContext.new(server: 'my_ssh_server')
+execution_context = ::RemoteRuby::ExecutionContext.new(host: 'my_ssh_server')
 
 execution_context.execute(name: 'John Doe') do
   # name is 'John Doe', not 'Alice'
@@ -202,7 +226,7 @@ However, some objects cannot be serialized. In this case, RemoteRuby will print 
 # We cannot serialize a file stream
 file = File.open('some_file.txt', 'rb')
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   puts file.read # undefined local variable or method `file'
 end
 ```
@@ -212,7 +236,7 @@ Moreover, if such variables are assigned to in the remote block, their value **w
 ```ruby
 file = File.open('some_file.txt', 'rb')
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   file = 3 # No exception here, as we are assigning
 end
 
@@ -223,10 +247,10 @@ puts file == 3 # false
 If the variable can be serialized, but the remote server context lacks the knowledge on how to deserialize it, the variable will be defined inside the remote block, but its value will be `nil`:
 
 ```ruby
-# Something, which is not present on the remote server
+# Something, that is not present on the remote server
 special_thing = SomeSpecialGem::SpecialThing.new
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   # special_thing is defined, but its value is nil
   puts special_thing.nil? # => true
 
@@ -244,7 +268,7 @@ If remote block returns a value which cannot be deserialized on the client side,
 ```ruby
 # Unsupportable return value example
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   # this is not present in the client context
   server_specific_var = ServerSpecificClass.new
 end
@@ -257,7 +281,7 @@ end
 
 my_local = nil
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   # this is not present in the client context
   my_local = ServerSpecificClass.new
   nil
@@ -271,13 +295,12 @@ To avoid these situations, do not assign/return values unsupported on the client
 ```ruby
 # No exception
 
-remotely(server: 'my_ssh_server') do
+remotely(host: 'my_ssh_server') do
   # this is not present in the client context
   server_specific_var = ServerSpecificClass.new
   nil
 end
 ```
-
 
 ### Caching
 
@@ -290,10 +313,9 @@ RemoteRuby allows you to save the result of previous block excutions in the loca
 
 require 'remote_ruby'
 
-res = remotely(server: 'my_ssh_server', save_cache: true, use_cache: true) do
+res = remotely(host: 'my_ssh_server', save_cache: true, use_cache: true) do
   60.times do
     puts 'One second has passed'
-    STDOUT.flush
     sleep 1
   end
 
@@ -309,44 +331,117 @@ RemoteRuby calculates the cache file to use, based on the code you pass to the r
 
 **IMPORTANT**: RemoteRuby does not know when to clear the cache. Therefore, it is up to you to take care of cleaning the cache when you no longer need it. This is especially important if your output can contain sensitive data.
 
+### Text mode
+
+Text mode allows to treat the output and/or the standard error of the remote process as text. If it is enabled, the server output is prefixed with some string, which makes it easier to distinguish local ouput, and the output coming from the remote code. Additionally it may help distinguishing when the output taken from cache.
+
+The text mode is controlled by the `text_mode` parameter to the `::RemoteRuby::ExecutionContext` initializer, and is `false` by default.
+
+The easiest way to enable it is to set `text_mode` to `true`.
+
+```ruby
+ctx = ::RemoteRuby::ExecutionContext.new(
+  host: 'my_ssh_server',
+  user: 'jdoe'
+  text_mode: true,
+)
+
+ctx.execute do
+  puts "This is a greeting"
+  warn "This is an error"
+end
+```
+
+This will produce:
+
+```
+jdoe@my_ssh_server:~> This is a greeting
+jdoe@my_ssh_server:~> This is a greeting
+```
+
+By default, the prefixes for stdout and stderr depend on the adapter used. Output prefix is marked with green italic, and error with red italic. If the cache is used, the default configuration will append a bold blue '[C]' prefix in front of each ouput line.
+
+
+You can fine-tune the text mode to your needs by passing a hash as a value to `text_mode` parameter:
+
+```ruby
+ctx = ::RemoteRuby::ExecutionContext.new(
+  host: 'my_ssh_server',
+  user: 'jdoe'
+  text_mode: {
+    stdout_prefix: 'server says: ',
+    stdout_prefix: 'server warns: ',
+    stdout_mode: { color: :blue, mode: :underline }
+  }
+)
+```
+
+This will produce
+
+```
+server says: This is a greeting
+server warns: This is a greeting
+```
+
+It is reasonable to avoid text mode if you want to put binary data to stdout:
+
+```ruby
+# copy_avatar.rb
+# Reads a file from remote server and writes it to client's stdout.
+
+remotely(host: 'my_ssh_server', text_mode: false) do
+  STDOUT.write File.read('avatar.jpg')
+end
+```
+
+Now you could do:
+
+```shell
+ruby copy_avatar.rb > avatar.jpg
+```
+
+
+The complete list of text mode parameters is in the table below:
+
+| Parameter | Type | Default value | Description |
+|-|-|-|-|
+| stdout_prefix | String | depends on the adapter used | Prepended to standard output lines. Set to `nil` to disable |
+| stderr_prefix | String | depends on the adapter used | Prepended to standard error lines. Set to `nil` to disable |
+| cache_prefix | String | `'[C] '` | Prepended to standard output and standard error lines if the context is using cache. Only added if corresponding prefix is not `nil`. Set to `nil` to disable |
+| disable_unless_tty | Boolean | true | Disables the text mode if the corresponding IO is not TTY. Useful if you want to disable the prefixes and coloring when e.g. outputting to a file |
+| stdout_mode | Hash | `{ color: :green, mode: :italic }` | Text effects and colors applied to the standard output prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
+| stderr_mode | Hash | `{ color: :red, mode: :italic }` | Text effects and colors applied to the standard error prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
+| cache_mode | Hash | `{ color: :blue, mode: :bold }` | Text effects and colors applied to the cache prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
+
 ### Adapters
 
 RemoteRuby can use different adapters to execute remote Ruby code. To specify an adapter you want to use, pass an `:adapter` argument to the initializer of `ExecutionContext` or to the `remotely` method.
 
-#### SSH STDIN adapter
+#### SSH adapter
 
-This adapter uses SSH console client to connect to the remote machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. This is the main and the **default** adapter. It assumes that the SSH client is installed on the client machine, and that the access to the remote host is possible with public-key authenitcation. Password authentication is not supported. To use this adapter, pass `adapter: ::RemoteRuby::SSHStdinAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
+This adapter uses SSH to connect to the remote machine, copies the script to a temporary file on the remote host and launches the script using host's Ruby interpreter. This is the main and the **default** adapter. It assumes that the access to the remote host is possible with public-key authenitcation. Password authentication is not supported. To use this adapter, pass `adapter: ::RemoteRuby::SSHAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
 
 ##### Parameters
 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
-| server | String | yes | - | Name of the SSH server to connect to |
+| host | String | yes | - | Name of the SSH host to connect to |
 | working_dir | String | no | ~ | Path to the directory on the remote server where the script should be executed |
-| user | String | no | - | User on the remote host to connect as |
-| key_file| String | no | - | Path to the private SSH key |
-| bundler | Boolean | no | false | Specifies, whether the code should be executed with `bundle exec` on the remote server |
-
-
-#### Local STDIN adapter
-
-This adapter changes to the specified directory on the **local** machine, launches Ruby interpreter there, and feeds the script to the interpreter via STDIN. Therefore everything will be executed on the local machine, but in a child process. This adapter can be used for testing, or it can be useful if you want to execute some code in context of several code bases you have on the local machine. To use this adapter, pass `adapter: ::RemoteRuby::LocalStdinAdapter` parameter to the `ExecutionContext` initializer.
-
-
-| Parameter | Type | Required | Default value | Description |
-| --------- | ---- | ---------| ------------- | ----------- |
-| working_dir | String | no | . | Path to the directory on the local machine where the script should be executed |
-| bundler | Boolean | no | false | Specifies, whether the code should be executed with `bundle exec` |
+| user | String | no | - | Name of the SSH user |
 
 
 #### Evaluating adapter
 
-This adapter executes Ruby code in the same process, by running it in an isolated scope. It can optionally change to a specified directory before execution (and change back after completion). There is also an option to run this asynchronously; if enabled, the code will run on a separate thread to mimic SSH connection to a remote machine. Please note, that async feature is experimental, and probably will not work on all platforms. This adapter is intended for testing, and it shows better performance than `LocalStdinAdapter`. To use this adapter, pass `adapter: ::RemoteRuby::EvalAdapter` parameter to the `ExecutionContext` initializer.
+This adapter executes Ruby code in the same process, by running it in an isolated scope. It can optionally change to a specified directory before execution (and change back after completion). This adapter is intended for testing. To use this adapter, pass `adapter: ::RemoteRuby::EvalAdapter` parameter to the `ExecutionContext` initializer.
 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
 | working_dir | String | no | . | Path to the directory on the local machine where the script should be executed |
-| async | Boolean | no | false | Enables or disables asynchronous mode of the adapter |
+
+
+#### Temporary file adapter
+
+This adapter executes Ruby code locally in a separate process. It writes the compiled code to a temporary file, and launches it in a separate Ruby process. This adapter is intended for testing. To use this adapter, pass `adapter: ::RemoteRuby::TmpFileAdapter` parameter to the `ExecutionContext` initializer.
 
 
 ### Rails
@@ -358,7 +453,7 @@ RemoteRuby can load Rails environment for you, if you want to execute a script i
 require 'remote_ruby'
 
 remote_service = ::RemoteRuby::ExecutionContext.new(
-  server: 'rails-server',
+  host: 'rails-server',
   working_dir: '/var/www/rails_app/www/current',
   # This specifies ENV['RAILS_ENV'] and can be changed
   rails: { environment: :production }
