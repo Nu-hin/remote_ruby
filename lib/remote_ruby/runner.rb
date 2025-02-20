@@ -19,14 +19,14 @@ module RemoteRuby
       locals = nil
 
       adapter.open(code) do |stdin, stdout, stderr, result|
-        read_stream(in_stream, stdin) unless stdin.nil?
+        in_thread = read_stream(in_stream, stdin) unless stdin.nil?
         out_thread = read_stream(stdout, out_stream)
         err_thread = read_stream(stderr, err_stream)
-
         out_thread.join
         locals = unmarshal(result)
         err_thread.join
         stdin&.close
+        in_thread&.kill
       end
 
       { result: locals[:__return_val__], locals: locals }
