@@ -14,9 +14,23 @@ RSpec.describe RemoteRuby::StreamPrefixer do
   end
 
   describe '#readpartial' do
+    context 'when EOF is not reached' do
+      let(:pipe) { IO.pipe }
+      let(:stream) { pipe.first }
+      let(:writer) { pipe.last }
+
+      it 'reads and prefixes lines from the stream' do
+        writer.puts('line1')
+
+        result = stream_prefixer.readpartial(1024)
+        expect(result).to eq("PREFIX: line1\n")
+        writer.close
+      end
+    end
+
     context 'when reading without max_len' do
       it 'reads and prefixes lines from the stream' do
-        result = stream_prefixer.readpartial
+        result = stream_prefixer.readpartial(1000)
         expect(result).to eq("PREFIX: line1\nPREFIX: line2\nPREFIX: line3\n")
       end
     end

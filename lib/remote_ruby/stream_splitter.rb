@@ -35,7 +35,7 @@ module RemoteRuby
       out_str.replace(res)
     end
 
-    def readpartial(max_len = nil, out_str = nil)
+    def readpartial(max_len, out_str = nil)
       out_str ||= String.new
       out_str.replace(readpartial_direct(max_len))
     end
@@ -76,8 +76,8 @@ module RemoteRuby
     def readpartial_direct(max_len)
       res = String.new
 
-      while max_len.nil? || res.length < max_len
-        read_len = max_len.nil? ? nil : max_len - res.length
+      while res.length < max_len
+        read_len = max_len - res.length
         res << read_chunk(read_len)
         break if eof?
       end

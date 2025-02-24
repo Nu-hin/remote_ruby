@@ -17,7 +17,7 @@ describe RemoteRuby::EvalAdapter do
     new_pid = nil
 
     adapter.open('puts; puts Process.pid') do |_stdin, stdout, _stderr, _result|
-      new_pid = stdout.read.to_i
+      new_pid = stdout.read(1000).to_i
     end
 
     expect(new_pid).not_to be_nil
@@ -42,7 +42,7 @@ describe RemoteRuby::EvalAdapter do
     old_dir = Dir.pwd
 
     adapter.open('puts; puts Dir.pwd') do |_stdin, stdout, _stderr, _result|
-      pwd = stdout.read
+      pwd = stdout.read(1000)
       pwd.strip!
     end
 
@@ -54,7 +54,7 @@ describe RemoteRuby::EvalAdapter do
     new_thread_id = nil
 
     adapter.open('puts; puts Thread.current.object_id') do |_stdin, stdout, _stderr, _result|
-      new_thread_id = stdout.read.to_i
+      new_thread_id = stdout.read(1000).to_i
     end
 
     expect(new_thread_id).not_to be_nil
@@ -67,8 +67,8 @@ describe RemoteRuby::EvalAdapter do
     out = nil
 
     adapter.open('puts 2; print "%%%MARSHAL\nTEST"') do |_stdin, stdout, _stderr, res|
-      out = stdout.read
-      result = res.read
+      out = stdout.read(1000)
+      result = res.read(1000)
     end
 
     expect(out).to eq("2\n")
