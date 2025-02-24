@@ -23,7 +23,6 @@ module RemoteRuby
   end
 end
 
-require 'remote_ruby/eval_adapter'
 require 'remote_ruby/cache_adapter'
 require 'remote_ruby/caching_adapter'
 require 'remote_ruby/ssh_adapter'

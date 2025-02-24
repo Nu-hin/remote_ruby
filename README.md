@@ -22,7 +22,6 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
   * [Text mode](#text-mode)
 	* [Adapters](#adapters)
 		* [SSH adapter](#ssh-adapter)
-		* [Evaluating adapter](#evaluating-adapter)
     * [Temporary file adapter](#temporarily-file-adapter)
 	* [Rails](#rails)
 * [Contributing](#contributing)
@@ -428,15 +427,6 @@ This adapter uses SSH to connect to the remote machine, copies the script to a t
 | host | String | yes | - | Name of the SSH host to connect to |
 | working_dir | String | no | ~ | Path to the directory on the remote server where the script should be executed |
 | user | String | no | - | Name of the SSH user |
-
-
-#### Evaluating adapter
-
-This adapter executes Ruby code in the same process, by running it in an isolated scope. It can optionally change to a specified directory before execution (and change back after completion). This adapter is intended for testing. To use this adapter, pass `adapter: ::RemoteRuby::EvalAdapter` parameter to the `ExecutionContext` initializer.
-
-| Parameter | Type | Required | Default value | Description |
-| --------- | ---- | ---------| ------------- | ----------- |
-| working_dir | String | no | . | Path to the directory on the local machine where the script should be executed |
 
 
 #### Temporary file adapter

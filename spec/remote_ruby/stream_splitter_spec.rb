@@ -8,28 +8,6 @@ describe StreamSplitter do
   let(:stream) { StringIO.new(data) }
   let(:remainder) { stream.read }
 
-  describe '#slice_safe!' do
-    let(:terminator) { '%TERM%' }
-
-    it 'slices the buffer' do
-      # [buffer, max_len, eof, expected_prefix, expected_buffer]
-      [
-        ['', 10, false, '', ''],
-        ['', nil, false, '', ''],
-        ['%TERM%', 10, false, '', '%TERM%'],
-        ['%TERM%', nil, false, '', '%TERM%'],
-        ['a%TERM', 10, false, 'a', '%TERM'],
-        ['abc%TE', 10, false, 'abc', '%TE'],
-        ['abc%TE', 10, true, 'abc%TE', ''],
-        ['%TERM%', 10, true, '', '%TERM%']
-      ].each do |buffer, max_len, eof, expected_prefix, expected_buffer|
-        b = buffer.nil? ? nil : String.new(buffer)
-        expect(reader.slice_safe!(b, max_len, terminator, eof)).to eq(expected_prefix)
-        expect(b).to eq(expected_buffer)
-      end
-    end
-  end
-
   describe '#readpartial' do
     context 'when stream contains no terminator' do
       let(:data) { 'before' }

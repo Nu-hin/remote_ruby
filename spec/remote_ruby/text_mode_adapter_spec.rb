@@ -27,8 +27,8 @@ RSpec.describe RemoteRuby::TextModeAdapter do
   describe '#open' do
     it 'prefixes stdout and stderr' do
       adapter.open('') do |_stdin, stdout, stderr, _result|
-        expect(stdout.read).to eq("#{cache_prefix.blue.bold}#{stdout_prefix.green.italic}#{output}")
-        expect(stderr.read).to eq("#{cache_prefix.blue.bold}#{stderr_prefix.red.italic}#{error}")
+        expect(stdout.readpartial(1000)).to eq("#{cache_prefix.blue.bold}#{stdout_prefix.green.italic}#{output}")
+        expect(stderr.readpartial(1000)).to eq("#{cache_prefix.blue.bold}#{stderr_prefix.red.italic}#{error}")
       end
     end
   end

@@ -8,7 +8,7 @@ describe RemoteRuby::CachingAdapter do
     )
   end
 
-  let(:base_adapter) { RemoteRuby::EvalAdapter.new }
+  let(:base_adapter) { TestAdapter.new(out: 'OUT', err: 'ERROR', result: 'RESULT') }
 
   let(:cache_path) do
     File.join(Dir.mktmpdir, 'test')
@@ -33,31 +33,31 @@ describe RemoteRuby::CachingAdapter do
   describe '#open' do
     def run(code)
       adapter.open(code) do |_stdin, stdout, stderr, result|
-        stdout.read(1000)
-        stderr.read(1000)
-        result.read(1000)
+        stdout.readpartial(1000)
+        stderr.read
+        result.read
       end
     end
 
     it 'saves standard output to a file' do
-      run("puts; print 'text'")
-      expect(File.read(stdout_cache_path)).to eq("\ntext")
+      run('exit')
+      expect(File.read(stdout_cache_path)).to eq('OUT')
     end
 
     it 'saves standard error to a file' do
-      run("puts; $stderr.print 'text'")
-      expect(File.read(stderr_cache_path)).to eq('text')
+      run('exit')
+      expect(File.read(stderr_cache_path)).to eq('ERROR')
     end
 
     it 'saves result to a file' do
-      run('print "%%%MARSHAL\nTEST"')
-      expect(File.read(result_cache_path)).to eq('TEST')
+      run('exit')
+      expect(File.read(result_cache_path)).to eq('RESULT')
     end
 
     it 'proxies call to base adapter' do
       allow(base_adapter).to receive(:open)
 
-      code = '1 + 1'
+      code = 'exit'
 
       run(code)
       expect(base_adapter).to have_received(:open).with(code)

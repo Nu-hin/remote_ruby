@@ -21,28 +21,25 @@ module RemoteRuby
       @buffer = String.new
     end
 
-    def read(max_len = nil, out_str = nil)
+    def readpartial(max_len, out_str = nil)
       res = String.new
 
-      loop do
-        res << readpartial(max_len.nil? ? nil : max_len - res.length)
-        break if !max_len.nil? && res.length >= max_len
-      rescue EOFError
-        break
+      while res.length < max_len
+        res << read_chunk(max_len - res.length)
+        break if eof? || @nodata
       end
+
+      raise EOFError if res.empty? && eof?
 
       out_str ||= String.new
       out_str.replace(res)
     end
 
-    def readpartial(max_len, out_str = nil)
-      out_str ||= String.new
-      out_str.replace(readpartial_direct(max_len))
-    end
-
     def eof?
       @eof
     end
+
+    private
 
     def slice_safe!(buffer, max_len, terminator, eof)
       safe_len = 0
@@ -54,8 +51,6 @@ module RemoteRuby
       actual_len = max_len.nil? ? safe_len : [max_len, safe_len].min
       buffer.slice!(0, actual_len)
     end
-
-    private
 
     def read_chunk(len)
       begin
@@ -73,19 +68,6 @@ module RemoteRuby
       @eof = true if buffer == terminator
 
       safe
-    end
-
-    def readpartial_direct(max_len)
-      res = String.new
-
-      while res.length < max_len
-        res << read_chunk(max_len - res.length)
-        break if eof? || @nodata
-      end
-
-      raise EOFError if res.empty? && eof?
-
-      res
     end
   end
 end

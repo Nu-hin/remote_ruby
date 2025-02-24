@@ -14,20 +14,6 @@ module RemoteRuby
       @out_buffer = String.new
     end
 
-    def read(max_len = nil, out_str = nil)
-      res = String.new
-
-      loop do
-        res << readpartial_direct(max_len.nil? ? 1024 : max_len - res.length)
-        break if !max_len.nil? && res.length >= max_len
-      rescue EOFError
-        break
-      end
-
-      out_str ||= String.new
-      out_str.replace(res)
-    end
-
     def readpartial(max_len, out_str = nil)
       out_str ||= String.new
       out_str.replace(readpartial_direct(max_len))
