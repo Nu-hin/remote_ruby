@@ -59,7 +59,9 @@ module RemoteRuby
 
     def read_chunk(len)
       begin
-        buffer << stream.readpartial(terminator.length - buffer.length)
+        read_len = terminator.length - buffer.length
+        buffer << (r = stream.readpartial(read_len))
+        @nodata = r.length < read_len
       rescue EOFError
         @eof = true
       end
@@ -68,7 +70,7 @@ module RemoteRuby
 
       return safe unless safe.empty?
 
-      @eof = true if eof? || buffer == terminator
+      @eof = true if buffer == terminator
 
       safe
     end
@@ -77,12 +79,11 @@ module RemoteRuby
       res = String.new
 
       while res.length < max_len
-        read_len = max_len - res.length
-        res << read_chunk(read_len)
-        break if eof?
+        res << read_chunk(max_len - res.length)
+        break if eof? || @nodata
       end
 
-      raise EOFError if res.empty?
+      raise EOFError if res.empty? && eof?
 
       res
     end

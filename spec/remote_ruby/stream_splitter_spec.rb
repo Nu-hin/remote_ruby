@@ -195,6 +195,21 @@ describe StreamSplitter do
       end
     end
 
+    context 'when EOF is not reached' do
+      let(:pipe) { IO.pipe }
+      let(:stream) { pipe.first }
+      let(:writer) { pipe.last }
+
+      it 'reads the whole stream' do
+        writer.puts('line1')
+
+        expect(reader.readpartial(1024)).to eq("line1\n")
+        writer.puts(terminator)
+        writer.close
+        expect { reader.readpartial(1024) }.to raise_error(EOFError)
+      end
+    end
+
     context 'when stream contains partial terminator' do
       let(:terminator) { "%%%MAGIC\n" }
       let(:data) { 'before%%%MAGICafter' }
