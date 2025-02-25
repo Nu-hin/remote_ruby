@@ -7,7 +7,7 @@ require 'remote_ruby/compiler'
 require 'remote_ruby/connection_adapter'
 require 'remote_ruby/locals_extractor'
 require 'remote_ruby/source_extractor'
-require 'remote_ruby/flavour'
+require 'remote_ruby/plugin'
 require 'remote_ruby/runner'
 
 module RemoteRuby
@@ -17,7 +17,7 @@ module RemoteRuby
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
     def initialize(**params)
-      add_flavours(params)
+      add_plugins(params)
       @use_cache = params.delete(:use_cache)         || false
       @save_cache = params.delete(:save_cache)       || false
       @cache_dir = params.delete(:cache_dir)         || File.join(Dir.pwd, 'cache')
@@ -48,7 +48,7 @@ module RemoteRuby
     private
 
     attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-                :in_stream, :out_stream, :err_stream, :flavours, :text_mode, :code_dump_dir
+                :in_stream, :out_stream, :err_stream, :plugins, :text_mode, :code_dump_dir
 
     def assign_locals(local_names, values, block)
       local_names.each do |local|
@@ -92,7 +92,7 @@ module RemoteRuby
       RemoteRuby::Compiler.new(
         ruby_code,
         client_locals: client_locals,
-        flavours: flavours
+        plugins: plugins
       )
     end
 
@@ -175,8 +175,8 @@ module RemoteRuby
       )
     end
 
-    def add_flavours(params)
-      @flavours = ::RemoteRuby::Flavour.build_flavours(params)
+    def add_plugins(params)
+      @plugins = ::RemoteRuby::Plugin.build_plugins(params)
     end
   end
 end

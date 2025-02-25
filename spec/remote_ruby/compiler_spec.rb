@@ -5,13 +5,13 @@ describe RemoteRuby::Compiler do
     described_class.new(
       client_code,
       client_locals: client_locals,
-      flavours: flavours
+      plugins: plugins
     )
   end
 
   let(:client_code) { '3 + 3' }
   let(:client_locals) { {} }
-  let(:flavours) { [] }
+  let(:plugins) { [] }
 
   shared_context 'normal behaviour' do # rubocop:disable RSpec/ContextWording
     subject(:compiled_code) { compiler.compiled_code }
@@ -50,20 +50,20 @@ describe RemoteRuby::Compiler do
       end
     end
 
-    context 'with flavours' do
-      let(:flavours) do
+    context 'with plugins' do
+      let(:plugin) do
         (1..3).map do |i|
           instance_double(
-            RemoteRuby::Flavour,
-            code_header: "\"code header from flavour #{i}\""
+            RemoteRuby::Plugin,
+            code_header: "\"code header from plugin #{i}\""
           )
         end
       end
 
       include_context 'normal behaviour'
 
-      it 'includes flavour headers' do
-        flavours.each do |f|
+      it 'includes plugin headers' do
+        plugins.each do |f|
           expect(compiled_code).to include(f.code_header)
         end
       end
@@ -80,20 +80,20 @@ describe RemoteRuby::Compiler do
       different_locals_hash =
         described_class.new(client_code, client_locals: { e: 34 }).code_hash
 
-      flavour = instance_double(RemoteRuby::Flavour, code_header: "require 'open3'")
+      plugin = instance_double(RemoteRuby::Plugin, code_header: "require 'open3'")
 
-      different_flavours_hash =
+      different_plugins_hash =
         described_class.new(
           client_code,
           client_locals: client_locals,
-          flavours: [flavour]
+          plugins: [plugin]
         ).code_hash
 
       hashes = [
         compiler.code_hash,
         different_source_hash,
         different_locals_hash,
-        different_flavours_hash
+        different_plugins_hash
       ]
 
       expect(hashes.uniq.count).to eq hashes.count

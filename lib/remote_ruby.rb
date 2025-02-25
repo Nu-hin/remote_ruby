@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'remote_ruby/version'
+require 'remote_ruby/plugin'
 require 'remote_ruby/execution_context'
 
 # Namespace module for other RemoteRuby classes. Also contains methods, which
@@ -20,8 +21,19 @@ module RemoteRuby
   def self.lib_path(*params)
     File.join(root, 'lib', *params)
   end
+
+  def register_plugin(keyword, plugin_class)
+    Plugin.register_plugin(keyword,
+                           plugin_class)
+  end
+
+  def configure
+    yield self
+  end
 end
 
 # rubocop:disable Style/MixinUsage
 include RemoteRuby
 # rubocop:enable Style/MixinUsage
+
+RemoteRuby.register_plugin(:rails, RemoteRuby::RailsPlugin)

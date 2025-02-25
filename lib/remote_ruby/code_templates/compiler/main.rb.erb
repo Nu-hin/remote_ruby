@@ -22,9 +22,13 @@ $stderr.sync = true
 
 __return_val__ = begin
 <% if code_headers.any? %>
-  # Start of flavour-added code
-<%= code_headers.join.gsub(/^/,'  ') %>
-  # End of flavour-added code
+  # Start of plugin-added code
+<%code_headers.each do |klass, header| %>
+  # <%= klass %>
+<%= header.gsub(/^/,'  ') %>
+  # End of <%= klass %>
+<%end%>
+  # End of plugin-added code
 <% end %>
   # Start of client code
 <%= ruby_code.gsub(/^/, '  ') %>

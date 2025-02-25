@@ -111,7 +111,7 @@ describe RemoteRuby::ExecutionContext do
     end
   end
 
-  context 'with Rails flavour' do
+  context 'with Rails plugin' do
     let(:base_params) do
       {
         rails: { environment: :production }

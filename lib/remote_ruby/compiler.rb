@@ -8,10 +8,10 @@ module RemoteRuby
   # Receives client Ruby code, locals and their values and creates Ruby code
   # to be executed on the remote host.
   class Compiler
-    def initialize(ruby_code, client_locals: {}, flavours: [])
+    def initialize(ruby_code, client_locals: {}, plugins: [])
       @ruby_code = ruby_code
       @client_locals = client_locals
-      @flavours = flavours
+      @plugins = plugins
     end
 
     def code_hash
@@ -44,7 +44,7 @@ module RemoteRuby
 
     private
 
-    attr_reader :ruby_code, :client_locals, :flavours
+    attr_reader :ruby_code, :client_locals, :plugins
 
     def process_local(name, data)
       bin_data = Marshal.dump(data)
@@ -54,7 +54,9 @@ module RemoteRuby
     end
 
     def code_headers
-      flavours.map(&:code_header)
+      plugins.to_h do |plugin|
+        [plugin.class.name, plugin.code_header]
+      end
     end
   end
 end
