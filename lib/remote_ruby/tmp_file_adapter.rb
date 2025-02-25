@@ -9,7 +9,7 @@ module RemoteRuby
   class TmpFileAdapter < ::RemoteRuby::ConnectionAdapter
     attr_reader :working_dir
 
-    def initialize(working_dir: '.')
+    def initialize(working_dir: Dir.pwd)
       super
       @working_dir = working_dir
     end
@@ -36,6 +36,10 @@ module RemoteRuby
 
         raise "Process exited with code #{result}"
       end
+    end
+
+    def connection_name
+      "#{ENV.fetch('USER', nil)}@localhost:#{working_dir}> "
     end
 
     protected
