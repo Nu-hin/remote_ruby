@@ -2,17 +2,11 @@
 
 require 'remote_ruby/version'
 require 'remote_ruby/plugin'
-require 'remote_ruby/execution_context'
+require 'remote_ruby/mixin'
 
 # Namespace module for other RemoteRuby classes. Also contains methods, which
 # are included in the global scope
 module RemoteRuby
-  def remotely(args = {}, &block)
-    locals = args.delete(:locals)
-    execution_context = ::RemoteRuby::ExecutionContext.new(**args)
-    execution_context.execute(locals, &block)
-  end
-
   def self.root(*params)
     root_dir = ::Gem::Specification.find_by_name('remote_ruby').gem_dir
     File.join(root_dir, *params)
@@ -22,18 +16,18 @@ module RemoteRuby
     File.join(root, 'lib', *params)
   end
 
-  def register_plugin(keyword, plugin_class)
+  def self.register_plugin(keyword, plugin_class)
     Plugin.register_plugin(keyword,
                            plugin_class)
   end
 
-  def configure
+  def self.configure
     yield self
   end
 end
 
 # rubocop:disable Style/MixinUsage
-include RemoteRuby
+include RemoteRuby::Mixin
 # rubocop:enable Style/MixinUsage
 
 RemoteRuby.register_plugin(:rails, RemoteRuby::RailsPlugin)
