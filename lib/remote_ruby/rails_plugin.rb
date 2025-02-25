@@ -9,9 +9,9 @@ module RemoteRuby
     end
 
     def code_header
-      <<-RUBY
-  ENV['RAILS_ENV'] = '#{environment}'
-  require './config/environment'
+      <<~RUBY
+        ENV['RAILS_ENV'] = '#{environment}'
+        require './config/environment'
       RUBY
     end
 

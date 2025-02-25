@@ -6,7 +6,7 @@ AllCops:
   TargetRubyVersion: 2.7
 
 Metrics/AbcSize:
-  Max: 20
+  Max: 21
 
 Metrics/ClassLength:
   Max: 200

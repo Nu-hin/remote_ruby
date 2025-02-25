@@ -23,8 +23,8 @@ module RemoteRuby
         with_temp_file(code, ssh) do |fname|
           Pipes.with_pipes do |p|
             t = Thread.new do
-              run_code(ssh, fname, p.in_r, p.out_w, p.err_w)
-              get_result(ssh, fname, p.res_w)
+              res = run_code(ssh, fname, p.in_r, p.out_w, p.err_w)
+              get_result(ssh, fname, p.res_w, res)
             end
 
             yield p.in_w, p.out_r, p.err_r, p.res_r
@@ -35,6 +35,7 @@ module RemoteRuby
     end
 
     def run_code(ssh, fname, stdin_r, stdout_w, stderr_w)
+      res = nil
       ssh.open_channel do |channel|
         channel.exec("cd '#{working_dir}' && ruby #{fname}") do |ch, success|
           raise UnableToExecuteError unless success
@@ -54,15 +55,25 @@ module RemoteRuby
             stderr_w << data
           end
 
+          ch.on_request('exit-status') do |_, data|
+            res = data.read_long
+          end
+
           ch.on_close do |_|
             stdout_w.close
             stderr_w.close
           end
         end
       end.wait
+      res
     end
 
-    def get_result(ssh, fname, res_w)
+    def get_result(ssh, fname, res_w, process_status)
+      unless process_status.zero?
+        res_w.close
+        raise "Process exited with code #{process_status}"
+      end
+
       ssh.open_channel do |channel|
         channel.exec("cat #{fname}") do |ch, success|
           raise UnableToExecuteError unless success
