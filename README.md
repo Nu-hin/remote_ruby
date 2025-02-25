@@ -23,7 +23,9 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Adapters](#adapters)
 		* [SSH adapter](#ssh-adapter)
     * [Temporary file adapter](#temporarily-file-adapter)
-	* [Rails](#rails)
+  * [Plugins](#plugins)
+    * [Adding custom plugins](#adding-custom-plugins)
+    * [Rails](#rails)
 * [Contributing](#contributing)
 * [License](#license)
 
@@ -332,7 +334,7 @@ RemoteRuby calculates the cache file to use, based on the code you pass to the r
 
 ### Text mode
 
-Text mode allows to treat the output and/or the standard error of the remote process as text. If it is enabled, the server output is prefixed with some string, which makes it easier to distinguish local ouput, and the output coming from the remote code. Additionally it may help distinguishing when the output taken from cache.
+Text mode allows to treat the output and/or the standard error of the remote process as text. If it is enabled, the server output is prefixed with some string, which makes it easier to distinguish local ouput, and the output coming from the remote code. Additionally it may help distinguishing when the output is taken from cache.
 
 The text mode is controlled by the `text_mode` parameter to the `::RemoteRuby::ExecutionContext` initializer, and is `false` by default.
 
@@ -433,9 +435,65 @@ This adapter uses SSH to connect to the remote machine, copies the script to a t
 
 This adapter executes Ruby code locally in a separate process. It writes the compiled code to a temporary file, and launches it in a separate Ruby process. This adapter is intended for testing. To use this adapter, pass `adapter: ::RemoteRuby::TmpFileAdapter` parameter to the `ExecutionContext` initializer.
 
+### Plugins
+RemoteRuby can be extended with plugins. Plugins are used to insert additional code to the script, which is executed in the remote context. There is also a built-in plugin that allows for automatically loading Rails environment.
 
-### Rails
-RemoteRuby can load Rails environment for you, if you want to execute a script in a Rails context. To do this, simply add `rails` parameter to your call:
+#### Adding custom plugins
+
+RemoteRuby plugin must be a class. Instances of a plugin class must respond to `#code_header` method without any parameters. Plugins are instantiated when the `ExecutionContext` is created.
+
+You may inherit your class from `::RemoteRuby::Plugin` class but that is not necessary.
+
+Let's take a look at an example plugin:
+
+```ruby
+class UsernamePlugin < RemoteRuby::Plugin
+# This plugin prints a name of the user on the calling host.
+  attr_reader :username
+
+  def initialize(username:)
+    @username = username
+  end
+
+  def code_header
+    <<~RUBY
+      puts "This code is run by #{username}"
+    RUBY
+  end
+end
+```
+
+In order to be used, the plugin needs to be registered. You can register a plugin by calling `#register_plugin` method.
+
+```ruby
+RemoteRuby.configure do |c|
+  c.register_plugin(:username_printer, UsernamePlugin)
+end
+```
+
+Now, when creating an `ExecutionContext` we can use `username_printer` argument to the initializer. Plugin argument value must be a hash. All hash values will be passed to plugin class initializer as name arguments.
+
+```ruby
+  ec = RemoteRuby::ExecutionContext.new(
+    host: 'my_ssh_server',
+    username_printer: { username: ENV['USER'] }
+  )
+
+  ec.execute do
+    puts "Hello world!"
+  end
+```
+
+This should print the following:
+
+```
+This code is run by jdoe
+Hello world!
+```
+
+
+#### Rails plugin
+RemoteRuby can load Rails environment for you, if you want to execute a script in a Rails context. To do this, simply add add built-in Rails plugin by adding `rails` argument to your call:
 
 ```ruby
 # Rails integration example
@@ -458,7 +516,6 @@ end
 
 puts phone
 ```
-
 
 ## Contributing
 
