@@ -18,13 +18,13 @@ module RemoteRuby
     # rubocop:disable Metrics/PerceivedComplexity
     def initialize(**params)
       add_plugins(params)
+      chose_adapter_klass(params)
       @use_cache = params.delete(:use_cache)         || false
       @save_cache = params.delete(:save_cache)       || false
       @cache_dir = params.delete(:cache_dir)         || File.join(Dir.pwd, 'cache')
       @in_stream = params.delete(:in_stream)         || $stdin
       @out_stream = params.delete(:out_stream)       || $stdout
       @err_stream = params.delete(:err_stream)       || $stderr
-      @adapter_klass = params.delete(:adapter)       || ::RemoteRuby::SSHAdapter
       @text_mode = params.delete(:text_mode)         || false
       @code_dump_dir = params.delete(:code_dump_dir) || nil
       @params = params
@@ -33,6 +33,17 @@ module RemoteRuby
     end
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/CyclomaticComplexity
+
+    def chose_adapter_klass(params)
+      @adapter_klass = params.delete(:adapter)
+      return unless @adapter_klass.nil?
+
+      @adapter_klass = if params[:host]
+                         ::RemoteRuby::SSHAdapter
+                       else
+                         ::RemoteRuby::TmpFileAdapter
+                       end
+    end
 
     def execute(locals = nil, &block)
       source = code_source(block)

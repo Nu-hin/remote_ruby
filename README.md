@@ -20,9 +20,6 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Local variables and return value](#local-variables-and-return-value)
 	* [Caching](#caching)
   * [Text mode](#text-mode)
-	* [Adapters](#adapters)
-		* [SSH adapter](#ssh-adapter)
-    * [Temporary file adapter](#temporarily-file-adapter)
   * [Plugins](#plugins)
     * [Adding custom plugins](#adding-custom-plugins)
     * [Rails](#rails)
@@ -152,13 +149,11 @@ All parameters passed to the `remotely` method will be passed to the underlying 
 
 ### Parameters
 
-Parameters, passed to the `ExecutionContext` can be general and _adapter-specific_. For adapter-specific parameters, refer to the [Adapters](#adapters) section below.
-
-The list of general parameters:
-
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
-| adapter | Class | no | `::RemoteRuby::SSHAdapter` | An adapter to use. Refer to the [Adapters](#adapters) section to learn about available adapters. |
+| host | String | no | - | Name of the SSH host to connect to. If omitted, the code will be executed on the local host, in a separate Ruby process |
+| working_dir | String | no | '~' if running over SSH, or current dir, if running locally | Path to the directory where the script should be executed |
+| user | String | no | - | Name of the SSH user. Only specify is running over SSH |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
 | cache_dir | String | no | ./cache | Path to the directory on the local machine, where cache files should be saved. If the directory doesn't exist, RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
@@ -360,7 +355,7 @@ jdoe@my_ssh_server:~> This is a greeting
 jdoe@my_ssh_server:~> This is a greeting
 ```
 
-By default, the prefixes for stdout and stderr depend on the adapter used. Output prefix is marked with green italic, and error with red italic. If the cache is used, the default configuration will append a bold blue '[C]' prefix in front of each ouput line.
+By default, the prefixes for stdout and stderr can be different when running over SSH and locally. Output prefix is marked with green italic, and error with red italic. If the cache is used, the default configuration will append a bold blue '[C]' prefix in front of each ouput line.
 
 
 You can fine-tune the text mode to your needs by passing a hash as a value to `text_mode` parameter:
@@ -406,34 +401,13 @@ The complete list of text mode parameters is in the table below:
 
 | Parameter | Type | Default value | Description |
 |-|-|-|-|
-| stdout_prefix | String | depends on the adapter used | Prepended to standard output lines. Set to `nil` to disable |
-| stderr_prefix | String | depends on the adapter used | Prepended to standard error lines. Set to `nil` to disable |
+| stdout_prefix | String | `user@host:/path/to/working/dir> ` | Prepended to standard output lines. Set to `nil` to disable |
+| stderr_prefix | String | `user@host:/path/to/working/dir> ` | Prepended to standard error lines. Set to `nil` to disable |
 | cache_prefix | String | `'[C] '` | Prepended to standard output and standard error lines if the context is using cache. Only added if corresponding prefix is not `nil`. Set to `nil` to disable |
 | disable_unless_tty | Boolean | true | Disables the text mode if the corresponding IO is not TTY. Useful if you want to disable the prefixes and coloring when e.g. outputting to a file |
 | stdout_mode | Hash | `{ color: :green, mode: :italic }` | Text effects and colors applied to the standard output prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
 | stderr_mode | Hash | `{ color: :red, mode: :italic }` | Text effects and colors applied to the standard error prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
 | cache_mode | Hash | `{ color: :blue, mode: :bold }` | Text effects and colors applied to the cache prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
-
-### Adapters
-
-RemoteRuby can use different adapters to execute remote Ruby code. To specify an adapter you want to use, pass an `:adapter` argument to the initializer of `ExecutionContext` or to the `remotely` method.
-
-#### SSH adapter
-
-This adapter uses SSH to connect to the remote machine, copies the script to a temporary file on the remote host and launches the script using host's Ruby interpreter. This is the main and the **default** adapter. It assumes that the access to the remote host is possible with public-key authenitcation. Password authentication is not supported. To use this adapter, pass `adapter: ::RemoteRuby::SSHAdapter` parameter to the `ExecutionContext` initializer, or do not specify adapter at all.
-
-##### Parameters
-
-| Parameter | Type | Required | Default value | Description |
-| --------- | ---- | ---------| ------------- | ----------- |
-| host | String | yes | - | Name of the SSH host to connect to |
-| working_dir | String | no | ~ | Path to the directory on the remote server where the script should be executed |
-| user | String | no | - | Name of the SSH user |
-
-
-#### Temporary file adapter
-
-This adapter executes Ruby code locally in a separate process. It writes the compiled code to a temporary file, and launches it in a separate Ruby process. This adapter is intended for testing. To use this adapter, pass `adapter: ::RemoteRuby::TmpFileAdapter` parameter to the `ExecutionContext` initializer.
 
 ### Plugins
 RemoteRuby can be extended with plugins. Plugins are used to insert additional code to the script, which is executed in the remote context. There is also a built-in plugin that allows for automatically loading Rails environment.
