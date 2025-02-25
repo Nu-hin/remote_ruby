@@ -5,9 +5,8 @@ module RemoteRuby
   class Unmarshaler
     UnmarshalError = Class.new(StandardError)
 
-    def initialize(stream, terminator = nil)
+    def initialize(stream)
       @stream = stream
-      @terminator = terminator
     end
 
     def unmarshal
@@ -15,8 +14,6 @@ module RemoteRuby
 
       until stream.eof?
         line = stream.readline
-
-        break if terminator && line == terminator
 
         var = read_var(line)
         res[var.first] = var[1]
@@ -27,7 +24,7 @@ module RemoteRuby
 
     private
 
-    attr_reader :stream, :terminator
+    attr_reader :stream
 
     def read_var(line)
       varname, length = read_var_header(line)

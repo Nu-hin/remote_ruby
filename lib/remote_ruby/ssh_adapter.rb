@@ -2,7 +2,6 @@
 
 require 'net/ssh'
 require 'remote_ruby/pipes'
-require 'remote_ruby/stream_splitter'
 
 module RemoteRuby
   # An adapter for executing Ruby code on a remote host via SSH
@@ -25,11 +24,10 @@ module RemoteRuby
           Pipes.with_pipes do |p|
             t = Thread.new do
               run_code(ssh, fname, p.in_r, p.out_w, p.err_w)
+              get_result(ssh, fname, p.res_w)
             end
 
-            out, res = StreamSplitter.split(p.out_r, Compiler::MARSHAL_TERMINATOR)
-
-            yield p.in_w, out, p.err_r, res
+            yield p.in_w, p.out_r, p.err_r, p.res_r
             t.join
           end
         end
@@ -59,6 +57,22 @@ module RemoteRuby
           ch.on_close do |_|
             stdout_w.close
             stderr_w.close
+          end
+        end
+      end.wait
+    end
+
+    def get_result(ssh, fname, res_w)
+      ssh.open_channel do |channel|
+        channel.exec("cat #{fname}") do |ch, success|
+          raise UnableToExecuteError unless success
+
+          ch.on_data do |_, data|
+            res_w << data
+          end
+
+          ch.on_close do |_|
+            res_w.close
           end
         end
       end.wait

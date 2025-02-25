@@ -35,10 +35,11 @@ __marshalled_locals_names__ << :__return_val__
 
 # Marshalling local variables and result
 
-$stdout.print <%= MARSHAL_TERMINATOR.inspect %>
-__marshalled_locals_names__.each do |lv|
-  data = Marshal.dump(eval(lv.to_s))
-  data_length = data.size
-  $stdout.puts "#{lv}:#{data_length}"
-  $stdout.write(data)
+File.open(__FILE__, 'wb') do |__marhalled_data_file__|
+  __marshalled_locals_names__.each do |lv|
+    data = Marshal.dump(eval(lv.to_s))
+    data_length = data.size
+    __marhalled_data_file__.puts "#{lv}:#{data_length}"
+    __marhalled_data_file__.write(data)
+  end
 end

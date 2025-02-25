@@ -22,9 +22,8 @@ module RemoteRuby
         in_thread = read_stream(in_stream, stdin) unless stdin.nil?
         out_thread = read_stream(stdout, out_stream)
         err_thread = read_stream(stderr, err_stream)
-        out_thread.join
+        [out_thread, err_thread].each(&:join)
         locals = unmarshal(result)
-        err_thread.join
         stdin&.close
         in_thread&.kill
       end

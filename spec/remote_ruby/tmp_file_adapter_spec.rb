@@ -21,7 +21,7 @@ describe RemoteRuby::TmpFileAdapter do
     script = "puts; puts __FILE__\n"
     adapter.open(script) do |_stdin, stdout, _stderr, _result|
       fname = stdout.readpartial(1000).strip
-      expect(fname).to match(%r{/remote_ruby\.rb$})
+      expect(fname).to match(%r{/remote_ruby})
     end
   end
 
@@ -64,7 +64,7 @@ describe RemoteRuby::TmpFileAdapter do
 
     it 'calls external command' do
       adapter.open(code) {}
-      expect(open_double).to have_received(:popen3).with(%r{ruby.*/remote_ruby\.rb})
+      expect(open_double).to have_received(:popen3).with(%r{ruby.*/remote_ruby})
     end
 
     context 'when process fails' do

@@ -8,8 +8,6 @@ module RemoteRuby
   # Receives client Ruby code, locals and their values and creates Ruby code
   # to be executed on the remote host.
   class Compiler
-    MARSHAL_TERMINATOR = "%%%MARSHAL\n"
-
     def initialize(ruby_code, client_locals: {}, flavours: [])
       @ruby_code = ruby_code
       @client_locals = client_locals

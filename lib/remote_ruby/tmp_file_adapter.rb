@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'open3'
-require 'remote_ruby/stream_splitter'
+require 'tempfile'
 
 module RemoteRuby
   # An adapter to expecute Ruby code on the local machine
@@ -15,14 +15,20 @@ module RemoteRuby
     end
 
     def open(code)
+      res_r, res_w = IO.pipe
       with_temp_file(code) do |filename|
         result = nil
 
         Open3.popen3(command(filename)) do |stdin, stdout, stderr, wait_thr|
-          out, res = StreamSplitter.split(stdout, Compiler::MARSHAL_TERMINATOR)
-          yield stdin, out, stderr, res
+          t = Thread.new(wait_thr) do
+            result = wait_thr.value
+            IO.copy_stream(filename, res_w)
+            res_w.close
+          end
 
-          result = wait_thr.value
+          yield stdin, stdout, stderr, res_r
+
+          t.join
         end
 
         return if result.success?
@@ -34,11 +40,12 @@ module RemoteRuby
     protected
 
     def with_temp_file(code)
-      Dir.mktmpdir do |dir|
-        filename = File.join(dir, 'remote_ruby.rb')
-        File.write(filename, code)
-        yield filename
-      end
+      f = Tempfile.create('remote_ruby')
+      f.write(code)
+      f.close
+      yield f.path
+    ensure
+      File.unlink(f.path)
     end
 
     def command(code_path)
