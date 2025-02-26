@@ -14,7 +14,9 @@ module RemoteRuby
     # - for standard error
     # - for binary representation of the result and local variables
     def open(_code)
+      # :nocov:
       raise NotImplementedError
+      # :nocov:
     end
 
     def connection_name

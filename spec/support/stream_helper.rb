@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# :nocov:
 module StreamHelper
   def with_stdin_redirect(input)
     old_stdin = $stdin
@@ -21,3 +22,4 @@ module StreamHelper
     $stderr = old_stderr
   end
 end
+# :nocov:

@@ -51,7 +51,7 @@ describe RemoteRuby::Compiler do
     end
 
     context 'with plugins' do
-      let(:plugin) do
+      let(:plugins) do
         (1..3).map do |i|
           instance_double(
             RemoteRuby::Plugin,

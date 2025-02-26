@@ -53,6 +53,7 @@ RSpec.describe RemoteRuby::StreamPrefixer do
         stream_prefixer.readpartial(30)
         result = stream_prefixer.readpartial(100)
         expect(result).to eq("EFIX: line3\n")
+        expect { stream_prefixer.readpartial(100) }.to raise_error(EOFError)
       end
     end
   end

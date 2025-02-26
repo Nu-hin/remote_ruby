@@ -19,13 +19,6 @@ module RemoteRuby
       res_r.close
     end
 
-    def close_w
-      in_r.close
-      out_w.close
-      err_w.close
-      res_w.close
-    end
-
     def self.with_pipes
       pipes = new
       yield pipes

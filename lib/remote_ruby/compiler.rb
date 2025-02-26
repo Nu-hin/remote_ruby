@@ -52,11 +52,5 @@ module RemoteRuby
     rescue TypeError => e
       warn "Cannot send variable '#{name}': #{e.message}"
     end
-
-    def code_headers
-      plugins.to_h do |plugin|
-        [plugin.class.name, plugin.code_header]
-      end
-    end
   end
 end

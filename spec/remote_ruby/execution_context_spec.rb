@@ -10,21 +10,63 @@ describe RemoteRuby::ExecutionContext do
   let(:working_dir) do
     Dir.mktmpdir
   end
-  let(:base_params) { {} }
-  let(:params) do
-    {
-      adapter: RemoteRuby::TmpFileAdapter,
-      working_dir: working_dir
-    }.merge(base_params)
-  end
 
   let(:cache_dir) do
     Dir.mktmpdir
   end
 
+  let(:code_dump_dir) do
+    Dir.mktmpdir
+  end
+
+  let(:base_params) { {} }
+
+  let(:params) do
+    {
+      working_dir: working_dir
+    }.merge(base_params)
+  end
+
   after do
     FileUtils.rm_rf(working_dir)
     FileUtils.rm_rf(cache_dir)
+    FileUtils.rm_rf(code_dump_dir)
+  end
+
+  context 'when host is set' do
+    let(:base_params) { { host: 'some_host' } }
+
+    it 'uses SSH adapter' do
+      adapter = instance_double(RemoteRuby::SSHAdapter)
+      stub = class_double(RemoteRuby::SSHAdapter, new: adapter).as_stubbed_const
+      allow(adapter).to receive(:open).and_yield(nil, StringIO.new, StringIO.new, StringIO.new)
+
+      execution_context.execute do
+        # :nocov:
+        0
+        # :nocov:
+      end
+
+      expect(stub).to have_received(:new)
+      expect(adapter).to have_received(:open)
+    end
+  end
+
+  context 'when host is not set' do
+    it 'uses TmpFile adapter' do
+      adapter = instance_double(RemoteRuby::TmpFileAdapter)
+      stub = class_double(RemoteRuby::TmpFileAdapter, new: adapter).as_stubbed_const
+      allow(adapter).to receive(:open).and_yield(nil, StringIO.new, StringIO.new, StringIO.new)
+
+      execution_context.execute do
+        # :nocov:
+        0
+        # :nocov:
+      end
+
+      expect(stub).to have_received(:new)
+      expect(adapter).to have_received(:open)
+    end
   end
 
   it 'prints to stdout' do
@@ -44,8 +86,10 @@ describe RemoteRuby::ExecutionContext do
     var = nil
 
     res = execution_context.execute(fname: fname, var: var) do
+      # :nocov:
       var = File.read(fname)
       var
+      # :nocov:
     end
 
     expect(res).to eq(File.read(fname))
@@ -63,6 +107,42 @@ describe RemoteRuby::ExecutionContext do
       end
 
       expect(Dir.glob(File.join(cache_dir, '*'))).not_to be_empty
+    end
+  end
+
+  context 'with text_mode' do
+    let(:base_params) { { text_mode: true } }
+
+    it 'uses TextMode adapter' do
+      allow(RemoteRuby::TextModeAdapter).to receive(:new).and_call_original
+
+      execution_context.execute do
+        # :nocov:
+        0
+        # :nocov:
+      end
+
+      expect(RemoteRuby::TextModeAdapter)
+        .to have_received(:new)
+        .with(instance_of(RemoteRuby::TmpFileAdapter),
+              include(
+                stdout_mode: { color: :green, mode: :italic },
+                stderr_mode: { color: :red, mode: :italic }
+              ))
+    end
+  end
+
+  context 'with code dumping' do
+    let(:base_params) { { code_dump_dir: code_dump_dir } }
+
+    it 'dumps code' do
+      execution_context.execute do
+        # :nocov:
+        1 + 1
+        # :nocov:
+      end
+
+      expect(Dir.glob(File.join(code_dump_dir, '*.rb'))).not_to be_empty
     end
   end
 

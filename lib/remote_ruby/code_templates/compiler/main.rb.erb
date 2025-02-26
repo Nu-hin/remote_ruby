@@ -21,12 +21,12 @@ $stdout.sync = true
 $stderr.sync = true
 
 __return_val__ = begin
-<% if code_headers.any? %>
+<% if plugins.any? %>
   # Start of plugin-added code
-<%code_headers.each do |klass, header| %>
-  # <%= klass %>
-<%= header.gsub(/^/,'  ') %>
-  # End of <%= klass %>
+<%plugins.each do |pl| %>
+  # <%= pl.class.name %>
+<%= pl.code_header.gsub(/^/,'  ') %>
+  # End of <%= pl.class.name %>
 <%end%>
   # End of plugin-added code
 <% end %>

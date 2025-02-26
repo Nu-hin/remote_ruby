@@ -30,6 +30,12 @@ describe RemoteRuby::CachingAdapter do
     FileUtils.rm_rf(cache_path)
   end
 
+  describe '#connection_name' do
+    it 'proxies call to base adapter' do
+      expect(adapter.connection_name).to eq(base_adapter.connection_name)
+    end
+  end
+
   describe '#open' do
     def run(code)
       adapter.open(code) do |_stdin, stdout, stderr, result|

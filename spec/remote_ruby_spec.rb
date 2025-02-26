@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe RemoteRuby do
+  describe '.configure' do
+    it 'yields itself' do
+      expect { |b| described_class.configure(&b) }.to yield_with_args(described_class)
+    end
+  end
+
   describe '.remotely' do
     let(:working_dir) do
       Dir.mktmpdir

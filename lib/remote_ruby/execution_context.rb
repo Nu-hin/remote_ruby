@@ -158,7 +158,7 @@ module RemoteRuby
 
       tm_params = tm_params.merge(text_mode) if text_mode.is_a? Hash
 
-      disable_unless_tty = params.delete(:disable_unless_tty) { |_| true }
+      disable_unless_tty = tm_params.delete(:disable_unless_tty) { |_| true }
 
       tm_params[:stdout_prefix] = nil if disable_unless_tty && !out_stream.tty?
       tm_params[:stderr_prefix] = nil if disable_unless_tty && !err_stream.tty?
@@ -171,7 +171,7 @@ module RemoteRuby
 
       tm_params = text_mode_params(adapter, cache_mode)
 
-      return adapter unless params[:stdout_prefix] || params[:stderr_prefix]
+      return adapter unless tm_params[:stdout_prefix] || tm_params[:stderr_prefix]
 
       ::RemoteRuby::TextModeAdapter.new(adapter, **tm_params)
     end
