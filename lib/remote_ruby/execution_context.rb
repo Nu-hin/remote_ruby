@@ -14,25 +14,29 @@ module RemoteRuby
   # This class is responsible for executing blocks on the remote host with the
   # specified adapters. This is the entrypoint to RemoteRuby logic.
   class ExecutionContext
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/PerceivedComplexity
     def initialize(**params)
       add_plugins(params)
       chose_adapter_klass(params)
-      @use_cache = params.delete(:use_cache)         || false
-      @save_cache = params.delete(:save_cache)       || false
-      @cache_dir = params.delete(:cache_dir)         || File.join(Dir.pwd, 'cache')
-      @in_stream = params.delete(:in_stream)         || $stdin
-      @out_stream = params.delete(:out_stream)       || $stdout
-      @err_stream = params.delete(:err_stream)       || $stderr
+      configure_cache(params)
+      configure_streams(params)
       @text_mode = params.delete(:text_mode)         || false
       @code_dump_dir = params.delete(:code_dump_dir) || nil
-      @params = params
+      @adapter_params = params
 
       FileUtils.mkdir_p(@cache_dir)
     end
-    # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/CyclomaticComplexity
+
+    def configure_cache(params)
+      @use_cache = params.delete(:use_cache)         || false
+      @save_cache = params.delete(:save_cache)       || false
+      @cache_dir = params.delete(:cache_dir)         || File.join(Dir.pwd, 'cache')
+    end
+
+    def configure_streams(params)
+      @in_stream = params.delete(:in_stream)         || $stdin
+      @out_stream = params.delete(:out_stream)       || $stdout
+      @err_stream = params.delete(:err_stream)       || $stderr
+    end
 
     def chose_adapter_klass(params)
       @adapter_klass = params.delete(:adapter)
@@ -58,7 +62,7 @@ module RemoteRuby
 
     private
 
-    attr_reader :params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
+    attr_reader :adapter_params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
                 :in_stream, :out_stream, :err_stream, :plugins, :text_mode, :code_dump_dir
 
     def assign_locals(local_names, values, block)
@@ -84,7 +88,7 @@ module RemoteRuby
       Digest::MD5.hexdigest(
         self.class.name +
         adapter_klass.name.to_s +
-        params.to_s +
+        adapter_params.to_s +
         code_hash
       )
     end
@@ -131,7 +135,7 @@ module RemoteRuby
     end
 
     def adapter(code_hash)
-      res = adapter_klass.new(**params)
+      res = adapter_klass.new(**adapter_params)
 
       cache_mode = use_cache && cache_exists?(code_hash)
 
@@ -147,29 +151,29 @@ module RemoteRuby
     end
 
     def text_mode_params(adapter, cache_mode)
-      params = ::RemoteRuby::TextModeAdapter::DEFAULT_SETTINGS.merge(
+      tm_params = ::RemoteRuby::TextModeAdapter::DEFAULT_SETTINGS.merge(
         stdout_prefix: adapter.connection_name,
         stderr_prefix: adapter.connection_name
       )
 
-      params = params.merge(text_mode) if text_mode.is_a? Hash
+      tm_params = tm_params.merge(text_mode) if text_mode.is_a? Hash
 
       disable_unless_tty = params.delete(:disable_unless_tty) { |_| true }
 
-      params[:stdout_prefix] = nil if disable_unless_tty && !out_stream.tty?
-      params[:stderr_prefix] = nil if disable_unless_tty && !err_stream.tty?
-      params[:cache_prefix] = nil unless cache_mode
-      params
+      tm_params[:stdout_prefix] = nil if disable_unless_tty && !out_stream.tty?
+      tm_params[:stderr_prefix] = nil if disable_unless_tty && !err_stream.tty?
+      tm_params[:cache_prefix] = nil unless cache_mode
+      tm_params
     end
 
     def wrap_text_mode(adapter, cache_mode)
       return adapter unless text_mode
 
-      params = text_mode_params(adapter, cache_mode)
+      tm_params = text_mode_params(adapter, cache_mode)
 
       return adapter unless params[:stdout_prefix] || params[:stderr_prefix]
 
-      ::RemoteRuby::TextModeAdapter.new(adapter, **params)
+      ::RemoteRuby::TextModeAdapter.new(adapter, **tm_params)
     end
 
     def cache_adapter(code_hash, connection_name)
