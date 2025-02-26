@@ -1,4 +1,6 @@
 ssh:
   host: 'my_ssh_host'
-  user: 'user'
   working_dir: 'path/to/dir/on/remote/host'
+  use_config_file: true
+  config:
+    user: 'user'

@@ -5,13 +5,13 @@ describe 'Connecting to remote host with SSH adapter',
   let(:save_cache) { false }
   let(:ec) do
     RemoteRuby::ExecutionContext.new(
-      adapter: RemoteRuby::SSHAdapter,
       host: ssh_host,
-      user: ssh_user,
       working_dir: ssh_workdir,
       use_cache: false,
       save_cache: save_cache,
-      cache_dir: cache_dir
+      cache_dir: cache_dir,
+      use_ssh_config_file: ssh_use_config_file,
+      **ssh_config
     )
   end
 
@@ -25,13 +25,13 @@ describe 'Connecting to remote host with SSH adapter',
     let(:save_cache) { true }
     let(:cec) do
       RemoteRuby::ExecutionContext.new(
-        adapter: RemoteRuby::SSHAdapter,
         host: ssh_host,
-        user: ssh_user,
         working_dir: ssh_workdir,
         use_cache: true,
         save_cache: false,
-        cache_dir: cache_dir
+        cache_dir: cache_dir,
+        use_ssh_config_file: ssh_use_config_file,
+        **ssh_config
       )
     end
 

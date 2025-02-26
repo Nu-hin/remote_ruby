@@ -8,18 +8,20 @@ module RemoteRuby
   class SSHAdapter < ConnectionAdapter
     UnableToExecuteError = Class.new(StandardError)
 
-    attr_reader :host, :user, :config, :working_dir
+    attr_reader :host, :config, :working_dir, :user
 
-    def initialize(host:, user: nil, working_dir: nil)
+    def initialize(host:, working_dir: nil, use_ssh_config_file: true, **params)
       super
       @host = host
       @working_dir = working_dir
-      @config = Net::SSH.configuration_for(@host, true)
-      @user = user || @config[:user]
+      @config = Net::SSH.configuration_for(@host, use_ssh_config_file)
+
+      @config = @config.merge(params)
+      @user = @config[:user]
     end
 
     def open(code)
-      Net::SSH.start(host, user, config) do |ssh|
+      Net::SSH.start(host, nil, config) do |ssh|
         with_temp_file(code, ssh) do |fname|
           Pipes.with_pipes do |p|
             t = Thread.new do

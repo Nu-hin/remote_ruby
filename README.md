@@ -17,8 +17,9 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Basic usage](#basic-usage)
 	* [Output](#output)
 	* [Parameters](#parameters)
-	* [Local variables and return value](#local-variables-and-return-value)
-	* [Caching](#caching)
+  * [SSH Parameters](#ssh-parameters)
+  * [Local variables and return value](#local-variables-and-return-value)
+  * [Caching](#caching)
   * [Text mode](#text-mode)
   * [Plugins](#plugins)
     * [Adding custom plugins](#adding-custom-plugins)
@@ -97,7 +98,6 @@ end
 ```
 
 ### Limitations
-*  Remote SSH server must be accessible with public-key authentication. Password authentication is not supported.
 
 * As RemoteRuby reads the block source from the script's source file, the script source file should reside on your machine's disk (e.g. you cannot use RemoteRuby from IRB console).
 
@@ -152,8 +152,8 @@ All parameters passed to the `remotely` method will be passed to the underlying 
 | Parameter | Type | Required | Default value | Description |
 | --------- | ---- | ---------| ------------- | ----------- |
 | host | String | no | - | Name of the SSH host to connect to. If omitted, the code will be executed on the local host, in a separate Ruby process |
+| use_ssh_config_file | String or Boolean | no | true | When boolean, specifies, whether to use ~/.ssh/config file for the initial set of parameters. When string, interpreted as a path to an SSH configuration file to use |
 | working_dir | String | no | '~' if running over SSH, or current dir, if running locally | Path to the directory where the script should be executed |
-| user | String | no | - | Name of the SSH user. Only specify is running over SSH |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
 | cache_dir | String | no | ./cache | Path to the directory on the local machine, where cache files should be saved. If the directory doesn't exist, RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
@@ -162,6 +162,49 @@ All parameters passed to the `remotely` method will be passed to the underlying 
 | err_stream | Stream open for writing | no | `$stderr` | Redirection stream for server standard error|
 | text_mode | Boolean or Hash | no | `false` | Specifies, if the connection should be run in text mode. See [Text Mode](#text-mode) section below to find out more about text mode. |
 | code_dump_dir | String | no | `nil` | Specifies a directory to dump the actual code, executed by the context on the remote server. The directory must exist. |
+
+### SSH Parameters
+
+In addition to the arguments above, you can fine-tune the SSH connection to the remote host, if SSH is used (that is, if the `host` argument is specified). The arguments for SSH configuration can be anything that is supported by [net-ssh gem](https://github.com/net-ssh/net-ssh). The complete list of parameters can be found in [the documentation for net-ssh](https://net-ssh.github.io/net-ssh/Net/SSH.html#method-c-start). Some of the parameters are in the table below.
+
+If the SSH configuration file is used (see `ssh_config` parameter in the table above), the explicitly specified values **will override** the values taken from SSH config.
+
+| Parameter | Type |  Description |
+| --------- | ---- |  ----------- |
+| user | String | the user name to log in as |
+| password | String  | the password to use to log in |
+| keys | Array of strings | an array of file names of private keys to use for publickey and hostbased authentication |
+| passphrase | String | the passphrase to use when loading a private key (default is `nil`, for no passphrase) |
+| auth_methods | Array of strings | an array of authentication methods to try |
+
+Example SSH configurations may look like:
+
+```ruby
+# Use ~/.ssh/config file, but override some parameters
+ec1 = RemoteRuby::ExecutionContext.new(
+  host: 'my_ssh_server',
+  auth_methods: %w(password),
+  user: 'jdoe',
+  password: 'p@ssw0rd'
+)
+
+# Custom key file
+ec2 = RemoteRuby::ExecutionContext.new(
+  host: 'my_ssh_server',
+  keys: '/home/jdoe/.ssh/custom_id_rsa'
+)
+
+# Ignore SSH configuration and provide everything explicitly
+ec3 = RemoteRuby::ExecutionContext.new(
+  host: 'my_ssh_server',
+  use_ssh_config_file: false,
+  auth_methods: %w(password),
+  user: 'jdoe',
+  password: 'p@ssw0rd'
+)
+
+```
+
 
 ### Output
 
