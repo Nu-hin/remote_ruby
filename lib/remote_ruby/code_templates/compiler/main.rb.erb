@@ -4,6 +4,9 @@ require 'bundler/setup' if File.exist?('Gemfile')
 require 'base64'
 
 __marshalled_locals_names__ = []
+__exception_backtrace__ = nil
+__exception_class__ = nil
+__exception_message__ = nil
 
 # Unmarshalling local variables
 <% client_locals_base64.each do |name, base64_val| %>
@@ -33,17 +36,22 @@ __return_val__ = begin
   # Start of client code
 <%= ruby_code.gsub(/^/, '  ') %>
   # End of client code
+rescue Exception => e
+  __exception_class__ = e.class.name
+  __exception_backtrace__ = e.backtrace
+  __exception_message__ = e.message
+  __marshalled_locals_names__ += %i(__exception_class__ __exception_backtrace__ __exception_message__)
 end
 
 __marshalled_locals_names__ << :__return_val__
 
-# Marshalling local variables and result
+# Marshalling local variables, exception details, and result
 
 File.open(__FILE__, 'wb') do |__marhalled_data_file__|
-  __marshalled_locals_names__.each do |lv|
-    data = Marshal.dump(eval(lv.to_s))
-    data_length = data.size
-    __marhalled_data_file__.puts "#{lv}:#{data_length}"
-    __marhalled_data_file__.write(data)
+  __marshalled_locals_names__.each do |__lv__|
+    __data__ = Marshal.dump(eval(__lv__.to_s))
+    __data_length__ = __data__.size
+    __marhalled_data_file__.puts "#{__lv__}:#{__data_length__}"
+    __marhalled_data_file__.write(__data__)
   end
 end

@@ -28,7 +28,13 @@ module RemoteRuby
         in_thread&.kill
       end
 
-      { result: locals[:__return_val__], locals: locals }
+      {
+        result: locals.delete(:__return_val__),
+        exception_class: locals.delete(:__exception_class__),
+        exception_message: locals.delete(:__exception_message__),
+        exception_backtrace: locals.delete(:__exception_backtrace__),
+        locals: locals
+      }
     end
 
     private

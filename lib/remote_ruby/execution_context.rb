@@ -9,6 +9,7 @@ require 'remote_ruby/locals_extractor'
 require 'remote_ruby/source_extractor'
 require 'remote_ruby/plugin'
 require 'remote_ruby/runner'
+require 'remote_ruby/remote_error'
 
 module RemoteRuby
   # This class is responsible for executing blocks on the remote host with the
@@ -53,7 +54,17 @@ module RemoteRuby
       source = code_source(block)
       locals ||= extract_locals(block)
 
-      result = execute_code(source, **locals)
+      compiler = compiler(source, locals)
+      result = execute_code(compiler)
+
+      if result[:exception_class]
+        raise RemoteRuby::RemoteError.new(
+          compiler.compiled_code,
+          result[:exception_class],
+          result[:exception_message],
+          result[:exception_backtrace]
+        )
+      end
 
       assign_locals(locals.keys, result[:locals], block)
 
@@ -111,9 +122,7 @@ module RemoteRuby
       )
     end
 
-    def execute_code(ruby_code, client_locals = {})
-      compiler = compiler(ruby_code, client_locals)
-
+    def execute_code(compiler)
       dump_code(compiler.code_hash, compiler.compiled_code)
 
       runner = ::RemoteRuby::Runner.new(
