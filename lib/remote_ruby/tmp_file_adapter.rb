@@ -54,7 +54,7 @@ module RemoteRuby
     end
 
     def command(code_path)
-      "cd \"#{working_dir}\" && ruby #{code_path}"
+      "cd \"#{working_dir}\" && ruby \"#{code_path}\""
     end
   end
 end

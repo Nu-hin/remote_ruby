@@ -39,7 +39,7 @@ module RemoteRuby
     def run_code(ssh, fname, stdin_r, stdout_w, stderr_w)
       res = nil
       ssh.open_channel do |channel|
-        channel.exec("cd '#{working_dir}' && ruby #{fname}") do |ch, success|
+        channel.exec("cd '#{working_dir}' && ruby \"#{fname}\"") do |ch, success|
           raise UnableToExecuteError unless success
 
           ssh.listen_to(stdin_r) do |io|
@@ -77,7 +77,7 @@ module RemoteRuby
       end
 
       ssh.open_channel do |channel|
-        channel.exec("cat #{fname}") do |ch, success|
+        channel.exec("cat \"#{fname}\"") do |ch, success|
           raise UnableToExecuteError unless success
 
           ch.on_data do |_, data|
@@ -97,8 +97,8 @@ module RemoteRuby
 
     def with_temp_file(code, ssh)
       fname = String.new
-      code_channel = ssh.open_channel do |channel|
-        channel.exec('f=$(mktemp remote_ruby.rb.XXXXXX) && cat > $f && echo $f') do |ch, success|
+      ssh.open_channel do |channel|
+        channel.exec('f=$(mktemp --tmpdir remote_ruby.XXXXXX) && cat > $f && echo $f') do |ch, success|
           raise UnableToExecuteError unless success
 
           ch.on_data do |_, data|
@@ -108,13 +108,13 @@ module RemoteRuby
           ch.send_data(code)
           ch.eof!
         end
-      end
+      end.wait
 
-      code_channel.wait
+      fname.strip!
 
       yield fname
     ensure
-      ssh.exec!("rm #{fname}")
+      ssh.exec!("rm \"#{fname}\"")
     end
   end
 end
