@@ -27,6 +27,10 @@ module RemoteRuby
       @compiled_code = template.result(binding)
     end
 
+    def inline_file(fname)
+      File.read(::RemoteRuby.lib_path('remote_ruby', fname))
+    end
+
     def client_locals_base64
       return @client_locals_base64 if @client_locals_base64
 

@@ -57,16 +57,15 @@ module RemoteRuby
       compiler = compiler(source, locals)
       result = execute_code(compiler)
 
-      if result[:exception_class]
+      assign_locals(locals.keys, result[:locals], block)
+
+      if result[:context]&.has_error
         raise RemoteRuby::RemoteError.new(
           compiler.compiled_code,
-          result[:exception_class],
-          result[:exception_message],
-          result[:exception_backtrace]
+          result[:context],
+          code_dump_path(compiler.code_hash)
         )
       end
-
-      assign_locals(locals.keys, result[:locals], block)
 
       result[:result]
     end
@@ -136,11 +135,16 @@ module RemoteRuby
       runner.run
     end
 
+    def code_dump_path(code_hash)
+      return nil unless code_dump_dir
+
+      File.join(code_dump_dir, "remote_ruby_#{code_hash}.rb")
+    end
+
     def dump_code(code_hash, code)
       return unless code_dump_dir
 
-      path = File.join(code_dump_dir, "remote_ruby_#{code_hash}.rb")
-      File.write(path, code)
+      File.write(code_dump_path(code_hash), code)
     end
 
     def adapter(code_hash)

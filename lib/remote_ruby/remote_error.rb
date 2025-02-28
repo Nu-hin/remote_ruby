@@ -1,48 +1,54 @@
-module RemoteRuby
-  class RemoteError < StandardError
-    attr_reader :code_source, :remote_error_class, :remote_error_message, :remote_error_backtrace
+# frozen_string_literal: true
 
-    def initialize(code_source, remote_error_class, remote_error_message, remote_error_backtrace)
-      super('Unhandled remote error')
+module RemoteRuby
+  # Raised when an error occurs during remote execution
+  # Wraps the original error and provides additional information
+  # about the error and the source code that caused it.
+  # Allows to display the source code around the line that caused the error.
+  class RemoteError < StandardError
+    attr_reader :code_source, :remote_context, :source_path, :stack_trace_regexp
+
+    def initialize(code_source, remote_context, source_path)
       @code_source = code_source
-      @remote_error_class = remote_error_class
-      @remote_error_message = remote_error_message
-      @remote_error_backtrace = remote_error_backtrace
+      @remote_context = remote_context
+      @source_path = source_path
+      @stack_trace_regexp = /^#{Regexp.escape(remote_context.file_name)}:(?<line_number>\d+):in (?<method_name>.*)$/
+      super(build_message)
     end
 
+    private
+
     def format_source(line_no, context_lines: 3)
-      numbered = code_source.lines.map.with_index(1) do |line, index|
+      code_source.lines.each.with_index(1).drop(line_no - context_lines - 1)
+                 .take((2 * context_lines) + 1).map do |line, index|
         if index == line_no
           "#{index}: >> #{line}"
         else
           "#{index}:    #{line}"
         end
       end
-
-      numbered[(line_no - context_lines - 1)..(line_no + context_lines - 1)]
     end
 
-    def message
-      rex = %r{(^.*(^|/)remote_ruby\..*):(\d+):in (.*)$}
+    def build_message
       res = StringIO.new
-      res.puts super
-      res.puts "Remote error: #{remote_error_class}"
-      res.puts "Message: #{remote_error_message}"
-      res.puts 'Backtrace:'
+      res.puts "Remote error: #{remote_context.error_class}"
+      res.puts remote_context.error_message
 
-      remote_error_backtrace.each do |line|
-        res.puts
-        res.puts line
-
-        next unless (m = rex.match(line))
-
-        res.puts
-        format_source(m[3].to_i).each do |l|
-          res.puts l
-        end
-      end
+      write_backtrace(res)
 
       res.string
+    end
+
+    def write_backtrace(res)
+      remote_context.error_backtrace.each do |line|
+        res.puts "from #{line}"
+
+        next unless (m = stack_trace_regexp.match(line))
+
+        res.puts "(See #{source_path}:#{m[:line_number]}:in #{m[:method_name]}" if source_path
+        res.puts
+        res.puts format_source(m[:line_number].to_i)
+      end
     end
   end
 end

@@ -3,10 +3,11 @@ require 'bundler/setup' if File.exist?('Gemfile')
 
 require 'base64'
 
+<%= inline_file('remote_context.rb') %>
+
+
 __marshalled_locals_names__ = []
-__exception_backtrace__ = nil
-__exception_class__ = nil
-__exception_message__ = nil
+__context__ = RemoteRuby::RemoteContext.new
 
 # Unmarshalling local variables
 <% client_locals_base64.each do |name, base64_val| %>
@@ -37,13 +38,11 @@ __return_val__ = begin
 <%= ruby_code.gsub(/^/, '  ') %>
   # End of client code
 rescue Exception => e
-  __exception_class__ = e.class.name
-  __exception_backtrace__ = e.backtrace
-  __exception_message__ = e.message
-  __marshalled_locals_names__ += %i(__exception_class__ __exception_backtrace__ __exception_message__)
+  __context__.handle_error(e)
 end
 
 __marshalled_locals_names__ << :__return_val__
+__marshalled_locals_names__ << :__context__
 
 # Marshalling local variables, exception details, and result
 

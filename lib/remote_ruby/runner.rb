@@ -30,9 +30,7 @@ module RemoteRuby
 
       {
         result: locals.delete(:__return_val__),
-        exception_class: locals.delete(:__exception_class__),
-        exception_message: locals.delete(:__exception_message__),
-        exception_backtrace: locals.delete(:__exception_backtrace__),
+        context: locals.delete(:__context__),
         locals: locals
       }
     end

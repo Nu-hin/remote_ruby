@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'remote_ruby/remote_context'
 module RemoteRuby
   # Unmarshals variables from given stream
   class Unmarshaler

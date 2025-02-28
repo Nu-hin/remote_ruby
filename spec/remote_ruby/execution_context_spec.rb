@@ -191,6 +191,28 @@ describe RemoteRuby::ExecutionContext do
     end
   end
 
+  context 'when remote code raises an exception' do
+    it 'raises an exception' do
+      data = nil
+      a = 1
+      b = 2
+      expect do
+        data = execution_context.execute do
+          # :nocov:
+          a = 10
+          raise 'Error'
+          b = 20 # rubocop:disable Lint/UnreachableCode
+          30
+          # :nocov:
+        end
+      end.to raise_error(RemoteRuby::RemoteError)
+
+      expect(a).to eq(10)
+      expect(b).to eq(2)
+      expect(data).to be_nil
+    end
+  end
+
   context 'with Rails plugin' do
     let(:base_params) do
       {
