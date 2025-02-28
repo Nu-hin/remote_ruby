@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'remote_ruby/unmarshaler'
+require 'remote_ruby/remote_context'
 
 module RemoteRuby
   # Runner class is responsible for running a prepared Ruby code with given
@@ -16,23 +16,19 @@ module RemoteRuby
     end
 
     def run
-      locals = nil
+      context = nil
 
       adapter.open(code) do |stdin, stdout, stderr, result|
         in_thread = read_stream(in_stream, stdin) unless stdin.nil?
         out_thread = read_stream(stdout, out_stream)
         err_thread = read_stream(stderr, err_stream)
         [out_thread, err_thread].each(&:join)
-        locals = unmarshal(result)
+        context = Marshal.load(result.is_a?(IO) ? result : result.read) # rubocop:disable Security/MarshalLoad
         stdin&.close
         in_thread&.kill
       end
 
-      {
-        result: locals.delete(:__return_val__),
-        context: locals.delete(:__context__),
-        locals: locals
-      }
+      context
     end
 
     private
@@ -43,11 +39,6 @@ module RemoteRuby
       Thread.new do
         IO.copy_stream(read_from, write_to)
       end
-    end
-
-    def unmarshal(result)
-      unmarshaler = RemoteRuby::Unmarshaler.new(result)
-      unmarshaler.unmarshal
     end
   end
 end

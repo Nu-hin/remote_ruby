@@ -55,19 +55,19 @@ module RemoteRuby
       locals ||= extract_locals(block)
 
       compiler = compiler(source, locals)
-      result = execute_code(compiler)
+      context = execute_code(compiler)
 
-      assign_locals(locals.keys, result[:locals], block)
+      assign_locals(locals.keys, context.locals, block)
 
-      if result[:context]&.has_error
+      if context.error?
         raise RemoteRuby::RemoteError.new(
           compiler.compiled_code,
-          result[:context],
+          context,
           code_dump_path(compiler.code_hash)
         )
       end
 
-      result[:result]
+      context.result
     end
 
     private

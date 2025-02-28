@@ -23,7 +23,7 @@ module RemoteRuby
 
       template_file =
         ::RemoteRuby.lib_path('remote_ruby/code_templates/compiler/main.rb.erb')
-      template = ERB.new(File.read(template_file))
+      template = ERB.new(File.read(template_file), trim_mode: '<>')
       @compiled_code = template.result(binding)
     end
 
