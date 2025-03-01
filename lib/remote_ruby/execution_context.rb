@@ -20,11 +20,9 @@ module RemoteRuby
       chose_adapter_klass(params)
       configure_cache(params)
       configure_streams(params)
-      @text_mode = params.delete(:text_mode)         || false
-      @code_dump_dir = params.delete(:code_dump_dir) || nil
+      @text_mode = params.delete(:text_mode) || false
+      @dump_code = params.delete(:dump_code) || false
       @adapter_params = params
-
-      FileUtils.mkdir_p(@cache_dir)
     end
 
     def execute(locals = nil, &block)
@@ -40,7 +38,7 @@ module RemoteRuby
         raise RemoteRuby::RemoteError.new(
           compiler.compiled_code,
           context,
-          code_dump_path(compiler.code_hash)
+          code_path(compiler.code_hash)
         )
       end
 
@@ -49,13 +47,13 @@ module RemoteRuby
 
     private
 
-    attr_reader :adapter_params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
-                :in_stream, :out_stream, :err_stream, :plugins, :text_mode, :code_dump_dir
+    attr_reader :adapter_params, :adapter_klass, :use_cache, :save_cache, :dump_code,
+                :in_stream, :out_stream, :err_stream, :plugins, :text_mode
 
     def configure_cache(params)
       @use_cache = params.delete(:use_cache)         || false
       @save_cache = params.delete(:save_cache)       || false
-      @cache_dir = params.delete(:cache_dir)         || File.join(Dir.pwd, '.remote_ruby', 'cache')
+      RemoteRuby.ensure_cache_dir if use_cache || save_cache
     end
 
     def configure_streams(params)
@@ -105,7 +103,7 @@ module RemoteRuby
 
     def cache_path(code_hash)
       hsh = context_hash(code_hash)
-      File.join(cache_dir, hsh)
+      File.join(RemoteRuby.cache_dir, hsh)
     end
 
     def cache_exists?(code_hash)
@@ -122,7 +120,7 @@ module RemoteRuby
     end
 
     def execute_code(compiler)
-      dump_code(compiler.code_hash, compiler.compiled_code)
+      write_code(compiler.code_hash, compiler.compiled_code)
 
       runner = ::RemoteRuby::Runner.new(
         code: compiler.compiled_code,
@@ -135,16 +133,17 @@ module RemoteRuby
       runner.run
     end
 
-    def code_dump_path(code_hash)
-      return nil unless code_dump_dir
+    def code_path(code_hash)
+      return nil unless dump_code
 
-      File.join(code_dump_dir, "remote_ruby_#{code_hash}.rb")
+      File.join(RemoteRuby.code_dir, "#{code_hash}.rb")
     end
 
-    def dump_code(code_hash, code)
-      return unless code_dump_dir
+    def write_code(code_hash, code)
+      return unless dump_code
 
-      File.write(code_dump_path(code_hash), code)
+      RemoteRuby.ensure_code_dir
+      File.write(code_path(code_hash), code)
     end
 
     def adapter(code_hash)

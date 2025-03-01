@@ -123,6 +123,24 @@ gem install remote_ruby
 
 ## Usage
 
+### Configuration
+
+There are a few options that may be configured on the global level.
+
+```ruby
+RemoteRuby.configure do |c|
+  # Defines, where Remote Ruby will cache output, error and result streams on the
+  # local machine.
+  # By default they are saved to .remote_ruby/cache (relative to the working directory).
+  c.cache_dir = File.join(Dir.pwd, '.remote_ruby/cache')
+
+  # Defines, where Remote Ruby will store compiled code on the local machine, if
+  # `dump_code` is set to `true` in the ExecutionContext.
+  # By default code is saved to .remote_ruby/code (relative to the working directory).
+  c.code_dir = File.join(Dir.pwd, '.remote_ruby/code')
+end
+```
+
 ### Basic usage
 
 The main class to work with is the `ExecutionContext`, which provides an `#execute` method:
@@ -156,12 +174,12 @@ All parameters passed to the `remotely` method will be passed to the underlying 
 | working_dir | String | no | '~' if running over SSH, or current dir, if running locally | Path to the directory where the script should be executed |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
-| cache_dir | String | no | ./cache | Path to the directory on the local machine, where cache files should be saved. If the directory doesn't exist, RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
+RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
 | in_stream | Stream open for reading | no | `$stdin` | Source stream for server standard input |
 | out_stream | Stream open for writing | no | `$stdout` | Redirection stream for server standard output |
 | err_stream | Stream open for writing | no | `$stderr` | Redirection stream for server standard error|
 | text_mode | Boolean or Hash | no | `false` | Specifies, if the connection should be run in text mode. See [Text Mode](#text-mode) section below to find out more about text mode. |
-| code_dump_dir | String | no | `nil` | Specifies a directory to dump the actual code, executed by the context on the remote server. The directory must exist. |
+| dump_code | Boolean | no | `false` | When set to true, the compiled script that will be run on the remote server will be dumped to a local file for inspeaction. |
 
 ### SSH Parameters
 

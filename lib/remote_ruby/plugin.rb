@@ -5,17 +5,10 @@ module RemoteRuby
   # code to the generated remote code.
   class Plugin
     class << self
-      attr_reader :plugins
-
-      def register_plugin(name, klass)
-        @plugins ||= {}
-        @plugins[name] = klass
-      end
-
       def build_plugins(args = {})
         res = []
 
-        Plugin.plugins.each do |name, klass|
+        RemoteRuby.plugins.each do |name, klass|
           options = args.delete(name)
 
           res << klass.new(**options) if options
@@ -30,5 +23,3 @@ module RemoteRuby
     def code_header; end
   end
 end
-
-require 'remote_ruby/rails_plugin'

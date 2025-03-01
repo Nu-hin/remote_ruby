@@ -9,16 +9,19 @@ describe 'Connecting to remote host with SSH adapter',
       working_dir: ssh_workdir,
       use_cache: false,
       save_cache: save_cache,
-      cache_dir: cache_dir,
       use_ssh_config_file: ssh_use_config_file,
       **ssh_config
     )
   end
 
-  let(:cache_dir) { Dir.mktmpdir }
+  before do
+    RemoteRuby.configure do |c|
+      c.cache_dir = Dir.mktmpdir
+    end
+  end
 
   after do
-    FileUtils.rm_rf(cache_dir)
+    RemoteRuby.clear_cache
   end
 
   context 'when caching mode is enabled' do
@@ -29,7 +32,6 @@ describe 'Connecting to remote host with SSH adapter',
         working_dir: ssh_workdir,
         use_cache: true,
         save_cache: false,
-        cache_dir: cache_dir,
         use_ssh_config_file: ssh_use_config_file,
         **ssh_config
       )

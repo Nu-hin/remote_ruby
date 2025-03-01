@@ -7,34 +7,29 @@ describe RemoteRuby::ExecutionContext do
     described_class.new(**params)
   end
 
-  let(:working_dir) do
-    Dir.mktmpdir
-  end
-
-  let(:cache_dir) do
-    Dir.mktmpdir
-  end
-
-  let(:code_dump_dir) do
-    Dir.mktmpdir
-  end
-
+  let(:working_dir) { Dir.mktmpdir }
   let(:remote_context) do
     RemoteRuby::RemoteContext.new('rr.rb').dump
   end
 
   let(:base_params) { {} }
-
   let(:params) do
     {
       working_dir: working_dir
     }.merge(base_params)
   end
 
+  before do
+    RemoteRuby.configure do |c|
+      c.cache_dir = Dir.mktmpdir
+      c.code_dir = Dir.mktmpdir
+    end
+  end
+
   after do
+    RemoteRuby.clear_cache
+    RemoteRuby.clear_code
     FileUtils.rm_rf(working_dir)
-    FileUtils.rm_rf(cache_dir)
-    FileUtils.rm_rf(code_dump_dir)
   end
 
   context 'when host is set' do
@@ -101,7 +96,7 @@ describe RemoteRuby::ExecutionContext do
   end
 
   context 'with save_cache' do
-    let(:base_params) { { save_cache: true, cache_dir: cache_dir } }
+    let(:base_params) { { save_cache: true } }
 
     it 'creates cache files' do
       execution_context.execute do
@@ -110,7 +105,7 @@ describe RemoteRuby::ExecutionContext do
         # :nocov:
       end
 
-      expect(Dir.glob(File.join(cache_dir, '*'))).not_to be_empty
+      expect(Dir.glob(File.join(RemoteRuby.cache_dir, '*'))).not_to be_empty
     end
   end
 
@@ -137,7 +132,7 @@ describe RemoteRuby::ExecutionContext do
   end
 
   context 'with code dumping' do
-    let(:base_params) { { code_dump_dir: code_dump_dir } }
+    let(:base_params) { { dump_code: true } }
 
     it 'dumps code' do
       execution_context.execute do
@@ -146,13 +141,13 @@ describe RemoteRuby::ExecutionContext do
         # :nocov:
       end
 
-      expect(Dir.glob(File.join(code_dump_dir, '*.rb'))).not_to be_empty
+      expect(Dir.glob(File.join(RemoteRuby.code_dir, '*.rb'))).not_to be_empty
     end
   end
 
   context 'with use_cache' do
     let(:base_params) do
-      { save_cache: true, use_cache: true, cache_dir: cache_dir }
+      { save_cache: true, use_cache: true }
     end
 
     let(:caching_context) { described_class.new(**params) }

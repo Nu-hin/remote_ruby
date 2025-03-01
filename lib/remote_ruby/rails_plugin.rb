@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'remote_ruby/plugin'
+
 module RemoteRuby
   # Plugin to load Rails environment
   class RailsPlugin < ::RemoteRuby::Plugin
