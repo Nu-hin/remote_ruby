@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'stringio'
 module RemoteRuby
   # Raised when an error occurs during remote execution
   # Wraps the original error and provides additional information
@@ -41,12 +42,12 @@ module RemoteRuby
 
     def write_backtrace(res)
       remote_context.error_backtrace.each do |line|
+        res.puts
         res.puts "from #{line}"
 
         next unless (m = stack_trace_regexp.match(line))
 
         res.puts "(See #{source_path}:#{m[:line_number]}:in #{m[:method_name]}" if source_path
-        res.puts
         res.puts format_source(m[:line_number].to_i)
       end
     end
