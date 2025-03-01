@@ -110,7 +110,7 @@ describe RemoteRuby::ExecutionContext do
   end
 
   context 'with text_mode' do
-    let(:base_params) { { text_mode: true } }
+    let(:base_params) { { text_mode: { disable_unless_tty: false } } }
 
     it 'uses TextMode adapter' do
       allow(RemoteRuby::TextModeAdapter).to receive(:new).and_call_original
