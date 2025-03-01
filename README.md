@@ -14,11 +14,13 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Limitations](#limitations)
 * [Installation](#installation)
 * [Usage](#usage)
+  * [Configuration](#configuration)
 	* [Basic usage](#basic-usage)
 	* [Output](#output)
 	* [Parameters](#parameters)
   * [SSH Parameters](#ssh-parameters)
   * [Local variables and return value](#local-variables-and-return-value)
+  * [Error handling](#error-handling)
   * [Caching](#caching)
   * [Text mode](#text-mode)
   * [Plugins](#plugins)
@@ -358,6 +360,55 @@ remotely(host: 'my_ssh_server') do
   nil
 end
 ```
+
+### Error handling
+
+If remote code raises an error, RemoteRuby intercepts it and raises a `RemoteRuby::RemoteError` on the local machine. Since remote code potentially can raise an exception of a type (or containing a type), that is not present in the local context, the exception itself is not wrapped. Instead, `RemoteRuby::RemoteError` will contain the class name, message and the stack trace of the causing remote error.
+
+```ruby
+a = 1
+b = 2
+res = 'unchanged'
+begin
+  res = remotely(host: 'my_ssh_server', dump_code: true) do
+    a = 10
+    raise StandardError.new('remote error text')
+    b = 20
+    'changed'
+  end
+rescue RemoteRuby::RemoteError
+  puts a
+  puts b
+  puts res
+
+  raise
+end
+```
+
+This will produce something like the following.
+
+```
+10
+2
+unchanged
+/path/to/gemset/remote_ruby/lib/remote_ruby/execution_context.rb:36:in 'RemoteRuby::ExecutionContext#execute': Remote error: StandardError (RemoteRuby::RemoteError)
+remote error text
+
+from /tmp/remote_ruby.qwGUHP:71:in `block in <main>'
+(See /home/jdoe/Work/remote_ruby_test/.remote_ruby/code/dcbb2493288b1d10be042a32a31bf8af43da660234f1731f03966aa67ac870e3.rb:71:in `block in <main>'
+68:
+69:      # Start of client code
+70:      a = 10
+71: >>   raise(StandardError.new("remote error text"))
+72:      b = 20
+73:      "changed"
+74:      # End of client code
+```
+
+As you can see, the behaviour of remote error corresponds to the situation when an error is raised in normal block. Local variables that are assigned before the error have the new value. The result of block in case of an error is `nil`.
+
+Note that when printed to console `RemoteError` displays the context of the error in the **remote script**. If `dump_code` is set to `true`, `RemoteError` will also print the location of the line in the local copy of the remote script. This may be very useful for debugging.
+
 
 ### Caching
 
