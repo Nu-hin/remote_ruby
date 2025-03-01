@@ -27,29 +27,6 @@ module RemoteRuby
       FileUtils.mkdir_p(@cache_dir)
     end
 
-    def configure_cache(params)
-      @use_cache = params.delete(:use_cache)         || false
-      @save_cache = params.delete(:save_cache)       || false
-      @cache_dir = params.delete(:cache_dir)         || File.join(Dir.pwd, 'cache')
-    end
-
-    def configure_streams(params)
-      @in_stream = params.delete(:in_stream)         || $stdin
-      @out_stream = params.delete(:out_stream)       || $stdout
-      @err_stream = params.delete(:err_stream)       || $stderr
-    end
-
-    def chose_adapter_klass(params)
-      @adapter_klass = params.delete(:adapter)
-      return unless @adapter_klass.nil?
-
-      @adapter_klass = if params[:host]
-                         ::RemoteRuby::SSHAdapter
-                       else
-                         ::RemoteRuby::TmpFileAdapter
-                       end
-    end
-
     def execute(locals = nil, &block)
       source = code_source(block)
       locals ||= extract_locals(block)
@@ -74,6 +51,29 @@ module RemoteRuby
 
     attr_reader :adapter_params, :adapter_klass, :use_cache, :save_cache, :cache_dir,
                 :in_stream, :out_stream, :err_stream, :plugins, :text_mode, :code_dump_dir
+
+    def configure_cache(params)
+      @use_cache = params.delete(:use_cache)         || false
+      @save_cache = params.delete(:save_cache)       || false
+      @cache_dir = params.delete(:cache_dir)         || File.join(Dir.pwd, '.remote_ruby', 'cache')
+    end
+
+    def configure_streams(params)
+      @in_stream = params.delete(:in_stream)         || $stdin
+      @out_stream = params.delete(:out_stream)       || $stdout
+      @err_stream = params.delete(:err_stream)       || $stderr
+    end
+
+    def chose_adapter_klass(params)
+      @adapter_klass = params.delete(:adapter)
+      return unless @adapter_klass.nil?
+
+      @adapter_klass = if params[:host]
+                         ::RemoteRuby::SSHAdapter
+                       else
+                         ::RemoteRuby::TmpFileAdapter
+                       end
+    end
 
     def assign_locals(local_names, values, block)
       local_names.each do |local|
