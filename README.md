@@ -6,6 +6,8 @@
 
 RemoteRuby allows you to execute Ruby code on remote servers via SSH right from the Ruby script running on your local machine, as if it was executed locally.
 
+[Changelog](CHANGELOG.md)
+
 ## Contents
 * [Requirements](#requirements)
 * [Overview](#overview)
@@ -157,15 +159,19 @@ end
 
 You can easily define more than one context to access several servers.
 
-Along with `ExecutionContext#execute` method there is also `.remotely` method, which is included into the global scope. For instance, the code above is equivalent to the code below:
+Along with `ExecutionContext#execute` method there is also `.remotely` method, which can be included from `RemoteRuby::Extensions` module. For instance, the code above is equivalent to the code below:
 
 ```ruby
+include RemoteRuby::Extensions
+
 remotely(host: 'my_ssh_server') do
   puts Dir.pwd
 end
 ```
 
 All parameters passed to the `remotely` method will be passed to the underlying `ExecutionContext` initializer. The only exception is an optional `locals` parameter, which will be passed to the `#execute` method (see [below](#local-variables-and-return-value)).
+
+In all the examples in this document, where `.remote` method is used, it is assumed, that `RemoteRuby::Extensions` is included to the scope.
 
 ### Parameters
 
@@ -181,7 +187,7 @@ RemoteRuby will try to create it. Refer to the [Caching](#caching) section to fi
 | out_stream | Stream open for writing | no | `$stdout` | Redirection stream for server standard output |
 | err_stream | Stream open for writing | no | `$stderr` | Redirection stream for server standard error|
 | text_mode | Boolean or Hash | no | `false` | Specifies, if the connection should be run in text mode. See [Text Mode](#text-mode) section below to find out more about text mode. |
-| dump_code | Boolean | no | `false` | When set to true, the compiled script that will be run on the remote server will be dumped to a local file for inspeaction. |
+| dump_code | Boolean | no | `false` | When set to true, the compiled script that will be run on the remote server will be dumped to a local file for inspection. See [Configuration](#configuration) to configure where the code is written. |
 
 ### SSH Parameters
 
@@ -225,16 +231,15 @@ ec3 = RemoteRuby::ExecutionContext.new(
 
 ```
 
-
 ### Output
 
 Standard output and standard error streams from the remote process are captured, and then, depending on your parameters are either forwarded to local STDOUT/STDERR or to the specified streams.
 
 ```ruby
-  remotely(host: 'my_ssh_server', working_dir: '/home/john') do
-    puts 'This is an output'
-    warn 'This is a warning'
-  end
+remotely(host: 'my_ssh_server', working_dir: '/home/john') do
+  puts 'This is an output'
+  warn 'This is a warning'
+end
 ```
 
 ### Input
@@ -242,12 +247,12 @@ Standard output and standard error streams from the remote process are captured,
 Standard input from the client is captured and passed to the remote code. By default the input is captured from STDIN.
 
 ```ruby
-  name = remotely(host: 'my_ssh_server') do
-    puts "What is your name?"
-    gets
-  end
+name = remotely(host: 'my_ssh_server') do
+  puts "What is your name?"
+  gets
+end
 
-  puts "Hello locally, #{name}!"
+puts "Hello locally, #{name}!"
 ```
 
 ### Local variables and return value
