@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe RemoteRuby do
+  include RemoteRuby::Extensions
+
   describe '.configure' do
     it 'yields itself' do
       expect { |b| described_class.configure(&b) }.to yield_with_args(described_class)

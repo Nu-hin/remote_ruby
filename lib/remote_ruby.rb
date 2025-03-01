@@ -2,7 +2,7 @@
 
 require 'remote_ruby/version'
 require 'remote_ruby/rails_plugin'
-require 'remote_ruby/mixin'
+require 'remote_ruby/extensions'
 
 # Namespace module for other RemoteRuby classes. Also contains methods, which
 # are included in the global scope
@@ -58,7 +58,3 @@ RemoteRuby.configure do |config|
 
   config.register_plugin(:rails, RemoteRuby::RailsPlugin)
 end
-
-# rubocop:disable Style/MixinUsage
-include RemoteRuby::Mixin
-# rubocop:enable Style/MixinUsage
