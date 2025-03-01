@@ -1,4 +1,3 @@
 --require 'spec_helper'
---format documentation
 --color
 --tag ~type:integration

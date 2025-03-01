@@ -45,7 +45,7 @@ describe RemoteRuby::ExecutionContext do
       stub = class_double(RemoteRuby::SSHAdapter, new: adapter).as_stubbed_const
       allow(adapter).to receive(:open).and_yield(nil, StringIO.new, StringIO.new, StringIO.new(remote_context))
 
-      execution_context.execute do
+      execution_context.execute({}) do
         # :nocov:
         0
         # :nocov:
@@ -62,7 +62,7 @@ describe RemoteRuby::ExecutionContext do
       stub = class_double(RemoteRuby::TmpFileAdapter, new: adapter).as_stubbed_const
       allow(adapter).to receive(:open).and_yield(nil, StringIO.new, StringIO.new, StringIO.new(remote_context))
 
-      execution_context.execute do
+      execution_context.execute({}) do
         # :nocov:
         0
         # :nocov:
