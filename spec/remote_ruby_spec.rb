@@ -13,7 +13,7 @@ RSpec.describe RemoteRuby do
     end
     let(:args) do
       {
-        adapter: RemoteRuby::TmpFileAdapter,
+        adapter_klass: RemoteRuby::TmpFileAdapter,
         working_dir: working_dir
       }
     end
