@@ -12,6 +12,7 @@
 * Added proper [error handling](README.md#error-handling). Printing remote stack trace and code context on error for easier debugging.
 * Added advanced, customizable [text mode](README.md#text-mode).
 * Flavours are renamed to plugins. It is now possible to [add custom plugins in configuration](README.md#plugins).
+* Added a possibility to ignore specified types globally. Variables of the ignored types won't be attempted for serialization.
 
 ### Minor changes
 
@@ -20,7 +21,7 @@
 * Connection adapter is now automatically selected based on the presence of the `host` argument.
 * Only two adapters are now available: SSH adapter, and local temp file adapter. All other adapters are deprecated.
 * Cache directory is now a [global configuration option](README.md#configuration), rather than an argument to the ExecutionContext.
-* The default cache location is now in the .remote_ruby/cache, relative to the working directory
+* The default cache location is now in the .remote_ruby/cache, relative to the working directory.
 * Added [changelog](#CHANGELOG.md)
 
 ### Migration from v0.3

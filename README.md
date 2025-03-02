@@ -21,7 +21,8 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Output](#output)
 	* [Parameters](#parameters)
   * [SSH Parameters](#ssh-parameters)
-  * [Local variables and return value](#local-variables-and-return-value)
+  * [Local variables](#local-variables)
+  * [Return value and remote assignments](#return-value-and-remote-assignements)
   * [Error handling](#error-handling)
   * [Caching](#caching)
   * [Text mode](#text-mode)
@@ -255,7 +256,7 @@ end
 puts "Hello locally, #{name}!"
 ```
 
-### Local variables and return value
+### Local variables
 
 When you call a remote block RemoteRuby will try to serialize all local variables from the calling context, and include them to the remote script.
 
@@ -315,6 +316,7 @@ If the variable can be serialized, but the remote server context lacks the knowl
 special_thing = SomeSpecialGem::SpecialThing.new
 
 remotely(host: 'my_ssh_server') do
+  puts defined?(special_thing) # => local-variable
   # special_thing is defined, but its value is nil
   puts special_thing.nil? # => true
 
@@ -327,6 +329,35 @@ puts special_thing == 3 # => true
 
 If RemoteRuby cannot deserialize variable on server side, it will print a warning to server's STDERR stream.
 
+It is possible to ignore certain types, so that RemoteRuby will never try to send variables of these types to the remote host. This can be done by adding configuration:
+
+```ruby
+RemoteRuby::Configure do |c|
+  c.ignore_types SomeSpecialGem::SpecialThing
+end
+```
+
+If a type is ignored, the remote block will behave as if the local variable is not defined:
+
+```ruby
+RemoteRuby::Configure do |c|
+  c.ignore_types SomeSpecialGem::SpecialThing
+end
+
+special_thing = SomeSpecialGem::SpecialThing.new
+
+remotely(host: 'my_ssh_server') do
+  puts defined?(special_thing) # => nil
+
+  # special_thing is not defined
+  puts special_thing.nil? # NameError undefined local variable or method `special_thing' for main:Object
+end
+```
+
+RemoteRuby always ignores variables of type `RemoteRuby::ExecutionContext`.
+
+### Return value and remote assignements
+
 If remote block returns a value which cannot be deserialized on the client side, or if it assigns such a value to the local variable, the exception on the client side will be always raised:
 
 ```ruby
@@ -337,7 +368,7 @@ remotely(host: 'my_ssh_server') do
   server_specific_var = ServerSpecificClass.new
 end
 
-# RemoteRuby::Unmarshaler::UnmarshalError
+# undefined class/module ServerSpecificClass (ArgumentError)
 ```
 
 ```ruby
@@ -351,7 +382,7 @@ remotely(host: 'my_ssh_server') do
   nil
 end
 
-# RemoteRuby::Unmarshaler::UnmarshalError
+# undefined class/module ServerSpecificClass (ArgumentError)
 ```
 
 To avoid these situations, do not assign/return values unsupported on the client side, or, if you don't need any return value, add `nil` at the end of your block:

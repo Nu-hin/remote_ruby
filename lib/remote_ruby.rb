@@ -12,7 +12,7 @@ module RemoteRuby
   DEFAULT_CODE_DIR_NAME = 'code'
 
   class << self
-    attr_reader :plugins
+    attr_reader :plugins, :ignored_types
     attr_accessor :cache_dir, :code_dir
 
     def root(*params)
@@ -45,6 +45,11 @@ module RemoteRuby
       @plugins[name] = klass
     end
 
+    def ignore_types(*types)
+      @ignored_types ||= []
+      @ignored_types.concat(types)
+    end
+
     def configure
       yield self
     end
@@ -55,6 +60,8 @@ RemoteRuby.configure do |config|
   config_dir = File.join(Dir.pwd, RemoteRuby::DEFAULT_CONFIG_DIR_NAME)
   config.cache_dir = File.join(config_dir, RemoteRuby::DEFAULT_CACHE_DIR_NAME)
   config.code_dir = File.join(config_dir, RemoteRuby::DEFAULT_CODE_DIR_NAME)
+
+  config.ignore_types RemoteRuby::ExecutionContext
 
   config.register_plugin(:rails, RemoteRuby::RailsPlugin)
 end

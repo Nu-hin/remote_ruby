@@ -190,6 +190,22 @@ describe RemoteRuby::ExecutionContext do
     end
   end
 
+  context 'when local variable type is ignored' do
+    it 'does not serialize it' do
+      var = Class.new.new
+
+      RemoteRuby.ignore_types(var.class)
+
+      res = execution_context.execute do
+        # :nocov:
+        defined?(var)
+        # :nocov:
+      end
+
+      expect(res).to be_falsey
+    end
+  end
+
   context 'when remote code raises an exception' do
     it 'raises an exception' do
       data = nil

@@ -59,7 +59,7 @@ module RemoteRuby
 
     def extract_locals(block)
       extractor =
-        ::RemoteRuby::LocalsExtractor.new(block, ignore_types: self.class)
+        ::RemoteRuby::LocalsExtractor.new(block, ignore_types: RemoteRuby.ignored_types)
       extractor.locals
     end
 
