@@ -5,6 +5,7 @@
 ### Major changes
 
 * Full [support of SSH features](README.md#ssh-parameters), including password authentication, private key passphrases, made possible by switching to [net-ssh](https://github.com/net-ssh/net-ssh) gem.
+* Since RemoteRuby no longer uses system SSH client, use of MacOS Keychain (`UseKeychain` option in MacOS OpenSSH implementation, starting from MacOS Sierra) is no longer possible.
 * Added [support for STDIN](README.md#input) redirection. It is now possible to make remote scripts interactive, or stream data from local host.
 * The output and error streams are now automatically synchronized. There is no need to use `STDOUT.flush` in the remote script anymore to avoid delays.
 * Output and Error streams now work in binary mode, instead of being read line-by-line. It is possible to stream binary data from the remote script.

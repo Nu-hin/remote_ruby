@@ -103,6 +103,7 @@ end
 ```
 
 ### Limitations
+* MacOS keychain is not supported. If you are using a private SSH key with a passphrase, and you don't want to enter a passphrase each time a context is executed, the identity must be added to the SSH-agent, e.g. using `ssh-add`.
 
 * As RemoteRuby reads the block source from the script's source file, the script source file should reside on your machine's disk (e.g. you cannot use RemoteRuby from IRB console).
 
