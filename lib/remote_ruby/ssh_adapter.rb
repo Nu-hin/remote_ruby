@@ -114,7 +114,9 @@ module RemoteRuby
 
       yield fname
     ensure
-      ssh.exec!("rm \"#{fname}\"")
+      Net::SSH.start(host, nil, config) do |del_ssh|
+        del_ssh.exec!("rm \"#{fname}\"")
+      end
     end
   end
 end
