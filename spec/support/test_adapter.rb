@@ -11,7 +11,9 @@ class TestAdapter < RemoteRuby::ConnectionAdapter
     @result = result
   end
 
-  def open(_code)
-    yield nil, StringIO.new(out), StringIO.new(err), StringIO.new(result)
+  def open(_code, _, stdout, stderr)
+    stdout.write(out)
+    stderr.write(err)
+    result
   end
 end

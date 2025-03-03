@@ -15,7 +15,7 @@ describe RemoteRuby::CacheAdapter do
     cache_path = File.join(Dir.mktmpdir, 'test')
 
     File.binwrite("#{cache_path}.stdout", output)
-    File.binwrite("#{cache_path}.stderr", output)
+    File.binwrite("#{cache_path}.stderr", errors)
 
     cache_path
   end
@@ -26,15 +26,25 @@ describe RemoteRuby::CacheAdapter do
 
   describe '#open' do
     it 'reads stdout from cache' do
-      adapter.open(nil) do |_stdin, stdout, _stderr|
-        expect(stdout.read).to eq(output)
-      end
+      stdout = StringIO.new
+      stderr = StringIO.new
+
+      adapter.open(nil, nil, stdout, stderr)
+
+      [stdout, stderr].each(&:close)
+
+      expect(stdout.string).to eq(output)
     end
 
     it 'reads stderr from cache' do
-      adapter.open(nil) do |_stdin, _stdout, stderr|
-        expect(stderr.read).to eq(output)
-      end
+      stdout = StringIO.new
+      stderr = StringIO.new
+
+      adapter.open(nil, nil, stdout, stderr)
+
+      [stdout, stderr].each(&:close)
+
+      expect(stderr.string).to eq(errors)
     end
   end
 end

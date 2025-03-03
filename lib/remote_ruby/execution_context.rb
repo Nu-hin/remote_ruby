@@ -8,7 +8,7 @@ require 'remote_ruby/connection_adapter'
 require 'remote_ruby/locals_extractor'
 require 'remote_ruby/source_extractor'
 require 'remote_ruby/plugin'
-require 'remote_ruby/runner'
+require 'remote_ruby/remote_context'
 require 'remote_ruby/remote_error'
 require 'remote_ruby/adapter_builder'
 
@@ -81,15 +81,9 @@ module RemoteRuby
 
       adapter = adapter_builder.build(compiler.code_hash, out_tty: out_stream.tty?, err_tty: err_stream.tty?)
 
-      runner = ::RemoteRuby::Runner.new(
-        code: compiler.compiled_code,
-        adapter: adapter,
-        in_stream: in_stream,
-        out_stream: out_stream,
-        err_stream: err_stream
-      )
-
-      runner.run
+      # rubocop:disable Security/MarshalLoad
+      Marshal.load(adapter.open(compiler.compiled_code, in_stream, out_stream, err_stream))
+      # rubocop:enable Security/MarshalLoad
     end
 
     def assign_locals(local_names, values, block)

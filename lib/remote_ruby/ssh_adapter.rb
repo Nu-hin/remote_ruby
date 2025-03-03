@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/ssh'
-require 'remote_ruby/pipes'
+require 'remote_ruby/compat_io_reader'
 
 module RemoteRuby
   # An adapter for executing Ruby code on a remote host via SSH
@@ -20,20 +20,15 @@ module RemoteRuby
       @user = @config[:user]
     end
 
-    def open(code)
+    def open(code, stdin, stdout, stderr)
+      ret = nil
       Net::SSH.start(host, nil, config) do |ssh|
         with_temp_file(code, ssh) do |fname|
-          Pipes.with_pipes do |p|
-            t = Thread.new do
-              res = run_code(ssh, fname, p.in_r, p.out_w, p.err_w)
-              get_result(ssh, fname, p.res_w, res)
-            end
-
-            yield p.in_w, p.out_r, p.err_r, p.res_r
-            t.join
-          end
+          res = run_code(ssh, fname, stdin, stdout, stderr)
+          ret = get_result(ssh, fname, res)
         end
       end
+      ret
     end
 
     def run_code(ssh, fname, stdin_r, stdout_w, stderr_w)
@@ -42,7 +37,7 @@ module RemoteRuby
         channel.exec("cd '#{working_dir}' && ruby \"#{fname}\"") do |ch, success|
           raise UnableToExecuteError unless success
 
-          ssh.listen_to(stdin_r) do |io|
+          ssh.listen_to(RemoteRuby::CompatIOReader.new(stdin_r).readable) do |io|
             data = io.read_nonblock(4096)
             ch.send_data(data)
           rescue EOFError
@@ -50,45 +45,26 @@ module RemoteRuby
           end
 
           ch.on_data do |_, data|
-            stdout_w << data
+            stdout_w.write(data)
           end
 
           ch.on_extended_data do |_, _, data|
-            stderr_w << data
+            stderr_w.write(data)
           end
 
           ch.on_request('exit-status') do |_, data|
             res = data.read_long
           end
-
-          ch.on_close do |_|
-            stdout_w.close
-            stderr_w.close
-          end
         end
       end.wait
+
       res
     end
 
-    def get_result(ssh, fname, res_w, process_status)
-      unless process_status.zero?
-        res_w.close
-        raise "Process exited with code #{process_status}"
-      end
+    def get_result(ssh, fname, process_status)
+      raise "Process exited with code #{process_status}" unless process_status.zero?
 
-      ssh.open_channel do |channel|
-        channel.exec("cat \"#{fname}\"") do |ch, success|
-          raise UnableToExecuteError unless success
-
-          ch.on_data do |_, data|
-            res_w << data
-          end
-
-          ch.on_close do |_|
-            res_w.close
-          end
-        end
-      end.wait
+      ssh.exec!("cat \"#{fname}\"")
     end
 
     def connection_name

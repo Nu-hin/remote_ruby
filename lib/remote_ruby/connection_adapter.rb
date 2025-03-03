@@ -7,13 +7,11 @@ module RemoteRuby
     # May be overriden in a child class.
     def initialize(**args); end
 
-    # Override in child class. Receives Ruby code as string and yields
-    # a writeable stream for standard input and
-    # three readable streams:
-    # - for standard output
-    # - for standard error
-    # - for binary representation of the result and local variables
-    def open(_code)
+    # Override in child class.
+    # Accepts compiled Ruby code as string,
+    # readable IO for stdin, writable IO for stdout and stderr.
+    # Should return a binary result stream.
+    def open(_code, _stdin, _stdout, _stderr)
       # :nocov:
       raise NotImplementedError
       # :nocov:

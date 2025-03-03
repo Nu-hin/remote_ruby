@@ -12,16 +12,11 @@ module RemoteRuby
       @connection_name = connection_name
     end
 
-    def open(_code)
-      stdout = File.open(stdout_file_path, 'r')
-      stderr = File.open(stderr_file_path, 'r')
-      result = File.open(result_file_path, 'r')
+    def open(_code, _stdin, stdout, stderr)
+      IO.copy_stream(stdout_file_path, stdout)
+      IO.copy_stream(stderr_file_path, stderr)
 
-      yield nil, stdout, stderr, result
-    ensure
-      stderr.close unless stderr.closed?
-      stdout.close unless stdout.closed?
-      result.close unless result.closed?
+      File.binread(result_file_path) if result_file_path
     end
 
     private

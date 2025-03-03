@@ -38,15 +38,13 @@ module RemoteRuby
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def open(code)
-      adapter.open(code) do |stdin, stdout, stderr, result|
-        stdout_pref = "#{cache_prefix_string}#{stdout_prefix_string}"
-        stderr_pref = "#{cache_prefix_string}#{stderr_prefix_string}"
-        stdout = StreamPrefixer.new(stdout, stdout_pref) unless stdout_prefix_string.nil?
-        stderr = StreamPrefixer.new(stderr, stderr_pref) unless stderr_prefix_string.nil?
+    def open(code, stdin, stdout, stderr)
+      stdout_pref = "#{cache_prefix_string}#{stdout_prefix_string}"
+      stderr_pref = "#{cache_prefix_string}#{stderr_prefix_string}"
+      stdout = StreamPrefixer.new(stdout, stdout_pref) unless stdout_prefix_string.nil?
+      stderr = StreamPrefixer.new(stderr, stderr_pref) unless stderr_prefix_string.nil?
 
-        yield stdin, stdout, stderr, result
-      end
+      adapter.open(code, stdin, stdout, stderr)
     end
 
     private

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require 'open3'
 require 'tempfile'
+require 'remote_ruby/compat_io_reader'
+require 'remote_ruby/compat_io_writer'
 
 module RemoteRuby
   # An adapter to expecute Ruby code on the local machine
@@ -14,28 +15,22 @@ module RemoteRuby
       @working_dir = working_dir
     end
 
-    def open(code)
-      res_r, res_w = IO.pipe
+    def open(code, stdin, stdout, stderr)
+      result = nil
       with_temp_file(code) do |filename|
-        result = nil
+        pid = Process.spawn(
+          command(filename),
+          in: RemoteRuby::CompatIOReader.new(stdin).readable,
+          out: RemoteRuby::CompatIOWriter.new(stdout).writeable,
+          err: RemoteRuby::CompatIOWriter.new(stderr).writeable
+        )
 
-        Open3.popen3(command(filename)) do |stdin, stdout, stderr, wait_thr|
-          t = Thread.new(wait_thr) do
-            result = wait_thr.value
+        _, status = Process.wait2(pid)
+        raise "Process exited with code #{status}" unless status.success?
 
-            IO.copy_stream(filename, res_w) if result.success?
-            res_w.close
-          end
-
-          yield stdin, stdout, stderr, res_r
-
-          t.join
-        end
-
-        return if result.success?
-
-        raise "Process exited with code #{result}"
+        result = File.binread(filename)
       end
+      result
     end
 
     def connection_name

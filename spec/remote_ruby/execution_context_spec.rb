@@ -38,7 +38,7 @@ describe RemoteRuby::ExecutionContext do
     it 'uses SSH adapter' do
       adapter = instance_double(RemoteRuby::SSHAdapter)
       stub = class_double(RemoteRuby::SSHAdapter, new: adapter).as_stubbed_const
-      allow(adapter).to receive(:open).and_yield(nil, StringIO.new, StringIO.new, StringIO.new(remote_context))
+      allow(adapter).to receive(:open).and_return(remote_context)
 
       execution_context.execute({}) do
         # :nocov:
@@ -55,7 +55,7 @@ describe RemoteRuby::ExecutionContext do
     it 'uses TmpFile adapter' do
       adapter = instance_double(RemoteRuby::TmpFileAdapter)
       stub = class_double(RemoteRuby::TmpFileAdapter, new: adapter).as_stubbed_const
-      allow(adapter).to receive(:open).and_yield(nil, StringIO.new, StringIO.new, StringIO.new(remote_context))
+      allow(adapter).to receive(:open).and_return(remote_context)
 
       execution_context.execute({}) do
         # :nocov:
@@ -162,7 +162,7 @@ describe RemoteRuby::ExecutionContext do
       cache_adapter_class = class_double(RemoteRuby::CacheAdapter, :new)
       cache_adapter = instance_double(RemoteRuby::CacheAdapter)
       allow(cache_adapter_class).to receive(:new).and_return(cache_adapter)
-      allow(cache_adapter).to receive(:open).and_yield(nil, StringIO.new, StringIO.new, StringIO.new(remote_context))
+      allow(cache_adapter).to receive(:open).and_return(remote_context)
       cache_adapter_class.as_stubbed_const
 
       execution_context.execute({}) do

@@ -38,11 +38,12 @@ describe RemoteRuby::CachingAdapter do
 
   describe '#open' do
     def run(code)
-      adapter.open(code) do |_stdin, stdout, stderr, result|
-        stdout.readpartial(1000)
-        stderr.read
-        result.read
-      end
+      stdout = StringIO.new
+      stderr = StringIO.new
+      res = adapter.open(code, nil, stdout, stderr)
+      stdout.close
+      stderr.close
+      [stdout.string, stderr.string, res]
     end
 
     it 'saves standard output to a file' do
@@ -66,7 +67,8 @@ describe RemoteRuby::CachingAdapter do
       code = 'exit'
 
       run(code)
-      expect(base_adapter).to have_received(:open).with(code)
+      expect(base_adapter).to have_received(:open).with(code, nil, instance_of(RemoteRuby::TeeWriter),
+                                                        instance_of(RemoteRuby::TeeWriter))
     end
   end
 end
