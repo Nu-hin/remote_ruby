@@ -5,7 +5,7 @@ describe 'Running over SSH', type: :integration do
     RemoteRuby::ExecutionContext.new(**params)
   end
 
-  include_context 'common examples'
+  include_context 'shared examples'
 
   let(:params) do
     {
