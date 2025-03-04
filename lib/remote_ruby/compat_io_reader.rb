@@ -21,11 +21,7 @@ module RemoteRuby
 
     def start(io)
       Thread.new do
-        loop do
-          data = io.readpartial(4096)
-          @writeable.write(data)
-        end
-      rescue EOFError
+        IO.copy_stream(io, @writeable)
         @writeable.close
       end
     end
