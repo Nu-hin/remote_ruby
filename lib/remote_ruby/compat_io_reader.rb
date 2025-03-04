@@ -6,6 +6,11 @@ module RemoteRuby
     attr_reader :readable
 
     def initialize(io)
+      if io.is_a?(IO)
+        @readable = io
+        return
+      end
+
       raise 'Object must respond to #readpartial' unless io.respond_to?(:readpartial)
 
       @readable, @writeable = IO.pipe

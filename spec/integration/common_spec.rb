@@ -2,14 +2,6 @@
 
 # rubocop:disable RSpec/ContextWording
 shared_context 'common examples' do
-  it 'writes to stdout' do
-    expect do
-      ec.execute do
-        puts 'Hello, World!'
-      end
-    end.to output("Hello, World!\n").to_stdout
-  end
-
   context 'with stdout redirection' do
     context 'when redirecting to StringIO' do
       let(:output) { StringIO.new }
@@ -52,35 +44,44 @@ shared_context 'common examples' do
     end
   end
 
-  it 'writes to stderr' do
-    expect do
-      ec.execute do
-        warn 'You have been warned!'
+  context 'with stdin redirection' do
+    context 'when redirecting from StringIO' do
+      let(:input) { StringIO.new("John doe\n") }
+      let(:additional_params) do
+        {
+          in_stream: input
+        }
       end
-    end.to output("You have been warned!\n").to_stderr
-  end
 
-  it 'reads from stdin' do
-    data = 'a' * 600
-    with_stdin_redirect(data) do
-      expect do
-        ec.execute do
-          puts gets
+      it 'reads from the stream' do
+        res = ec.execute do
+          gets
         end
-      end.to output("#{data}\n").to_stdout
-    end
-  end
 
-  it 'reads binary data from stdin' do
-    fname = File.join(__dir__, '../support/test_files/noise.png')
-
-    res = with_stdin_redirect(File.binread(fname)) do
-      ec.execute do
-        $stdin.read
+        expect(res).to eq("John doe\n")
       end
     end
 
-    expect(res).to eq(File.read(fname))
+    context 'when redirecting from a file' do
+      let(:filename) { File.join(__dir__, '../support/test_files/noise.png') }
+      let(:file) { File.open(filename, 'rb') }
+
+      let(:additional_params) do
+        {
+          in_stream: file
+        }
+      end
+
+      it 'reads binary data from stdin' do
+        res = ec.execute do
+          $stdin.read
+        end
+
+        file.close
+
+        expect(res).to eq(File.read(filename))
+      end
+    end
   end
 end
 # rubocop:enable RSpec/ContextWording

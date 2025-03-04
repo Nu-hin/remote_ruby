@@ -6,6 +6,11 @@ module RemoteRuby
     attr_reader :writeable
 
     def initialize(io)
+      if io.is_a?(IO)
+        @writeable = io
+        return
+      end
+
       raise 'Object must respond to #write' unless io.respond_to?(:write)
 
       @readable, @writeable = IO.pipe

@@ -3,9 +3,11 @@
 describe 'Connecting to remote host with SSH adapter',
          type: :integration do
   let(:save_cache) { false }
+  let(:in_stream) { StringIO.new("John doe\n") }
   let(:ec) do
     RemoteRuby::ExecutionContext.new(
       host: ssh_host,
+      in_stream: in_stream,
       working_dir: ssh_workdir,
       use_cache: false,
       save_cache: save_cache,
@@ -56,13 +58,11 @@ describe 'Connecting to remote host with SSH adapter',
     end
 
     it 'ignores stdin on replay' do
-      with_stdin_redirect("John doe\n") do
-        expect do
-          ec.execute do
-            puts gets
-          end
-        end.to output("John doe\n").to_stdout
-      end
+      expect do
+        ec.execute do
+          puts gets
+        end
+      end.to output("John doe\n").to_stdout
 
       expect do
         cec.execute do
@@ -74,13 +74,11 @@ describe 'Connecting to remote host with SSH adapter',
 
   context 'with do-blocks' do
     it 'reads string from stdin' do
-      with_stdin_redirect("John doe\n") do
-        expect do
-          ec.execute do
-            puts gets
-          end
-        end.to output("John doe\n").to_stdout
-      end
+      expect do
+        ec.execute do
+          puts gets
+        end
+      end.to output("John doe\n").to_stdout
     end
 
     it 'receives integer result' do
