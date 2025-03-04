@@ -6,13 +6,13 @@ AllCops:
   TargetRubyVersion: 2.7
 
 Metrics/AbcSize:
-  Max: 21
+  Max: 20
 
 Metrics/ClassLength:
-  Max: 200
+  Max: 75
 
 Metrics/MethodLength:
-  Max: 40
+  Max: 22
 
 RSpec/MultipleExpectations:
   Enabled: false
@@ -21,7 +21,7 @@ RSpec/ExampleLength:
   Max: 30
 
 RSpec/MultipleMemoizedHelpers:
-  Max: 15
+  Max: 10
 
 RSpec/NestedGroups:
   Max: 4
@@ -38,6 +38,7 @@ RSpec/ContextWording:
     - because
     - when
     - without
+    - shared
 
 RSpec/RepeatedExampleGroupBody:
   Enabled: false

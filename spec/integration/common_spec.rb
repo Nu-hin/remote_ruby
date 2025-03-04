@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-# rubocop:disable RSpec/ContextWording
-shared_context 'common examples' do
+shared_context 'shared examples' do
   context 'with stdout redirection' do
     context 'when redirecting to StringIO' do
       let(:output) { StringIO.new }
@@ -46,7 +45,7 @@ shared_context 'common examples' do
 
   context 'with stdin redirection' do
     context 'when redirecting from StringIO' do
-      let(:input) { StringIO.new("John doe\n") }
+      let(:input) { StringIO.new("John Doe\n") }
       let(:additional_params) do
         {
           in_stream: input
@@ -58,7 +57,7 @@ shared_context 'common examples' do
           gets
         end
 
-        expect(res).to eq("John doe\n")
+        expect(res).to eq("John Doe\n")
       end
     end
 
@@ -84,4 +83,3 @@ shared_context 'common examples' do
     end
   end
 end
-# rubocop:enable RSpec/ContextWording
