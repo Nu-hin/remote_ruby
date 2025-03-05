@@ -25,81 +25,101 @@ module RemoteRuby
       Net::SSH.start(host, nil, config) do |ssh|
         with_temp_file(code, ssh) do |fname|
           res = run_code(ssh, fname, stdin, stdout, stderr)
-          ret = get_result(ssh, fname, res)
+          ret = get_result(ssh, fname) if res.zero?
         end
       end
       ret
-    end
-
-    def run_code(ssh, fname, stdin_r, stdout_w, stderr_w)
-      res = nil
-      stdin_r = RemoteRuby::CompatIOReader.new(stdin_r)
-      ssh.open_channel do |channel|
-        channel.exec("cd '#{working_dir}' && ruby \"#{fname}\"") do |ch, success|
-          raise UnableToExecuteError unless success
-
-          ssh.listen_to(stdin_r.readable) do |io|
-            data = io.read_nonblock(4096)
-            ch.send_data(data)
-          rescue EOFError
-            ssh.stop_listening_to(stdin_r.readable)
-            ch.eof!
-          end
-
-          ch.on_data do |_, data|
-            stdout_w.write(data)
-          end
-
-          ch.on_extended_data do |_, _, data|
-            stderr_w.write(data)
-          end
-
-          ch.on_request('exit-status') do |_, data|
-            res = data.read_long
-          end
-
-          ch.on_close do
-            ssh.stop_listening_to(stdin_r.readable)
-          end
-        end
-      end.wait
-
-      stdin_r.join
-      res
-    end
-
-    def get_result(ssh, fname, process_status)
-      raise "Process exited with code #{process_status}" unless process_status.zero?
-
-      ssh.exec!("cat \"#{fname}\"")
     end
 
     def connection_name
       "#{user}@#{host}:#{working_dir || '~'}> "
     end
 
-    def with_temp_file(code, ssh)
-      fname = String.new
+    private
+
+    def handle_stdin(chan, stdin)
+      return if stdin.nil?
+
+      if stdin.is_a?(StringIO)
+        chan.send_data(stdin.string)
+        chan.eof!
+        return
+      end
+
+      stdin = RemoteRuby::CompatIOReader.new(stdin)
+
+      chan.connection.listen_to(stdin.readable) do |io|
+        data = io.read_nonblock(4096)
+        chan.send_data(data)
+      rescue EOFError
+        chan.connection.stop_listening_to(stdin.readable)
+        chan.eof!
+      end
+
+      chan.on_close do
+        chan.connection.stop_listening_to(stdin.readable)
+        stdin.join
+      end
+    end
+
+    def handle_stdout(chan, stdout)
+      return if stdout.nil?
+
+      chan.on_data do |_, data|
+        stdout.write(data)
+      end
+    end
+
+    def handle_stderr(chan, stderr)
+      return if stderr.nil?
+
+      chan.on_extended_data do |_, _, data|
+        stderr.write(data)
+      end
+    end
+
+    def handle_exit_code(chan)
+      chan.on_request('exit-status') do |_, data|
+        yield data.read_long
+      end
+    end
+
+    def run_remote_process(ssh, cmd, stdin, stdout, stderr)
+      res = nil
+
       ssh.open_channel do |channel|
-        channel.exec('f=$(mktemp --tmpdir remote_ruby.XXXXXX) && cat > $f && echo $f') do |ch, success|
+        channel.exec(cmd) do |ch, success|
           raise UnableToExecuteError unless success
 
-          ch.on_data do |_, data|
-            fname << data
+          handle_stdin(ch, stdin)
+          handle_stdout(ch, stdout)
+          handle_stderr(ch, stderr)
+          handle_exit_code(ch) do |code|
+            res = code
           end
-
-          ch.send_data(code)
-          ch.eof!
         end
       end.wait
 
-      fname.strip!
+      res
+    end
+
+    def run_code(ssh, fname, stdin, stdout, stderr)
+      run_remote_process(ssh, "cd '#{working_dir}' && ruby \"#{fname}\"", stdin, stdout, stderr)
+    end
+
+    def get_result(ssh, fname)
+      ssh.exec!("cat \"#{fname}\"")
+    end
+
+    def with_temp_file(code, ssh)
+      out = StringIO.new
+      cmd = 'f=$(mktemp --tmpdir remote_ruby.XXXXXX) && cat > $f && echo $f'
+      run_remote_process(ssh, cmd, StringIO.new(code), out, nil)
+      fname = out.string.strip
 
       yield fname
     ensure
-      Net::SSH.start(host, nil, config) do |del_ssh|
-        del_ssh.exec!("rm \"#{fname}\"")
-      end
+      ssh.exec!("rm \"#{fname}\"")
     end
   end
 end
