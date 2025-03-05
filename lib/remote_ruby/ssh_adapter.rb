@@ -106,7 +106,8 @@ module RemoteRuby
     end
 
     def run_code(ssh, fname, stdin, stdout, stderr)
-      run_remote_process(ssh, "cd '#{working_dir}' && ruby \"#{fname}\"", stdin, stdout, stderr)
+      cmd = "cd '#{working_dir}' && ruby \"#{fname}\""
+      run_remote_process(ssh, cmd, stdin, stdout, stderr)
     end
 
     def get_result(ssh, fname)
