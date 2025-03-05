@@ -32,7 +32,7 @@
 3. Remove `adapter` parameter.
 4. Remove `cache_dir` parameter and configure it globally instead.
 5. Remove `bundler` parameter.
-6. If you want stdout and stdin to be prefixed, enable Text Mode and configure it.
+6. If you want stdout and stderr to be prefixed, enable Text Mode and configure it.
 7. Change `key_file` parameter to `keys` and make it an array with one filename instead of single string.
 8. Optionally remove `STDOUT.flush` from your scripts.
 
