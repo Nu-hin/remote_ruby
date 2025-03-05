@@ -17,11 +17,21 @@ module RemoteRuby
       @thread = start(io)
     end
 
+    def join
+      return unless @readable
+
+      @readable.close
+      @thread.join
+      @writeable.close
+    end
+
     private
 
     def start(io)
       Thread.new do
         IO.copy_stream(@readable, io)
+      rescue IOError
+        nil
       end
     end
   end

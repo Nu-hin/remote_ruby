@@ -6,13 +6,13 @@ AllCops:
   TargetRubyVersion: 2.7
 
 Metrics/AbcSize:
-  Max: 20
+  Max: 22
 
 Metrics/ClassLength:
   Max: 75
 
 Metrics/MethodLength:
-  Max: 22
+  Max: 24
 
 RSpec/MultipleExpectations:
   Enabled: false

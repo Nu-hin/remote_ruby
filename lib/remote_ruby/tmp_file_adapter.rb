@@ -17,16 +17,23 @@ module RemoteRuby
 
     def open(code, stdin, stdout, stderr)
       result = nil
+
+      stdin = RemoteRuby::CompatIOReader.new(stdin)
+      stdout = RemoteRuby::CompatIOWriter.new(stdout)
+      stderr = RemoteRuby::CompatIOWriter.new(stderr)
+
       with_temp_file(code) do |filename|
         pid = Process.spawn(
           command(filename),
-          in: RemoteRuby::CompatIOReader.new(stdin).readable,
-          out: RemoteRuby::CompatIOWriter.new(stdout).writeable,
-          err: RemoteRuby::CompatIOWriter.new(stderr).writeable
+          in: stdin.readable,
+          out: stdout.writeable,
+          err: stderr.writeable
         )
 
         _, status = Process.wait2(pid)
         raise "Process exited with code #{status}" unless status.success?
+
+        [stdin, stdout, stderr].each(&:join)
 
         result = File.binread(filename)
       end

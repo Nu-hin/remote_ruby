@@ -33,14 +33,16 @@ module RemoteRuby
 
     def run_code(ssh, fname, stdin_r, stdout_w, stderr_w)
       res = nil
+      stdin_r = RemoteRuby::CompatIOReader.new(stdin_r)
       ssh.open_channel do |channel|
         channel.exec("cd '#{working_dir}' && ruby \"#{fname}\"") do |ch, success|
           raise UnableToExecuteError unless success
 
-          ssh.listen_to(RemoteRuby::CompatIOReader.new(stdin_r).readable) do |io|
+          ssh.listen_to(stdin_r.readable) do |io|
             data = io.read_nonblock(4096)
             ch.send_data(data)
           rescue EOFError
+            stdin_r.join
             ch.eof!
           end
 
