@@ -17,26 +17,16 @@ module RemoteRuby
     attr_reader :adapter, :stdout_prefix, :stderr_prefix, :cache_prefix, :stdout_mode, :stderr_mode,
                 :cache_mode
 
-    # rubocop:disable Metrics/ParameterLists
-    def initialize(
-      adapter,
-      stdout_prefix:,
-      stderr_prefix:,
-      cache_prefix:,
-      stdout_mode:,
-      stderr_mode:,
-      cache_mode:
-    )
+    def initialize(adapter, **params)
       super()
       @adapter = adapter
-      @stdout_prefix = stdout_prefix
-      @stderr_prefix = stderr_prefix
-      @cache_prefix = cache_prefix
-      @stdout_mode = stdout_mode
-      @stderr_mode = stderr_mode
-      @cache_mode = cache_mode
+      @stdout_prefix = params[:stdout_prefix]
+      @stderr_prefix = params[:stderr_prefix]
+      @cache_prefix = params[:cache_prefix]
+      @stdout_mode = params[:stdout_mode]
+      @stderr_mode = params[:stderr_mode]
+      @cache_mode = params[:cache_mode]
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def open(code, stdin, stdout, stderr)
       stdout_pref = "#{cache_prefix_string}#{stdout_prefix_string}"

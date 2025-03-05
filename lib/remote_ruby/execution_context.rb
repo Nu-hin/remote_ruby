@@ -11,6 +11,7 @@ require 'remote_ruby/plugin'
 require 'remote_ruby/remote_context'
 require 'remote_ruby/remote_error'
 require 'remote_ruby/adapter_builder'
+require 'remote_ruby/text_mode_builder'
 
 module RemoteRuby
   # This class is responsible for executing blocks on the remote host with the
@@ -20,6 +21,11 @@ module RemoteRuby
       add_plugins(params)
       configure_streams(params)
       @dump_code = params.delete(:dump_code) || false
+      @text_mode_builder = RemoteRuby::TextModeBuilder.new(
+        out_tty: out_stream.tty?,
+        err_tty: err_stream.tty?,
+        params: params
+      )
       @adapter_builder = RemoteRuby::AdapterBuilder.new(**params)
     end
 
@@ -45,7 +51,7 @@ module RemoteRuby
 
     private
 
-    attr_reader :dump_code, :in_stream, :out_stream, :err_stream, :plugins, :adapter_builder
+    attr_reader :dump_code, :in_stream, :out_stream, :err_stream, :plugins, :adapter_builder, :text_mode_builder
 
     def add_plugins(params)
       @plugins = ::RemoteRuby::Plugin.build_plugins(params)
@@ -79,7 +85,8 @@ module RemoteRuby
     def execute_code(compiler)
       write_code(compiler.code_hash, compiler.compiled_code)
 
-      adapter = adapter_builder.build(compiler.code_hash, out_tty: out_stream.tty?, err_tty: err_stream.tty?)
+      adapter = adapter_builder.build(compiler.code_hash)
+      adapter = text_mode_builder.build(adapter)
 
       # rubocop:disable Security/MarshalLoad
       Marshal.load(adapter.open(compiler.compiled_code, in_stream, out_stream, err_stream))

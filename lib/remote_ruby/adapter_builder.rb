@@ -6,11 +6,10 @@ module RemoteRuby
   class AdapterBuilder
     attr_reader :adapter_params, :use_cache, :save_cache, :text_mode
 
-    def initialize(adapter_klass: nil, use_cache: false, save_cache: false, text_mode: false, **params)
+    def initialize(adapter_klass: nil, use_cache: false, save_cache: false, **params)
       @adapter_klass = adapter_klass
       @use_cache = use_cache
       @save_cache = save_cache
-      @text_mode = text_mode
       @adapter_params = params
 
       RemoteRuby.ensure_cache_dir if save_cache
@@ -26,46 +25,18 @@ module RemoteRuby
       end
     end
 
-    def build(code_hash, out_tty: true, err_tty: true)
+    def build(code_hash)
       res = adapter_klass.new(**adapter_params)
 
       cache_mode = use_cache && cache_exists?(code_hash)
 
-      res = if cache_mode
-              cache_adapter(code_hash, res.connection_name)
-            elsif save_cache
-              caching_adapter(res, code_hash)
-            else
-              res
-            end
-
-      wrap_text_mode(res, cache_mode, out_tty, err_tty)
-    end
-
-    def text_mode_params(adapter, cache_mode, out_tty, err_tty)
-      tm_params = ::RemoteRuby::TextModeAdapter::DEFAULT_SETTINGS.merge(
-        stdout_prefix: adapter.connection_name,
-        stderr_prefix: adapter.connection_name
-      )
-
-      tm_params = tm_params.merge(text_mode) if text_mode.is_a? Hash
-
-      disable_unless_tty = tm_params.delete(:disable_unless_tty) { |_| true }
-
-      tm_params[:stdout_prefix] = nil if disable_unless_tty && !out_tty
-      tm_params[:stderr_prefix] = nil if disable_unless_tty && !err_tty
-      tm_params[:cache_prefix] = nil unless cache_mode
-      tm_params
-    end
-
-    def wrap_text_mode(adapter, cache_mode, out_tty, err_tty)
-      return adapter unless text_mode
-
-      tm_params = text_mode_params(adapter, cache_mode, out_tty, err_tty)
-
-      return adapter unless tm_params[:stdout_prefix] || tm_params[:stderr_prefix]
-
-      ::RemoteRuby::TextModeAdapter.new(adapter, **tm_params)
+      if cache_mode
+        cache_adapter(code_hash, res.connection_name)
+      elsif save_cache
+        caching_adapter(res, code_hash)
+      else
+        res
+      end
     end
 
     def cache_adapter(code_hash, connection_name)
