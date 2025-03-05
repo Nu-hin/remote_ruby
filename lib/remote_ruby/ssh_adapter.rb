@@ -43,7 +43,6 @@ module RemoteRuby
             ch.send_data(data)
           rescue EOFError
             ssh.stop_listening_to(stdin_r.readable)
-            stdin_r.join
             ch.eof!
           end
 
@@ -65,6 +64,7 @@ module RemoteRuby
         end
       end.wait
 
+      stdin_r.join
       res
     end
 
