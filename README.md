@@ -22,7 +22,7 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
 	* [Parameters](#parameters)
   * [SSH Parameters](#ssh-parameters)
   * [Local variables](#local-variables)
-  * [Return value and remote assignments](#return-value-and-remote-assignements)
+  * [Return value and remote assignments](#return-value-and-remote-assignments)
   * [Error handling](#error-handling)
   * [Caching](#caching)
   * [Text mode](#text-mode)
@@ -38,7 +38,7 @@ RemoteRuby requires at least Ruby 2.7 to run.
 
 ## Overview
 
-Here is a short example on how you can run your code remotely.
+Here is a short example of how you can run your code remotely.
 
 ```ruby
 # This is test.rb file on the local developer machine
@@ -55,7 +55,7 @@ end
 
 When you call `#remotely` or `RemoteRuby::ExecutionContext#execute`, the passed block source is read and is then transformed to a standalone Ruby script, which also includes serialization/deserialization of local variables and return value, and other features (see [compiler.rb](lib/remote_ruby/compiler.rb) for more detail).
 
-After that, RemoteRuby opens an SSH connection to the specified host, copies the script to the host (to a temporary file), and then launches runs this script using the Ruby interpreter on the host. Standard output and standard error streams of SSH client are being captured. Standard input is passed to the remote code as well.
+RemoteRuby then opens an SSH connection to the specified host, copies the script to a temporary file on the host, and launches it remotely using the Ruby interpreter. Standard output and standard error streams of SSH client are being captured. Standard input is passed to the remote code as well.
 
 ### Key features
 
@@ -103,11 +103,11 @@ end
 ```
 
 ### Limitations
-* MacOS keychain is not supported. If you are using a private SSH key with a passphrase, and you don't want to enter a passphrase each time a context is executed, the identity must be added to the SSH-agent, e.g. using `ssh-add`.
+* macOS keychain is not supported. If you are using a private SSH key with a passphrase, and you don't want to enter a passphrase each time a context is executed, the identity must be added to the SSH-agent, e.g. using `ssh-add`.
 
 * As RemoteRuby reads the block source from the script's source file, the script source file should reside on your machine's disk (e.g. you cannot use RemoteRuby from IRB console).
 
-* Since local and server scripts have different execution contexts, can have different gems (and even Ruby versions) installed, sometimes local variables as well as the block return value, will not be accessible, assigned or can even cause exception. See [usage](#local-variables-and-return-value) section below for more detail.
+* Since local and server scripts have different execution contexts, can have different gems (and even Ruby versions) installed, sometimes local variables as well as the block return value, will not be accessible, assigned or can even cause exception. See the [usage](#local-variables-and-return-value) section below for more details.
 
 ## Installation
 
@@ -200,7 +200,7 @@ RemoteRuby will try to create it. Refer to the [Caching](#caching) section to fi
 
 In addition to the arguments above, you can fine-tune the SSH connection to the remote host, if SSH is used (that is, if the `host` argument is specified). The arguments for SSH configuration can be anything that is supported by [net-ssh gem](https://github.com/net-ssh/net-ssh). The complete list of parameters can be found in [the documentation for net-ssh](https://net-ssh.github.io/net-ssh/Net/SSH.html#method-c-start). Some of the parameters are in the table below.
 
-If the SSH configuration file is used (see `ssh_config` parameter in the table above), the explicitly specified values **will override** the values taken from SSH config.
+If the SSH configuration file is used (see `ssh_config` parameter in the table above), the explicitly specified values **will override** those taken from SSH config.
 
 | Parameter | Type |  Description |
 | --------- | ---- |  ----------- |
@@ -240,7 +240,7 @@ ec3 = RemoteRuby::ExecutionContext.new(
 
 ### Output
 
-Standard output and standard error streams from the remote process are captured, and then, depending on your parameters are either forwarded to local STDOUT/STDERR or to the specified streams.
+Standard output and standard error streams from the remote process are captured, and then, depending on your parameters are either forwarded to local standard output/error or to the specified streams.
 
 ```ruby
 remotely(host: 'my_ssh_server', working_dir: '/home/john') do
@@ -251,7 +251,7 @@ end
 
 ### Input
 
-Standard input from the client is captured and passed to the remote code. By default the input is captured from STDIN.
+Remote script can receive data from standard input. By default the input is captured from client's standard input, but this can be set to any readable stream using `in_stream` argument to the `ExecutionContext` initializer.
 
 ```ruby
 name = remotely(host: 'my_ssh_server') do
@@ -333,7 +333,7 @@ end
 puts special_thing == 3 # => true
 ```
 
-If RemoteRuby cannot deserialize variable on server side, it will print a warning to server's STDERR stream.
+If RemoteRuby cannot deserialize variable on server side, it will print a warning to server's standard error.
 
 It is possible to ignore certain types, so that RemoteRuby will never try to send variables of these types to the remote host. This can be done by adding configuration:
 
@@ -362,12 +362,12 @@ end
 
 RemoteRuby always ignores variables of type `RemoteRuby::ExecutionContext`.
 
-### Return value and remote assignements
+### Return value and remote assignments
 
-If remote block returns a value which cannot be deserialized on the client side, or if it assigns such a value to the local variable, the exception on the client side will be always raised:
+If remote block returns a value that cannot be deserialized on the client side, or if it assigns such a value to the local variable, the exception on the client side will be always raised:
 
 ```ruby
-# Unsupportable return value example
+# Unsupported return value example
 
 remotely(host: 'my_ssh_server') do
   # this is not present in the client context
@@ -378,7 +378,7 @@ end
 ```
 
 ```ruby
-# Unsupportable local value example
+# Unsupported local value example
 
 my_local = nil
 
@@ -459,7 +459,7 @@ RemoteRuby allows you to save the result of previous block excutions in the loca
 ```ruby
 # Caching example
 # First time this script will take 60 seconds to run,
-# but on subsequent runs it will return the result immidiately
+# but on subsequent runs it will return the result immediately
 
 require 'remote_ruby'
 
@@ -475,15 +475,15 @@ end
 puts res # => Some result
 ```
 
-You can specify where to put your cache files explicitly, by passing `cache_dir` parameter which is the "cache" directory inside your current working directory by default.
+You can specify where to put your cache files explicitly, by [configuring](#configuration) the `cache_dir` which is by default set to ".remote_ruby/cache" inside your current working directory.
 
-RemoteRuby calculates the cache file to use, based on the code you pass to the remote block, as well as on ExecutionContext 'contextual' parameters (e. g. server or working directory) and serialized local variables. Therefore, if you change anything in your remote block, local variables (passed to the block), or in any of the 'contextual' parameters, RemoteRuby will use different cache file. However, if you revert all your changes back, the old file will be used again.
+RemoteRuby calculates the cache file to use, based on the code you pass to the remote block, as well as on `ExecutionContext` 'contextual' parameters (e. g. server or working directory) and serialized local variables. Therefore, if you change anything in your remote block, local variables (passed to the block), or in any of the 'contextual' parameters, RemoteRuby will use different cache file. However, if you revert all your changes back, the old file will be used again.
 
 **IMPORTANT**: RemoteRuby does not know when to clear the cache. Therefore, it is up to you to take care of cleaning the cache when you no longer need it. This is especially important if your output can contain sensitive data.
 
 ### Text mode
 
-Text mode allows to treat the output and/or the standard error of the remote process as text. If it is enabled, the server output is prefixed with some string, which makes it easier to distinguish local ouput, and the output coming from the remote code. Additionally it may help distinguishing when the output is taken from cache.
+Text mode allows to treat the output and/or the standard error of the remote process as text. If it is enabled, the server output is prefixed with some string, which makes it easier to distinguish local output, and the output coming from the remote code. Additionally, it may help distinguishing when the output is taken from cache.
 
 The text mode is controlled by the `text_mode` parameter to the `::RemoteRuby::ExecutionContext` initializer, and is `false` by default.
 
@@ -509,7 +509,7 @@ jdoe@my_ssh_server:~> This is a greeting
 jdoe@my_ssh_server:~> This is a greeting
 ```
 
-By default, the prefixes for stdout and stderr can be different when running over SSH and locally. Output prefix is marked with green italic, and error with red italic. If the cache is used, the default configuration will append a bold blue '[C]' prefix in front of each ouput line.
+By default, the prefixes for standard output and standard error can be different when running over SSH and locally. Output prefix is marked with green italic, and error with red italic. If the cache is used, the default configuration will append a bold blue '[C]' prefix in front of each output line.
 
 
 You can fine-tune the text mode to your needs by passing a hash as a value to `text_mode` parameter:
@@ -533,11 +533,11 @@ server says: This is a greeting
 server warns: This is a greeting
 ```
 
-It is reasonable to avoid text mode if you want to put binary data to stdout:
+It is reasonable to avoid text mode if you want to put binary data to the standard output:
 
 ```ruby
 # copy_avatar.rb
-# Reads a file from remote server and writes it to client's stdout.
+# Reads a file from remote server and writes it to client's standard output.
 
 remotely(host: 'my_ssh_server', text_mode: false) do
   STDOUT.write File.read('avatar.jpg')
@@ -621,7 +621,7 @@ Hello world!
 
 
 #### Rails plugin
-RemoteRuby can load Rails environment for you, if you want to execute a script in a Rails context. To do this, simply add add built-in Rails plugin by adding `rails` argument to your call:
+RemoteRuby can load Rails environment for you, if you want to execute a script in a Rails context. To do this, simply add built-in Rails plugin by adding `rails` argument to your call:
 
 ```ruby
 # Rails integration example
