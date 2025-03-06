@@ -16,6 +16,7 @@ SimpleCov.start do
   end
 
   add_filter 'spec/integration/ssh_spec.rb'
+  add_filter 'spec/integration/config.rb'
 end
 require 'remote_ruby'
 

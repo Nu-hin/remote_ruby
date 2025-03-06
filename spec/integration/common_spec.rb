@@ -32,7 +32,9 @@ shared_context 'shared examples' do
 
       it 'writes to the stream' do
         ec.execute do
+          # :nocov:
           puts 'Hello, World!'
+          # :nocov:
         end
 
         expect(output.string).to eq("Hello, World!\n")
@@ -53,7 +55,9 @@ shared_context 'shared examples' do
 
       it 'writes to the file' do
         ec.execute do
+          # :nocov:
           puts 'Hello, World!'
+          # :nocov:
         end
 
         tmp_file.close
@@ -74,7 +78,9 @@ shared_context 'shared examples' do
 
       it 'reads from the stream' do
         res = ec.execute do
+          # :nocov:
           gets
+          # :nocov:
         end
 
         expect(res).to eq("John Doe\n")
@@ -93,7 +99,9 @@ shared_context 'shared examples' do
 
       it 'reads binary data from stdin' do
         res = ec.execute do
+          # :nocov:
           $stdin.read
+          # :nocov:
         end
 
         file.close
@@ -109,15 +117,19 @@ shared_context 'shared examples' do
       it 'replays stdout and stderr' do
         expect do
           ec.execute do
+            # :nocov:
             puts 'Hello, World!'
             warn 'Something went wrong!'
+            # :nocov:
           end
         end.to output("Hello, World!\n").to_stdout.and output("Something went wrong!\n").to_stderr
 
         expect do
           cec.execute do
+            # :nocov:
             puts 'Hello, World!'
             warn 'Something went wrong!'
+            # :nocov:
           end
         end.to output("Hello, World!\n")
           .to_stdout
@@ -127,13 +139,17 @@ shared_context 'shared examples' do
       it 'ignores stdin on replay' do
         expect do
           ec.execute do
+            # :nocov:
             puts gets
+            # :nocov:
           end
         end.to output("John doe\n").to_stdout
 
         expect do
           cec.execute do
+            # :nocov:
             puts gets
+            # :nocov:
           end
         end.to output("John doe\n").to_stdout
       end
@@ -145,14 +161,18 @@ shared_context 'shared examples' do
       it 'reads string from stdin' do
         expect do
           ec.execute do
+            # :nocov:
             puts gets
+            # :nocov:
           end
         end.to output("John doe\n").to_stdout
       end
 
       it 'receives integer result' do
         result = ec.execute do
+          # :nocov:
           17 + 5
+          # :nocov:
         end
 
         expect(result).to eq(22)
@@ -162,7 +182,9 @@ shared_context 'shared examples' do
         x = 17
         y = 5
         result = ec.execute do
+          # :nocov:
           x + y
+          # :nocov:
         end
 
         expect(result).to eq(22)
@@ -173,8 +195,10 @@ shared_context 'shared examples' do
 
         var = nil
         res = ec.execute(fname: fname, data: File.read(fname), var: var) do
+          # :nocov:
           var = data
           var
+          # :nocov:
         end
 
         expect(res).to eq(File.read(fname))
@@ -183,7 +207,9 @@ shared_context 'shared examples' do
 
       it 'receives string result' do
         result = ec.execute do
+          # :nocov:
           'a' * 3
+          # :nocov:
         end
 
         expect(result).to eq('aaa')
@@ -194,7 +220,9 @@ shared_context 'shared examples' do
 
         expect do
           ec.execute do
+            # :nocov:
             puts s
+            # :nocov:
           end
         end.to output("#{s}\n").to_stdout
       end
@@ -204,7 +232,9 @@ shared_context 'shared examples' do
 
         expect do
           ec.execute do
+            # :nocov:
             warn s
+            # :nocov:
           end
         end.to output("#{s}\n").to_stderr
       end
@@ -219,6 +249,7 @@ shared_context 'shared examples' do
         g = { a: 1, b: 2 }
 
         result = ec.execute do
+          # :nocov:
           {
             a: a * 2,
             b: "#{b} World",
@@ -228,6 +259,7 @@ shared_context 'shared examples' do
             f: f.map { |x| x * 2 },
             g: g.transform_values { |v| v * 2 }
           }
+          # :nocov:
         end
 
         expect(result).to eq(
@@ -251,6 +283,7 @@ shared_context 'shared examples' do
         g = { a: 1, b: 2 }
 
         ec.execute do
+          # :nocov:
           a *= 2
           b = "#{b} World"
           c *= 2
@@ -258,6 +291,7 @@ shared_context 'shared examples' do
           e = e.nil?
           f = f.map { |x| x * 2 }
           g = g.transform_values { |v| v * 2 }
+          # :nocov:
         end
 
         expect(a).to eq(6)
@@ -275,7 +309,9 @@ shared_context 'shared examples' do
         s = 'Something'
 
         expect do
+          # :nocov:
           ec.execute { puts s }
+          # :nocov:
         end.to output(Regexp.new(s)).to_stdout
       end
     end
