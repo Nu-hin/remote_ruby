@@ -1,21 +1,13 @@
 # frozen_string_literal: true
 
 describe 'Running on the local host', type: :integration do
-  subject(:ec) do
-    RemoteRuby::ExecutionContext.new(**params)
-  end
-
   include_context 'shared examples'
 
-  let(:params) do
-    {
-      working_dir: working_dir
-    }.merge(additional_params)
+  let(:adapter_specific_params) { { working_dir: working_dir } }
+
+  let(:working_dir) do
+    Dir.mktmpdir
   end
-
-  let(:additional_params) { {} }
-
-  let(:working_dir) { Dir.mktmpdir }
 
   after do
     FileUtils.remove_entry(working_dir)

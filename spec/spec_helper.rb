@@ -15,7 +15,7 @@ SimpleCov.start do
     formatter SimpleCov::Formatter::LcovFormatter
   end
 
-  add_filter 'spec/integration'
+  add_filter 'spec/integration/ssh_spec.rb'
 end
 require 'remote_ruby'
 
