@@ -144,6 +144,11 @@ RemoteRuby.configure do |c|
   # `dump_code` is set to `true` in the ExecutionContext.
   # By default code is saved to .remote_ruby/code (relative to the working directory).
   c.code_dir = File.join(Dir.pwd, '.remote_ruby/code')
+
+  # Set to true if you don't want to see warnings about parser gem compatibility with
+  # current Ruby version.
+  # False by default.
+  c.suppress_parser_warnings = false
 end
 ```
 

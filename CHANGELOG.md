@@ -23,6 +23,7 @@
 * Only two adapters are now available: SSH adapter, and local temp file adapter. All other adapters are deprecated.
 * Cache directory is now a [global configuration option](README.md#configuration), rather than an argument to the ExecutionContext.
 * The default cache location is now in the .remote_ruby/cache, relative to the working directory.
+* Added a possibility to suppress [Parser warnings](https://github.com/whitequark/parser#compatibility-with-ruby-mri).
 * Added [changelog](#CHANGELOG.md)
 
 ### Migration from v0.3

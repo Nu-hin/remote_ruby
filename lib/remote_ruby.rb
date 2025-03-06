@@ -13,7 +13,7 @@ module RemoteRuby
 
   class << self
     attr_reader :plugins, :ignored_types
-    attr_accessor :cache_dir, :code_dir
+    attr_accessor :cache_dir, :code_dir, :suppress_parser_warnings
 
     def root(*params)
       root_dir = ::Gem::Specification.find_by_name('remote_ruby').gem_dir
@@ -62,6 +62,8 @@ RemoteRuby.configure do |config|
   config.code_dir = File.join(config_dir, RemoteRuby::DEFAULT_CODE_DIR_NAME)
 
   config.ignore_types RemoteRuby::ExecutionContext
+
+  config.suppress_parser_warnings = false
 
   config.register_plugin(:rails, RemoteRuby::RailsPlugin)
 end
