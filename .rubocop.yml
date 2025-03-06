@@ -27,9 +27,9 @@ RSpec/NestedGroups:
   Max: 4
 
 RSpec/DescribeClass:
-  IgnoredMetadata:
-    type:
-      - integration
+  Exclude:
+    - 'spec/integration/**/*_spec.rb'
+
 
 RSpec/ContextWording:
   Prefixes:
