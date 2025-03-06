@@ -3,27 +3,36 @@
 describe RemoteRuby::SourceExtractor do
   subject(:extractor) { described_class.new }
 
-  # rubocop:disable Layout/HeredocIndentation, Layout/IndentationWidth
   let(:desired_result) do
-<<-RUBY
-a.foo1
-foo2
-foo3(bar)
-x = 3
-if x == 4
-  y = 5
-end
-unless y
-  return 6
-end
-y
-RUBY
+    <<~RUBY
+      a.foo1
+      foo2
+      foo3(bar)
+      x = 3
+      if x == 4
+        y = 5
+      end
+      unless y
+        return 6
+      end
+      y
+    RUBY
   end
-  # rubocop:enable Layout/HeredocIndentation, Layout/IndentationWidth
 
   # rubocop:disable Layout/IndentationConsistency, Style/IfUnlessModifier
   # rubocop:disable Lint/UnusedBlockArgument, Layout/LineLength
   context 'when do-block is given' do
+    context 'and it is empty' do
+      it 'returns empty string' do
+        # rubocop:disable Lint/EmptyBlock
+        res = extractor.extract do
+        end
+        # rubocop:enable Lint/EmptyBlock
+
+        expect(res).to eq('')
+      end
+    end
+
     context 'and it is well-formatted' do
       context 'without arguments' do
         it 'returns correct value' do
@@ -110,6 +119,16 @@ RUBY
   end
 
   context 'with {}-block' do
+    context 'and it is empty' do
+      it 'returns empty string' do
+        # rubocop:disable Lint/EmptyBlock
+        res = extractor.extract {}
+        # rubocop:enable Lint/EmptyBlock
+
+        expect(res).to eq('')
+      end
+    end
+
     # rubocop:disable Style/Semicolon
     context 'and it is well-formatted' do
       context 'without arguments' do
