@@ -37,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'logger', '~> 1.6'
   spec.add_dependency 'method_source', '~> 1.1'
   spec.add_dependency 'net-ssh', '~> 7.3'
-  spec.add_dependency 'ostruct', '~> 0.6.1'
+  spec.add_dependency 'ostruct', '~> 0.6'
   spec.add_dependency 'parser', '~> 3.3'
   spec.add_dependency 'unparser', '~> 0.6'
 end
