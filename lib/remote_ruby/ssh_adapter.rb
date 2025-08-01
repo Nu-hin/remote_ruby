@@ -8,13 +8,14 @@ module RemoteRuby
   class SSHAdapter < ConnectionAdapter
     UnableToExecuteError = Class.new(StandardError)
 
-    attr_reader :host, :config, :working_dir, :user
+    attr_reader :host, :config, :working_dir, :user, :ruby_executable
 
-    def initialize(host:, working_dir: nil, use_ssh_config_file: true, **params)
+    def initialize(host:, working_dir: nil, use_ssh_config_file: true, ruby_executable: 'ruby', **params)
       super
       @host = host
       @working_dir = working_dir
       @config = Net::SSH.configuration_for(@host, use_ssh_config_file)
+      @ruby_executable = ruby_executable
 
       @config = @config.merge(params)
       @user = @config[:user]
@@ -106,7 +107,7 @@ module RemoteRuby
     end
 
     def run_code(ssh, fname, stdin, stdout, stderr)
-      cmd = "cd '#{working_dir}' && ruby \"#{fname}\""
+      cmd = "cd '#{working_dir}' && #{ruby_executable} \"#{fname}\""
       run_remote_process(ssh, cmd, stdin, stdout, stderr)
     end
 

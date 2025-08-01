@@ -186,6 +186,7 @@ In all the examples in this document, where `.remote` method is used, it is assu
 | --------- | ---- | ---------| ------------- | ----------- |
 | host | String | no | - | Name of the SSH host to connect to. If omitted, the code will be executed on the local host, in a separate Ruby process |
 | use_ssh_config_file | String or Boolean | no | true | When boolean, specifies, whether to use ~/.ssh/config file for the initial set of parameters. When string, interpreted as a path to an SSH configuration file to use |
+| ruby_executable | String | no | `ruby` | Absolute path to Ruby executable on the remote host, or executable name, reachable from $PATH |
 | working_dir | String | no | '~' if running over SSH, or current dir, if running locally | Path to the directory where the script should be executed |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
