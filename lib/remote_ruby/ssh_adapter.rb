@@ -25,7 +25,7 @@ module RemoteRuby
       Net::SSH.start(host, nil, config) do |ssh|
         with_temp_file(code, ssh) do |fname|
           res = run_code(ssh, fname, stdin, stdout, stderr)
-          raise "Process exited with code #{status}" unless res.zero?
+          raise "Process exited with code #{res}" unless res.zero?
 
           ret = get_result(ssh, fname)
         end
