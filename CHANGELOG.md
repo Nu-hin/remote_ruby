@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1](https://github.com/Nu-hin/remote_ruby/releases/tag/v1.1)
+
+* Added a new option `ruby_executable` to the `ExecutionContext`
+* Fixed a bug when non-zero return code of SSH process was raising an incorrect excepion.
+
 ## [1.0](https://github.com/Nu-hin/remote_ruby/releases/tag/v1.0)
 
 ### Major changes
