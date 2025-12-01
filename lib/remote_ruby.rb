@@ -16,7 +16,7 @@ module RemoteRuby
     attr_accessor :cache_dir, :code_dir, :suppress_parser_warnings
 
     def root(*params)
-      root_dir = ::Gem::Specification.find_by_name('remote_ruby').gem_dir
+      root_dir = File.expand_path('..', __dir__)
       File.join(root_dir, *params)
     end
 

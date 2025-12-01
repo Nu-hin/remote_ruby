@@ -3,6 +3,8 @@
 require 'bundler/setup'
 require 'simplecov'
 
+REMOTE_RUBY_RSPEC_RUNNING = true
+
 SimpleCov.start do
   if ENV['CI']
     require 'simplecov-lcov'

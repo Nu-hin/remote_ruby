@@ -45,7 +45,9 @@ Here is a short example of how you can run your code remotely.
 
 require 'remote_ruby'
 
-remotely(host: 'my_ssh_server') do
+execution_context =  RemoteRuby::ExecutionContext.new(host: 'my_ssh_server')
+
+execution_context.execute do
   # Everything inside this block is executed on my_ssh_server
   puts 'Hello, RemoteRuby!'
 end
@@ -53,18 +55,24 @@ end
 
 ### How it works
 
-When you call `#remotely` or `RemoteRuby::ExecutionContext#execute`, the passed block source is read and is then transformed to a standalone Ruby script, which also includes serialization/deserialization of local variables and return value, and other features (see [compiler.rb](lib/remote_ruby/compiler.rb) for more detail).
+When you call `RemoteRuby::ExecutionContext#execute`, the passed block source is read and is then transformed to a standalone Ruby script, which also includes serialization/deserialization of local variables and return value, and other features (see [compiler.rb](lib/remote_ruby/compiler.rb) for more detail).
 
 RemoteRuby then opens an SSH connection to the specified host, copies the script to a temporary file on the host, and launches it remotely using the Ruby interpreter. Standard output and standard error streams of SSH client are being captured. Standard input is passed to the remote code as well.
 
 ### Key features
+
+Create a new execution context:
+
+```ruby
+execution_context =  RemoteRuby::ExecutionContext.new(host: 'my_ssh_server')
+```
 
 * Access local variables inside the remote block, just as in case of a regular block:
 
 ```ruby
 user_id = 1213
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   puts user_id # => 1213
 end
 ```
@@ -72,7 +80,7 @@ end
 * Access return value of the remote block, just as in case of a regular block:
 
 ```ruby
-res = remotely(host: 'my_ssh_server') do
+execution_context.execute do
   'My result'
 end
 
@@ -84,7 +92,7 @@ puts res # => My result
 ```ruby
 a = 1
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   a = 100
 end
 
@@ -95,7 +103,7 @@ puts a # => 100
 
 
 ```ruby
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   puts 'What is your name?'
   name = gets
   puts "Hello, #{name}!"
@@ -157,7 +165,7 @@ end
 The main class to work with is the `ExecutionContext`, which provides an `#execute` method:
 
 ```ruby
-my_server = ::RemoteRuby::ExecutionContext.new(host: 'my_ssh_server')
+my_server = RemoteRuby::ExecutionContext.new(host: 'my_ssh_server')
 
 my_server.execute do
   puts Dir.pwd
@@ -165,20 +173,6 @@ end
 ```
 
 You can easily define more than one context to access several servers.
-
-Along with `ExecutionContext#execute` method there is also `.remotely` method, which can be included from `RemoteRuby::Extensions` module. For instance, the code above is equivalent to the code below:
-
-```ruby
-include RemoteRuby::Extensions
-
-remotely(host: 'my_ssh_server') do
-  puts Dir.pwd
-end
-```
-
-All parameters passed to the `remotely` method will be passed to the underlying `ExecutionContext` initializer. The only exception is an optional `locals` parameter, which will be passed to the `#execute` method (see [below](#local-variables-and-return-value)).
-
-In all the examples in this document, where `.remote` method is used, it is assumed, that `RemoteRuby::Extensions` is included to the scope.
 
 ### Parameters
 
@@ -244,7 +238,7 @@ ec3 = RemoteRuby::ExecutionContext.new(
 Standard output and standard error streams from the remote process are captured, and then, depending on your parameters are either forwarded to local standard output/error or to the specified streams.
 
 ```ruby
-remotely(host: 'my_ssh_server', working_dir: '/home/john') do
+execution_context.execute do
   puts 'This is an output'
   warn 'This is a warning'
 end
@@ -255,7 +249,7 @@ end
 Remote script can receive data from standard input. By default the input is captured from client's standard input, but this can be set to any readable stream using `in_stream` argument to the `ExecutionContext` initializer.
 
 ```ruby
-name = remotely(host: 'my_ssh_server') do
+name = execution_context.execute do
   puts "What is your name?"
   gets
 end
@@ -273,16 +267,8 @@ If you do not want all local variables to be sent to the server, you can explici
 some_number = 3
 name = 'Alice'
 
-# Explicitly setting locals with .remotely method
-remotely(locals: { name: 'John Doe' }, host: 'my_ssh_server') do
-  # name is 'John Doe', not 'Alice'
-  puts name # => John Doe
-  # some_number is not defined
-  puts some_number # undefined local variable or method `some_number'
-end
-
 # Explicitly setting locals with ExecutionContext#execute method
-execution_context = ::RemoteRuby::ExecutionContext.new(host: 'my_ssh_server')
+execution_context = RemoteRuby::ExecutionContext.new(host: 'my_ssh_server')
 
 execution_context.execute(name: 'John Doe') do
   # name is 'John Doe', not 'Alice'
@@ -298,7 +284,7 @@ However, some objects cannot be serialized. In this case, RemoteRuby will print 
 # We cannot serialize a file stream
 file = File.open('some_file.txt', 'rb')
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   puts file.read # undefined local variable or method `file'
 end
 ```
@@ -308,7 +294,7 @@ Moreover, if such variables are assigned to in the remote block, their value **w
 ```ruby
 file = File.open('some_file.txt', 'rb')
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   file = 3 # No exception here, as we are assigning
 end
 
@@ -322,7 +308,7 @@ If the variable can be serialized, but the remote server context lacks the knowl
 # Something, that is not present on the remote server
 special_thing = SomeSpecialGem::SpecialThing.new
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   puts defined?(special_thing) # => local-variable
   # special_thing is defined, but its value is nil
   puts special_thing.nil? # => true
@@ -353,7 +339,7 @@ end
 
 special_thing = SomeSpecialGem::SpecialThing.new
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   puts defined?(special_thing) # => nil
 
   # special_thing is not defined
@@ -370,7 +356,7 @@ If remote block returns a value that cannot be deserialized on the client side, 
 ```ruby
 # Unsupported return value example
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   # this is not present in the client context
   server_specific_var = ServerSpecificClass.new
 end
@@ -383,7 +369,7 @@ end
 
 my_local = nil
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   # this is not present in the client context
   my_local = ServerSpecificClass.new
   nil
@@ -397,7 +383,7 @@ To avoid these situations, do not assign/return values unsupported on the client
 ```ruby
 # No exception
 
-remotely(host: 'my_ssh_server') do
+execution_context.execute do
   # this is not present in the client context
   server_specific_var = ServerSpecificClass.new
   nil
@@ -413,7 +399,8 @@ a = 1
 b = 2
 res = 'unchanged'
 begin
-  res = remotely(host: 'my_ssh_server', dump_code: true) do
+  execution_context =  RemoteRuby::ExecutionContext.new(host: 'my_ssh_server', dump_code: true)
+  res = execution_context.execute do
     a = 10
     raise StandardError.new('remote error text')
     b = 20
@@ -464,7 +451,9 @@ RemoteRuby allows you to save the result of previous block excutions in the loca
 
 require 'remote_ruby'
 
-res = remotely(host: 'my_ssh_server', save_cache: true, use_cache: true) do
+execution_context =  RemoteRuby::ExecutionContext.new(host: 'my_ssh_server', save_cache: true, use_cache: true)
+
+res = execution_context.execute do
   60.times do
     puts 'One second has passed'
     sleep 1
@@ -486,18 +475,18 @@ RemoteRuby calculates the cache file to use, based on the code you pass to the r
 
 Text mode allows to treat the output and/or the standard error of the remote process as text. If it is enabled, the server output is prefixed with some string, which makes it easier to distinguish local output, and the output coming from the remote code. Additionally, it may help distinguishing when the output is taken from cache.
 
-The text mode is controlled by the `text_mode` parameter to the `::RemoteRuby::ExecutionContext` initializer, and is `false` by default.
+The text mode is controlled by the `text_mode` parameter to the `RemoteRuby::ExecutionContext` initializer, and is `false` by default.
 
 The easiest way to enable it is to set `text_mode` to `true`.
 
 ```ruby
-ctx = ::RemoteRuby::ExecutionContext.new(
+execution_context = RemoteRuby::ExecutionContext.new(
   host: 'my_ssh_server',
   user: 'jdoe'
   text_mode: true,
 )
 
-ctx.execute do
+execution_context.execute do
   puts "This is a greeting"
   warn "This is an error"
 end
@@ -516,7 +505,7 @@ By default, the prefixes for standard output and standard error can be different
 You can fine-tune the text mode to your needs by passing a hash as a value to `text_mode` parameter:
 
 ```ruby
-ctx = ::RemoteRuby::ExecutionContext.new(
+execution_context = RemoteRuby::ExecutionContext.new(
   host: 'my_ssh_server',
   user: 'jdoe'
   text_mode: {
@@ -540,7 +529,9 @@ It is reasonable to avoid text mode if you want to put binary data to the standa
 # copy_avatar.rb
 # Reads a file from remote server and writes it to client's standard output.
 
-remotely(host: 'my_ssh_server', text_mode: false) do
+execution_context =  RemoteRuby::ExecutionContext.new(host: 'my_ssh_server', text_mode: false)
+
+execution_context.execute do
   STDOUT.write File.read('avatar.jpg')
 end
 ```
@@ -571,7 +562,7 @@ RemoteRuby can be extended with plugins. Plugins are used to insert additional c
 
 RemoteRuby plugin must be a class. Instances of a plugin class must respond to `#code_header` method without any parameters. Plugins are instantiated when the `ExecutionContext` is created.
 
-You may inherit your class from `::RemoteRuby::Plugin` class but that is not necessary.
+You may inherit your class from `RemoteRuby::Plugin` class but that is not necessary.
 
 Let's take a look at an example plugin:
 
@@ -603,12 +594,12 @@ end
 Now, when creating an `ExecutionContext` we can use `username_printer` argument to the initializer. Plugin argument value must be a hash. All hash values will be passed to plugin class initializer as name arguments.
 
 ```ruby
-  ec = RemoteRuby::ExecutionContext.new(
+  execution_context =  RemoteRuby::ExecutionContext.new(
     host: 'my_ssh_server',
     username_printer: { username: ENV['USER'] }
   )
 
-  ec.execute do
+  execution_context.execute do
     puts "Hello world!"
   end
 ```
@@ -629,7 +620,7 @@ RemoteRuby can load Rails environment for you, if you want to execute a script i
 
 require 'remote_ruby'
 
-remote_service = ::RemoteRuby::ExecutionContext.new(
+remote_service = RemoteRuby::ExecutionContext.new(
   host: 'rails-server',
   working_dir: '/var/www/rails_app/www/current',
   # This specifies ENV['RAILS_ENV'] and can be changed

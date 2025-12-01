@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2](https://github.com/Nu-hin/remote_ruby/releases/tag/v1.2)
+
+### Major changes
+
+* `.remotely` method is deprecated. Use `ExecutionContext#execute` directly.
+
 ## [1.1](https://github.com/Nu-hin/remote_ruby/releases/tag/v1.1)
 
 * Added a new option `ruby_executable` to the `ExecutionContext`
