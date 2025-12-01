@@ -4,12 +4,13 @@ module RemoteRuby
   # Builds connection adapter based on the provided parameters.
   # Can wrap the adapter in caching and text mode adapters.
   class AdapterBuilder
-    attr_reader :adapter_params, :use_cache, :save_cache, :text_mode
+    attr_reader :adapter_params, :use_cache, :save_cache, :cache_ttl, :text_mode
 
-    def initialize(adapter_klass: nil, use_cache: false, save_cache: false, **params)
+    def initialize(adapter_klass: nil, use_cache: false, save_cache: false, cache_ttl: 0, **params)
       @adapter_klass = adapter_klass
       @use_cache = use_cache
       @save_cache = save_cache
+      @cache_ttl = cache_ttl
       @adapter_params = params
 
       RemoteRuby.ensure_cache_dir if save_cache
@@ -67,9 +68,22 @@ module RemoteRuby
       File.join(RemoteRuby.cache_dir, hsh)
     end
 
+    def expire_cache(fnames)
+      return if cache_ttl <= 0
+
+      expired = fnames.any? do |fname|
+        File.exist?(fname) && Time.now - File.mtime(fname) > cache_ttl
+      end
+
+      fnames.each { |f| FileUtils.rm_f(f) } if expired
+      nil
+    end
+
     def cache_exists?(code_hash)
-      hsh = cache_path(code_hash)
-      File.exist?("#{hsh}.stdout") || File.exist?("#{hsh}.stderr") || File.exist?("#{hsh}.result")
+      path = cache_path(code_hash)
+      fnames = ["#{path}.stdout", "#{path}.stderr", "#{path}.result"]
+      expire_cache(fnames)
+      fnames.any? { |f| File.exist?(f) }
     end
   end
 end

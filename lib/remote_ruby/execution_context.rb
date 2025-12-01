@@ -49,6 +49,10 @@ module RemoteRuby
       context.result
     end
 
+    def on_execute_code(&block)
+      @on_execute_code_block = (block if block_given?)
+    end
+
     private
 
     attr_reader :dump_code, :in_stream, :out_stream, :err_stream, :plugins, :adapter_builder, :text_mode_builder
@@ -87,6 +91,8 @@ module RemoteRuby
 
       adapter = adapter_builder.build(compiler.code_hash)
       adapter = text_mode_builder.build(adapter)
+
+      @on_execute_code_block&.call(adapter, compiler)
 
       # rubocop:disable Security/MarshalLoad
       Marshal.load(adapter.open(compiler.compiled_code, in_stream, out_stream, err_stream))

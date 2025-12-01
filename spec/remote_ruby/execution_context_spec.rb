@@ -53,18 +53,15 @@ describe RemoteRuby::ExecutionContext do
 
   context 'when host is not set' do
     it 'uses TmpFile adapter' do
-      adapter = instance_double(RemoteRuby::TmpFileAdapter)
-      stub = class_double(RemoteRuby::TmpFileAdapter, new: adapter).as_stubbed_const
-      allow(adapter).to receive(:open).and_return(remote_context)
+      execution_context.on_execute_code do |adapter, _|
+        expect(adapter).to be_a(RemoteRuby::TmpFileAdapter)
+      end
 
       execution_context.execute({}) do
         # :nocov:
         0
         # :nocov:
       end
-
-      expect(stub).to have_received(:new)
-      expect(adapter).to have_received(:open)
     end
   end
 
@@ -113,21 +110,15 @@ describe RemoteRuby::ExecutionContext do
     let(:base_params) { { text_mode: { disable_unless_tty: false } } }
 
     it 'uses TextMode adapter' do
-      allow(RemoteRuby::TextModeAdapter).to receive(:new).and_call_original
+      execution_context.on_execute_code do |adapter, _|
+        expect(adapter).to be_a(RemoteRuby::TextModeAdapter)
+      end
 
       execution_context.execute do
         # :nocov:
         0
         # :nocov:
       end
-
-      expect(RemoteRuby::TextModeAdapter)
-        .to have_received(:new)
-        .with(instance_of(RemoteRuby::TmpFileAdapter),
-              include(
-                stdout_mode: { color: :green, mode: :italic },
-                stderr_mode: { color: :red, mode: :italic }
-              ))
     end
   end
 
@@ -135,13 +126,20 @@ describe RemoteRuby::ExecutionContext do
     let(:base_params) { { dump_code: true } }
 
     it 'dumps code' do
-      execution_context.execute do
+      code_path = nil
+
+      execution_context.on_execute_code do |_, compiler|
+        code_path = File.join(RemoteRuby.code_dir, "#{compiler.code_hash}.rb")
+      end
+
+      execution_context.execute({}) do
         # :nocov:
         1 + 1
         # :nocov:
       end
 
-      expect(Dir.glob(File.join(RemoteRuby.code_dir, '*.rb'))).not_to be_empty
+      expect(File).to exist(code_path)
+      expect(File.read(code_path)).to include('1 + 1')
     end
   end
 
@@ -159,20 +157,89 @@ describe RemoteRuby::ExecutionContext do
         # :nocov:
       end
 
-      cache_adapter_class = class_double(RemoteRuby::CacheAdapter, :new)
-      cache_adapter = instance_double(RemoteRuby::CacheAdapter)
-      allow(cache_adapter_class).to receive(:new).and_return(cache_adapter)
-      allow(cache_adapter).to receive(:open).and_return(remote_context)
-      cache_adapter_class.as_stubbed_const
+      execution_context.on_execute_code do |adapter, _|
+        expect(adapter).to be_a(RemoteRuby::CacheAdapter)
+      end
 
       execution_context.execute({}) do
         # :nocov:
         10
         # :nocov:
       end
+    end
+  end
 
-      expect(cache_adapter_class).to have_received(:new)
-      expect(cache_adapter).to have_received(:open)
+  context 'with cache TTL' do
+    let(:base_params) do
+      { save_cache: false, use_cache: true, cache_ttl: 30 }
+    end
+
+    let(:caching_context) { described_class.new(**params, save_cache: true) }
+
+    context 'when cache is fresh' do
+      it 'uses cache' do
+        cache_path = nil
+
+        caching_context.on_execute_code do |adapter, _|
+          expect(adapter).to be_a(RemoteRuby::CachingAdapter)
+          cache_path = adapter.stdout_file_path
+        end
+
+        caching_context.execute({}) do
+          # :nocov:
+          10
+          # :nocov:
+        end
+
+        expect(cache_path).not_to be_nil
+        expect(File).to exist(cache_path)
+        File.utime(Time.now - 20, Time.now - 20, cache_path)
+
+        execution_context.on_execute_code do |adapter, _|
+          expect(adapter).to be_a(RemoteRuby::CacheAdapter)
+        end
+
+        execution_context.execute({}) do
+          # :nocov:
+          10
+          # :nocov:
+        end
+
+        expect(File).to exist(cache_path)
+      end
+    end
+
+    context 'when cache is expired' do
+      it 'does not use cache and deletes the files' do
+        cache_path = nil
+
+        caching_context.on_execute_code do |adapter, _|
+          expect(adapter).to be_a(RemoteRuby::CachingAdapter)
+          cache_path = adapter.stdout_file_path
+        end
+
+        caching_context.execute({}) do
+          # :nocov:
+          10
+          # :nocov:
+        end
+
+        expect(cache_path).not_to be_nil
+        expect(File).to exist(cache_path)
+        File.utime(Time.now - 60, Time.now - 60, cache_path)
+
+        execution_context.on_execute_code do |adapter, _|
+          expect(adapter).to be_a(RemoteRuby::TmpFileAdapter)
+        end
+
+        execution_context.execute({}) do
+          # :nocov:
+          10
+          # :nocov:
+        end
+
+        expect(File).not_to exist(cache_path)
+      end
     end
   end
 

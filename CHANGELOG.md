@@ -4,6 +4,7 @@
 
 ### Major changes
 
+* Added a parameter to [configure cache TTL](README.md#cache-cleanup-and-ttl)
 * `.remotely` method is deprecated. Use `ExecutionContext#execute` directly.
 
 ## [1.1](https://github.com/Nu-hin/remote_ruby/releases/tag/v1.1)

@@ -6,6 +6,8 @@ module RemoteRuby
   # An adapter decorator which extends the adapter passed in to its
   # initializer to cache stdout and stderr to local filesystem
   class CachingAdapter < ConnectionAdapter
+    attr_reader :cache_path, :adapter
+
     def initialize(cache_path:, adapter:)
       super
       @cache_path = cache_path
@@ -29,9 +31,19 @@ module RemoteRuby
       adapter.connection_name
     end
 
-    private
+    def stdout_file_path
+      "#{cache_path}.stdout"
+    end
 
-    attr_reader :cache_path, :adapter
+    def stderr_file_path
+      "#{cache_path}.stderr"
+    end
+
+    def result_file_path
+      "#{cache_path}.result"
+    end
+
+    private
 
     def with_cache
       stderr_cache = File.open(stderr_file_path, 'wb')
@@ -43,18 +55,6 @@ module RemoteRuby
       stdout_cache.close
       stderr_cache.close
       result_cache.close
-    end
-
-    def stdout_file_path
-      "#{cache_path}.stdout"
-    end
-
-    def stderr_file_path
-      "#{cache_path}.stderr"
-    end
-
-    def result_file_path
-      "#{cache_path}.result"
     end
   end
 end

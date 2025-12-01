@@ -25,6 +25,7 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
   * [Return value and remote assignments](#return-value-and-remote-assignments)
   * [Error handling](#error-handling)
   * [Caching](#caching)
+    * [Cache cleanup and TTL](#cache-cleanup-and-ttl)
   * [Text mode](#text-mode)
   * [Plugins](#plugins)
     * [Adding custom plugins](#adding-custom-plugins)
@@ -184,6 +185,7 @@ You can easily define more than one context to access several servers.
 | working_dir | String | no | '~' if running over SSH, or current dir, if running locally | Path to the directory where the script should be executed |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
 | save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output, error, and result streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
+| cache_ttl | Integer | no | 0 | Cache TTL in seconds. If RemoteRuby reads a cache file which is older than specified value, it will delete it and proceed as if it was not present |
 | in_stream | Stream open for reading | no | `$stdin` | Source stream for server standard input |
 | out_stream | Stream open for writing | no | `$stdout` | Redirection stream for server standard output |
 | err_stream | Stream open for writing | no | `$stderr` | Redirection stream for server standard error|
@@ -468,7 +470,38 @@ You can specify where to put your cache files explicitly, by [configuring](#conf
 
 RemoteRuby calculates the cache file to use, based on the code you pass to the remote block, as well as on `ExecutionContext` 'contextual' parameters (e. g. server or working directory) and serialized local variables. Therefore, if you change anything in your remote block, local variables (passed to the block), or in any of the 'contextual' parameters, RemoteRuby will use different cache file. However, if you revert all your changes back, the old file will be used again.
 
-**IMPORTANT**: RemoteRuby does not know when to clear the cache. Therefore, it is up to you to take care of cleaning the cache when you no longer need it. This is especially important if your output can contain sensitive data.
+#### Cache cleanup and TTL
+
+You can control cache expiration by passing a `cache_ttl` parameter (in seconds) to `ExecutionContext` initializer.
+
+A `cache_ttl` of `0` (default) disables expiration checks; RemoteRuby will never remove old cache files.
+When `cache_ttl` is a positive integer, RemoteRuby validates the timestamp of a matching cache entry. If the entry is older than the TTL, it is deleted and treated as a cache miss.
+
+```ruby
+execution_context = RemoteRuby::ExecutionContext.new(
+  host: 'my_ssh_host',
+  use_cache: true,
+  save_cache: true,
+  cache_ttl: 1800 # 30 minutes
+)
+
+# Executes remotely only if the previous cached result is older than 30 minutes
+execution_context.execute do
+  User.find(email: 'j.doe@example.com').last_login_date
+end
+```
+
+**IMPORTANT** TTL only prevents RemoteRuby from *using* stale cache entries. It does **not** perform automatic cache cleanup. Expired files are removed only when the same code, locals, and execution context are evaluated again.
+
+If you change any of those parameters, older cache files may remain indefinitely.
+
+RemoteRuby will not delete cache files when:
+
+* The script is never invoked again.
+* Execution context (code, locals, parameters) changes and no longer matches prior entries.
+* `cache_ttl` is `0`.
+
+You are responsible for cleaning up cache files when they are no longer needed, especially if the cache may contain sensitive data.
 
 ### Text mode
 
