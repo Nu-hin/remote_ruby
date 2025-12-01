@@ -183,8 +183,7 @@ You can easily define more than one context to access several servers.
 | ruby_executable | String | no | `ruby` | Absolute path to Ruby executable on the remote host, or executable name, reachable from $PATH |
 | working_dir | String | no | '~' if running over SSH, or current dir, if running locally | Path to the directory where the script should be executed |
 | use_cache | Boolean | no | `false` | Specifies if the cache should be used for execution of the block (if the cache is available). Refer to the [Caching](#caching) section to find out more about caching. |
-| save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output and error streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
-RemoteRuby will try to create it. Refer to the [Caching](#caching) section to find out more about caching. |
+| save_cache | Boolean | no | `false` | Specifies if the result of the block execution (i.e. output, error, and result streams) should be cached for the subsequent use. Refer to the [Caching](#caching) section to find out more about caching. |
 | in_stream | Stream open for reading | no | `$stdin` | Source stream for server standard input |
 | out_stream | Stream open for writing | no | `$stdout` | Redirection stream for server standard output |
 | err_stream | Stream open for writing | no | `$stderr` | Redirection stream for server standard error|
