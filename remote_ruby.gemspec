@@ -32,9 +32,9 @@ Gem::Specification.new do |spec|
   end
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'base64', '~> 0.2'
+  spec.add_dependency 'base64', '~> 0.3'
   spec.add_dependency 'colorize', '~> 1.0'
-  spec.add_dependency 'logger', '~> 1.6'
+  spec.add_dependency 'logger', '~> 1.7'
   spec.add_dependency 'method_source', '~> 1.1'
   spec.add_dependency 'net-ssh', '~> 7.3'
   spec.add_dependency 'ostruct', '~> 0.6'
