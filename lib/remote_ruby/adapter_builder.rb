@@ -26,8 +26,8 @@ module RemoteRuby
       end
     end
 
-    def build(code_hash)
-      res = adapter_klass.new(**adapter_params)
+    def build(code_hash, encryption_key_base64: nil)
+      res = adapter_klass.new(**adapter_params, encryption_key_base64: encryption_key_base64)
 
       cache_mode = use_cache && cache_exists?(code_hash)
 

@@ -3,7 +3,7 @@
 ## [1.2](https://github.com/Nu-hin/remote_ruby/releases/tag/v1.2)
 
 ### Major changes
-
+* Added [remote script encryption](README.md#encryption)
 * Added a parameter to [configure cache TTL](README.md#cache-cleanup-and-ttl)
 * `.remotely` method is deprecated. Use `ExecutionContext#execute` directly.
 

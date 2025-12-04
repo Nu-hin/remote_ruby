@@ -1,19 +1,23 @@
+# frozen_string_literal: true
+
 # Set up Bundler if Gemfile is present
 require 'bundler/setup' if File.exist?('Gemfile')
 
 <%= inline_file('remote_context.rb') %>
 
-__context__ = RemoteRuby::RemoteContext.new(__FILE__)
+__rr_context__ = RemoteRuby::RemoteContext.new(__FILE__)
 
+<% if client_locals_base64.any? %>
 # Unmarshalling local variables
 <% client_locals_base64.each do |name, base64_val| %>
-<%= name %> = __context__.unmarshal(:<%= name %>, '<%= base64_val %>')
+<%= name %> = __rr_context__.unmarshal(:<%= name %>, '<%= base64_val %>')
+<% end %>
 <% end %>
 
 $stdout.sync = true
 $stderr.sync = true
 
-__context__.execute do
+__rr_context__.execute do
 <% if plugins.any? %>
   # Start of plugin-added code
 <%plugins.each do |pl| %>
@@ -29,4 +33,4 @@ __context__.execute do
   # End of client code
 end
 
-File.binwrite(__FILE__, __context__.dump)
+File.binwrite(__FILE__, __rr_context__.dump)

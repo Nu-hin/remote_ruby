@@ -4,6 +4,7 @@ require 'digest'
 require 'fileutils'
 
 require 'remote_ruby/compiler'
+require 'remote_ruby/encrypter'
 require 'remote_ruby/connection_adapter'
 require 'remote_ruby/locals_extractor'
 require 'remote_ruby/source_extractor'
@@ -21,6 +22,7 @@ module RemoteRuby
       add_plugins(params)
       configure_streams(params)
       @dump_code = params.delete(:dump_code) || false
+      @encrypt = params.key?(:encrypt) ? params.delete(:encrypt) : true
       @text_mode_builder = RemoteRuby::TextModeBuilder.new(
         out_tty: out_stream.tty?,
         err_tty: err_stream.tty?,
@@ -55,7 +57,8 @@ module RemoteRuby
 
     private
 
-    attr_reader :dump_code, :in_stream, :out_stream, :err_stream, :plugins, :adapter_builder, :text_mode_builder
+    attr_reader :dump_code, :in_stream, :out_stream, :err_stream, :plugins, :adapter_builder, :text_mode_builder,
+                :encrypt
 
     def add_plugins(params)
       @plugins = ::RemoteRuby::Plugin.build_plugins(params)
@@ -89,13 +92,15 @@ module RemoteRuby
     def execute_code(compiler)
       write_code(compiler.code_hash, compiler.compiled_code)
 
-      adapter = adapter_builder.build(compiler.code_hash)
+      encrypter = RemoteRuby::Encrypter.new(compiler.compiled_code) if encrypt
+
+      adapter = adapter_builder.build(compiler.code_hash, encryption_key_base64: encrypter&.key_base64)
       adapter = text_mode_builder.build(adapter)
 
-      @on_execute_code_block&.call(adapter, compiler)
+      @on_execute_code_block&.call(adapter, compiler, encrypter)
 
       # rubocop:disable Security/MarshalLoad
-      Marshal.load(adapter.open(compiler.compiled_code, in_stream, out_stream, err_stream))
+      Marshal.load(adapter.open(encrypter&.compiled_code || compiler.compiled_code, in_stream, out_stream, err_stream))
       # rubocop:enable Security/MarshalLoad
     end
 

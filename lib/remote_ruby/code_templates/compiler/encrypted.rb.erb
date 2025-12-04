@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+require 'openssl'
+require 'base64'
+require 'digest'
+
+def __rr__decrypted_script__
+  raw_key = ARGV.shift or exit!(1)
+  key = Base64.decode64(raw_key)
+
+  encrypted = Base64.decode64('<%= encrypted_script_base64 %>')
+  iv = encrypted[0, 16]
+  ciphertext = encrypted[16..]
+
+  cipher = OpenSSL::Cipher.new('aes-256-cbc')
+  cipher.decrypt
+  cipher.key = key
+  cipher.iv = iv
+
+  begin
+    cipher.update(ciphertext) + cipher.final
+  rescue OpenSSL::Cipher::CipherError
+    exit!(2)
+  end
+end
+
+eval(__rr__decrypted_script__, TOPLEVEL_BINDING, __FILE__, 1)

@@ -10,9 +10,10 @@ module RemoteRuby
   class TmpFileAdapter < ::RemoteRuby::ConnectionAdapter
     attr_reader :working_dir
 
-    def initialize(working_dir: Dir.pwd)
+    def initialize(working_dir: Dir.pwd, encryption_key_base64: nil)
       super
       @working_dir = working_dir
+      @encryption_key_base64 = encryption_key_base64
     end
 
     def open(code, stdin, stdout, stderr)
@@ -46,6 +47,8 @@ module RemoteRuby
 
     protected
 
+    attr_reader :encryption_key_base64
+
     def with_temp_file(code)
       f = Tempfile.create('remote_ruby')
       f.write(code)
@@ -56,7 +59,11 @@ module RemoteRuby
     end
 
     def command(code_path)
-      "cd \"#{working_dir}\" && ruby \"#{code_path}\""
+      if encryption_key_base64.nil?
+        "cd \"#{working_dir}\" && ruby \"#{code_path}\""
+      else
+        "cd \"#{working_dir}\" && ruby \"#{code_path}\" \"#{encryption_key_base64}\""
+      end
     end
   end
 end

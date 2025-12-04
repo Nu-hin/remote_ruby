@@ -27,6 +27,7 @@ RemoteRuby allows you to execute Ruby code on remote servers via SSH right from 
   * [Caching](#caching)
     * [Cache cleanup and TTL](#cache-cleanup-and-ttl)
   * [Text mode](#text-mode)
+  * [Encryption](#encryption)
   * [Plugins](#plugins)
     * [Adding custom plugins](#adding-custom-plugins)
     * [Rails](#rails)
@@ -191,6 +192,7 @@ You can easily define more than one context to access several servers.
 | err_stream | Stream open for writing | no | `$stderr` | Redirection stream for server standard error|
 | text_mode | Boolean or Hash | no | `false` | Specifies, if the connection should be run in text mode. See [Text Mode](#text-mode) section below to find out more about text mode. |
 | dump_code | Boolean | no | `false` | When set to true, the compiled script that will be run on the remote server will be dumped to a local file for inspection. See [Configuration](#configuration) to configure where the code is written. |
+| encrypt | Boolean | no | `true` | When true, the generated Ruby code will be encrypted before deploying. During execution, RemoteRuby passes the encryption key to the remote script as a command line paramter |
 
 ### SSH Parameters
 
@@ -326,7 +328,7 @@ If RemoteRuby cannot deserialize variable on server side, it will print a warnin
 It is possible to ignore certain types, so that RemoteRuby will never try to send variables of these types to the remote host. This can be done by adding configuration:
 
 ```ruby
-RemoteRuby::Configure do |c|
+RemoteRuby.configure do |c|
   c.ignore_types SomeSpecialGem::SpecialThing
 end
 ```
@@ -334,7 +336,7 @@ end
 If a type is ignored, the remote block will behave as if the local variable is not defined:
 
 ```ruby
-RemoteRuby::Configure do |c|
+RemoteRuby.configure do |c|
   c.ignore_types SomeSpecialGem::SpecialThing
 end
 
@@ -586,6 +588,15 @@ The complete list of text mode parameters is in the table below:
 | stdout_mode | Hash | `{ color: :green, mode: :italic }` | Text effects and colors applied to the standard output prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
 | stderr_mode | Hash | `{ color: :red, mode: :italic }` | Text effects and colors applied to the standard error prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
 | cache_mode | Hash | `{ color: :blue, mode: :bold }` | Text effects and colors applied to the cache prefix. See [colorize gem](https://github.com/fazibear/colorize) for available parameters.
+
+### Encryption
+
+By default, RemoteRuby encrypts scripts using **AES-256-CBC** before deploying them to the remote host. If RemoteRuby crashes or exits without removing the temporary file, the file remains encrypted, preventing any extraction of its contents (including local variables). When executing the remote script, RemoteRuby passes a randomly generated encryption key via the command line. A new key is generated on every run, even when the script and execution context are unchanged.
+
+You can disable encryption by passing `encrypt: false` to `RemoteRuby::ExecutionContext.new`.
+
+**Note:** If you instruct RemoteRuby to dump the script locally (see [Error Handling](#error-handling)) by setting `dump_code: true`, the dumped file will **not** be encrypted.
+
 
 ### Plugins
 RemoteRuby can be extended with plugins. Plugins are used to insert additional code to the script, which is executed in the remote context. There is also a built-in plugin that allows for automatically loading Rails environment.

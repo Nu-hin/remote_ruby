@@ -8,14 +8,16 @@ module RemoteRuby
   class SSHAdapter < ConnectionAdapter
     UnableToExecuteError = Class.new(StandardError)
 
-    attr_reader :host, :config, :working_dir, :user, :ruby_executable
+    attr_reader :host, :config, :working_dir, :user, :ruby_executable, :encryption_key_base64
 
-    def initialize(host:, working_dir: nil, use_ssh_config_file: true, ruby_executable: 'ruby', **params)
+    def initialize(host:, working_dir: nil, use_ssh_config_file: true, ruby_executable: 'ruby',
+                   encryption_key_base64: nil, **params)
       super
       @host = host
       @working_dir = working_dir
       @config = Net::SSH.configuration_for(@host, use_ssh_config_file)
       @ruby_executable = ruby_executable
+      @encryption_key_base64 = encryption_key_base64
 
       @config = @config.merge(params)
       @user = @config[:user]
@@ -107,7 +109,11 @@ module RemoteRuby
     end
 
     def run_code(ssh, fname, stdin, stdout, stderr)
-      cmd = "cd '#{working_dir}' && #{ruby_executable} \"#{fname}\""
+      cmd = if encryption_key_base64.nil?
+              "cd '#{working_dir}' && #{ruby_executable} \"#{fname}\""
+            else
+              "cd '#{working_dir}' && #{ruby_executable} \"#{fname}\" \"#{encryption_key_base64}\""
+            end
       run_remote_process(ssh, cmd, stdin, stdout, stderr)
     end
 
